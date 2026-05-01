@@ -3,72 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wealth Pro</title>
+    <title>Wealth Pro - Investimentos</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="app">
-        <!-- TELA LOGIN -->
+        
+        <!-- TELA: LOGIN -->
         <section id="page-login" class="page active">
-            <div class="auth-header"><h1>WEALTH</h1><p class="auth-subtitle">Faça login para acompanhar seus lucros.</p></div>
-            <div class="form-box">
-                <input type="text" id="l-phone" placeholder="Número de Telefone" class="input-tiny">
-                <input type="password" id="l-pass" placeholder="Senha" class="input-tiny">
-                <div class="captcha-box">
-                    <div id="l-cap-val" class="captcha-val">----</div>
-                    <input type="text" id="l-cap-in" placeholder="Código" class="input-tiny" style="width: 100px; margin-bottom:0">
+            <div class="auth-container">
+                <div class="auth-header">
+                    <h1>WEALTH</h1>
+                    <p class="auth-subtitle">Bem-vindo de volta! Faça login para gerir os seus ativos e lucros diários.</p>
                 </div>
-                <!-- Botão com ID e Onclick Corretos -->
-                <button id="btn-login-action" class="btn btn-saq" onclick="doLogin()">Entrar na Conta</button>
-                <p class="auth-link" onclick="showPage('page-register')">Novo aqui? <span>Criar nova conta</span></p>
+                
+                <div class="form-box">
+                    <input type="text" id="l_phone" placeholder="Número de Telefone" class="input-tiny">
+                    <input type="password" id="l_pass" placeholder="Senha" class="input-tiny">
+                    
+                    <div class="captcha-box">
+                        <div id="l_cap_val" class="captcha-display"></div>
+                        <input type="text" id="l_cap_in" placeholder="Código" class="input-captcha">
+                    </div>
+
+                    <button class="btn btn-blue" onclick="handleLogin()">Aceder Conta</button>
+                    <p class="auth-link" onclick="goTo('page-register')">Novo por aqui? <span>Criar nova conta</span></p>
+                </div>
             </div>
         </section>
 
-        <!-- TELA REGISTRO -->
+        <!-- TELA: REGISTRO -->
         <section id="page-register" class="page">
-            <div class="auth-header"><h2>Criar Conta</h2><p class="auth-subtitle">Comece sua jornada financeira hoje.</p></div>
-            <div class="form-box">
-                <input type="text" id="r-phone" placeholder="Número de Telefone" class="input-tiny">
-                <input type="text" id="r-name" placeholder="Nome Completo" class="input-tiny">
-                <input type="password" id="r-pass" placeholder="Senha" class="input-tiny">
-                <input type="password" id="r-confirm" placeholder="Confirmar Senha" class="input-tiny">
-                <input type="text" id="r-invite" placeholder="Código de Convite" class="input-tiny">
-                <div class="captcha-box">
-                    <div id="r-cap-val" class="captcha-val">----</div>
-                    <input type="text" id="r-cap-in" placeholder="Código" class="input-tiny" style="width: 100px; margin-bottom:0">
+            <div class="auth-container">
+                <div class="auth-header">
+                    <h2>Bem-vindo à Wealth</h2>
+                    <p class="auth-subtitle">Crie sua conta profissional e comece a rentabilizar o seu capital com segurança.</p>
                 </div>
-                <!-- Botão com ID e Onclick Corretos -->
-                <button id="btn-register-action" class="btn btn-dep" onclick="doRegister()">Registrar Minha Conta</button>
-                <p class="auth-link" onclick="showPage('page-login')">Já tem conta? <span>Fazer Login</span></p>
+
+                <div class="form-box">
+                    <input type="text" id="r_phone" placeholder="Número de Telefone" class="input-tiny">
+                    <input type="text" id="r_name" placeholder="Nome Completo" class="input-tiny">
+                    <input type="password" id="r_pass" placeholder="Senha" class="input-tiny">
+                    <input type="password" id="r_conf" placeholder="Confirmar Senha" class="input-tiny">
+                    <input type="text" id="r_invite" placeholder="Código de Convite" class="input-tiny">
+
+                    <div class="captcha-box">
+                        <div id="r_cap_val" class="captcha-display"></div>
+                        <input type="text" id="r_cap_in" placeholder="Código" class="input-captcha">
+                    </div>
+
+                    <button class="btn btn-green" onclick="handleRegister()">Criar Conta Agora</button>
+                    <p class="auth-link" onclick="goTo('page-login')">Já tem conta? <span>Entrar</span></p>
+                </div>
             </div>
         </section>
 
-        <!-- DASHBOARD (Início) -->
+        <!-- DASHBOARD (Aparece após login) -->
         <section id="page-home" class="page">
-            <div class="user-info">Olá, <span id="u-name">...</span> 👋<br><small id="cur-date"></small></div>
+            <div class="user-greeting">Olá, <span id="user_display_name">...</span> 👋<br><small id="display_date"></small></div>
             <div class="wealth-card">
-                <small>Saldo Disponível</small>
-                <div class="amount-text">MT <span id="u-balance">0.00</span></div>
-                <div class="badge-mzn">MZN 🇲🇿</div>
+                <small>Saldo Total</small>
+                <div class="balance-text">MT <span id="user_balance">0.00</span></div>
+                <div class="currency-badge">MZN 🇲🇿</div>
             </div>
-            <div class="grid-actions">
-                <button class="btn-action-sm btn-dep" onclick="showPage('page-deposit')">📥 Depositar</button>
-                <button class="btn-action-sm btn-saq" onclick="showPage('page-withdraw')">📤 Sacar</button>
+            <div class="action-grid">
+                <button class="btn-sm btn-green" onclick="goTo('page-deposit')">+ Depositar</button>
+                <button class="btn-sm btn-blue" onclick="goTo('page-withdraw')">$ Levantar</button>
             </div>
-            <h4 class="label-section">Plano Iniciante</h4>
-            <div id="plans-list"></div>
+            <h4 style="margin-top:25px">Plano Iniciante</h4>
+            <div id="plans_container"></div>
         </section>
 
-        <!-- BARRA DE NAVEGAÇÃO -->
-        <nav class="nav-bar" id="main-nav" style="display:none">
-            <div class="nav-item active" onclick="showPage('page-home', this)">🏠<br>Início</div>
-            <div class="nav-item" onclick="showPage('page-projects', this)">📂<br>Projetos</div>
-            <div class="nav-item" onclick="showPage('page-profits', this)">💰<br>Lucros</div>
-            <div class="nav-item" onclick="showPage('page-team', this)">👥<br>Equipe</div>
-            <div class="nav-item" onclick="showPage('page-account', this)">⚙️<br>Conta</div>
+        <!-- MENU INFERIOR -->
+        <nav class="bottom-nav" id="main-nav" style="display: none;">
+            <div class="nav-item active" onclick="goTo('page-home', this)">🏠<br>Início</div>
+            <div class="nav-item" onclick="goTo('page-projects', this)">📂<br>Projetos</div>
+            <div class="nav-item" onclick="goTo('page-profits', this)">💰<br>Lucros</div>
+            <div class="nav-item" onclick="goTo('page-team', this)">👥<br>Equipe</div>
+            <div class="nav-item" onclick="goTo('page-account', this)">⚙️<br>Conta</div>
         </nav>
     </div>
     <script src="app.js"></script>
 </body>
-</html>
+    </html>
