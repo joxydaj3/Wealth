@@ -1,39 +1,3 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wealth - Fintech</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-</head>
-<body>
-    <div id="app">
-        <!-- REGISTRO -->
-        <section id="page-register" class="page active">
-            <div style="text-align:center; padding: 40px 0;">
-                <h1 style="font-size: 45px; margin:0;">WEALTH</h1>
-                <p style="color: #888;">Bem-vindo à maior plataforma de investimentos de Moçambique.</p>
-            </div>
-            <input type="text" id="reg-phone" placeholder="Número de Telefone">
-            <input type="text" id="reg-name" placeholder="Nome Completo">
-            <input type="password" id="reg-pass" placeholder="Senha">
-            <input type="password" id="reg-confirm" placeholder="Confirmar Senha">
-            <input type="text" id="reg-invite" placeholder="Código de Convite">
-            <div class="captcha-box">Escreva: <strong style="color:var(--blue)">wealth2026</strong></div>
-            <input type="text" id="reg-captcha" placeholder="Digite o código acima">
-            <button class="btn-blue" onclick="handleRegister()" style="width:100%; padding:18px; border-radius:14px; border:none; font-weight:bold; background:var(--blue); color:white;">Criar Conta</button>
-            <p style="text-align:center; margin-top:20px;" onclick="showPage('page-login')">Já tem conta? Entrar</p>
-        </section>
-
-        <!-- LOGIN -->
-        <section id="page-login" class="page">
-            <div style="text-align:center; padding: 60px 0;"><h1>ENTRAR</h1></div>
-            <input type="text" id="log-phone" placeholder="Número de Telefone">
-            <input type="password" id="log-pass" placeholder="Senha">
-            <button class="btn-blue" onclick="handleLogin()" style="width:100%; padding:18px; border-radius:14px; border:none; font-weight:bold; background:var(--blue); color:white;">Aceder Conta</button>
-        </section>
-
         <!-- HOME -->
         <section id="page-home" class="page">
             <div style="padding: 10px 0;">Olá, <span id="u-name">Usuário</span> 👋<br><small id="cur-date" style="color:#6e84ab"></small></div>
