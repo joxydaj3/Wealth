@@ -95,17 +95,23 @@ app.post('/api/register', async (req, res) => {
     } catch (e) { res.status(400).json({ error: 'Telefone já registrado.' }); }
 });
 
-app.post('/api/login', async (req, res) => {
+ app.post('/api/login', async (req, res) => {
     const { phone, password } = req.body;
     if (phone === '862217807' && password === 'Joaquim10') {
         req.session.userId = 999; req.session.role = 'admin';
         return res.json({ success: true, role: 'admin' });
     }
     const user = db.prepare('SELECT * FROM users WHERE phone = ?').get(phone);
+    
     if (user && await bcrypt.compare(password, user.password)) {
+        if (user.status === 'banned') {
+            return res.status(403).json({ error: 'Sua conta foi banida. Fale com o suporte para assistência.' });
+        }
         req.session.userId = user.id; req.session.role = 'user';
         res.json({ success: true, role: 'user' });
-    } else res.status(401).json({ error: 'Credenciais inválidas' });
+    } else {
+        res.status(401).json({ error: 'Telefone ou senha incorretos.' });
+    }
 });
 
 // --- ROTAS DE USUÁRIO ---
@@ -190,25 +196,25 @@ app.get('/api/admin/full-stats', (req, res) => {
     res.json(stats);
 });
 
-// --- GESTÃO DE USUÁRIOS DETALHADA PARA O ADMIN ---
+// Banir/Desbanir
+app.post('/api/admin/user/status', (req, res) => {
+    const { userId, status } = req.body; // status: 'active' ou 'banned'
+    db.prepare("UPDATE users SET status = ? WHERE id = ?").run(status, userId);
+    res.json({ success: true });
+});
+
+// Detalhes extras dos usuários (Substitua a rota /api/admin/user-details)
 app.get('/api/admin/user-details', (req, res) => {
-    if (req.session.role !== 'admin') return res.status(403).send();
-    
     const users = db.prepare(`
-        SELECT u.id, u.name, u.phone, u.balance, u.ref_code, u.password as pass_hash,
-        (SELECT sum(amount) FROM transactions WHERE user_id = u.id AND type = 'deposit' AND status = 'approved') as total_dep,
-        (SELECT sum(amount) FROM transactions WHERE user_id = u.id AND type = 'withdraw' AND status = 'approved') as total_with,
-        (SELECT sum(amount) FROM transactions WHERE user_id = u.id AND type = 'profit') as total_earned
+        SELECT u.id, u.name, u.phone, u.balance, u.ref_code, u.status, u.password as pass_hash,
+        (SELECT count(*) FROM users WHERE invited_by = u.ref_code) as total_invites,
+        (SELECT count(DISTINCT user_id) FROM transactions WHERE type='deposit' AND status='approved' AND user_id IN (SELECT id FROM users WHERE invited_by = u.ref_code)) as total_depositors,
+        (SELECT sum(amount) FROM transactions WHERE user_id = u.id AND type='profit') as total_earned
         FROM users u ORDER BY u.id DESC
     `).all();
 
     users.forEach(user => {
-        user.active_plans = db.prepare(`
-            SELECT up.id, p.name, up.expires_at 
-            FROM user_plans up 
-            JOIN plans p ON up.plan_id = p.id 
-            WHERE up.user_id = ? AND up.status = 'active'
-        `).all(user.id);
+        user.active_plans = db.prepare(`SELECT up.id, p.name, up.expires_at FROM user_plans up JOIN plans p ON up.plan_id = p.id WHERE up.user_id = ? AND up.status = 'active'`).all(user.id);
     });
     res.json(users);
 });
