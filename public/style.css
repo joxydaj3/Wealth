@@ -3,28 +3,60 @@
     --card: #0d1b3e;
     --blue: #007bff;
     --green: #00d084;
+    --light-blue: #1e3a8a;
+    --text: #ffffff;
 }
-body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; margin: 0; }
-.page { display: none; padding: 20px 20px 100px; animation: slideUp 0.3s; }
+
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+.page { display: none; padding: 20px; animation: fadeIn 0.4s ease; padding-bottom: 100px; }
 .page.active { display: block; }
-@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-.top-bar { font-size: 20px; font-weight: 800; padding: 20px 0; }
-.balance-card { background: linear-gradient(135deg, #1e3a8a, #0b1437); padding: 30px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-.main-amount { font-size: 38px; font-weight: 800; margin: 10px 0; }
-.btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-.btn-small { background: var(--card); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 15px; color: white; font-weight: bold; cursor: pointer; }
-.btn-small:first-child { background: var(--green); }
-.btn-small:last-child { background: var(--blue); }
+/* Cards das Imagens */
+.wealth-card {
+    background: linear-gradient(135deg, var(--light-blue) 0%, var(--card) 100%);
+    border-radius: 24px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.05);
+}
 
-.card-glass { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); }
-.nav-bar { position: fixed; bottom: 0; width: 100%; background: #0b1437; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid rgba(255,255,255,0.1); }
-.nav-btn { font-size: 11px; color: #6e84ab; text-align: center; cursor: pointer; }
-.nav-btn.active { color: white; }
+.main-balance { font-size: 40px; font-weight: 800; margin: 10px 0; letter-spacing: -1px; }
 
-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 12px; color: white; margin-bottom: 10px; box-sizing: border-box; }
-.btn-blue { background: var(--blue); color: white; width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: bold; }
+/* Botões Estilo Imagem */
+.btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
+.btn-action {
+    padding: 16px; border: none; border-radius: 16px; font-weight: bold;
+    display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
+}
+.btn-deposit { background: var(--green); color: white; }
+.btn-withdraw { background: var(--blue); color: white; }
 
-.plan-card { background: var(--card); padding: 20px; border-radius: 20px; margin-top: 15px; }
-.menu-item { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+/* Navegação Inferior */
+.bottom-nav {
+    position: fixed; bottom: 0; width: 100%; background: #0b1437;
+    display: flex; justify-content: space-around; padding: 15px 0;
+    border-top: 1px solid rgba(255,255,255,0.1); z-index: 1000;
+}
+.nav-item { text-align: center; font-size: 11px; color: #6e84ab; cursor: pointer; }
+.nav-item.active { color: white; font-weight: bold; }
+
+/* Forms */
+input {
+    width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    padding: 18px; border-radius: 14px; color: white; margin-bottom: 12px; box-sizing: border-box;
+}
+
+.captcha-box { background: var(--card); padding: 15px; border-radius: 10px; margin-bottom: 15px; text-align: center; border: 1px dashed var(--blue); }
+
+/* Admin Grid */
+.admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
