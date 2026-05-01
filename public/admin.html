@@ -3,127 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wealth - Painel de Administração</title>
+    <title>Wealth Admin - Painel de Controle</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Estilos específicos para o Admin (Grid e Tabs) */
-        .admin-nav-scroll { display: flex; overflow-x: auto; gap: 10px; padding: 15px; background: #0d1b3e; border-bottom: 1px solid #1e3a8a; }
-        .nav-tab { padding: 8px 16px; background: rgba(255,255,255,0.05); border: 1px solid #1e3a8a; border-radius: 8px; color: #8899ac; cursor: pointer; white-space: nowrap; font-size: 13px; }
-        .nav-tab.active { background: var(--blue); color: white; border-color: var(--blue); }
-        .admin-section { display: none; padding: 20px; animation: fadeIn 0.3s; }
-        .admin-section.active { display: block; }
-        .user-card, .trans-card { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 4px solid var(--blue); }
-        .status-pending { color: orange; }
-        .status-approved { color: var(--green); }
-        .status-rejected { color: var(--red); }
-        .proof-img { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; margin: 10px 0; cursor: pointer; }
+        .admin-nav { display: flex; overflow-x: auto; background: #0d1b3e; padding: 10px; gap: 10px; position: sticky; top: 0; z-index: 100; }
+        .tab-btn { padding: 10px 20px; background: rgba(255,255,255,0.05); border: 1px solid #1e3a8a; border-radius: 10px; color: #8899ac; cursor: pointer; white-space: nowrap; }
+        .tab-btn.active { background: var(--blue); color: white; border-color: white; }
+        
+        .admin-page { display: none; padding: 20px; animation: fadeIn 0.3s; }
+        .admin-page.active { display: block; }
+        
+        .data-card { background: var(--card); padding: 15px; border-radius: 15px; margin-bottom: 15px; border-left: 4px solid var(--blue); }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
+        .bg-pending { background: orange; color: black; }
+        .bg-approved { background: var(--green); color: white; }
     </style>
 </head>
 <body>
+
     <div class="header" style="padding: 20px;">
-        <h2 style="margin:0">🛡️ Painel de Administração</h2>
-        <small style="color: #6e84ab;">Gerencie a plataforma Wealth Pro</small>
+        <h2>🛡️ Painel de Administração</h2>
     </div>
 
-    <!-- Menu de Abas (Todos os botões da sua imagem) -->
-    <div class="admin-nav-scroll">
-        <div class="nav-tab active" onclick="tab(this, 's-analytics')">📊 Analytics</div>
-        <div class="nav-tab" onclick="tab(this, 's-usuarios')">👥 Usuários</div>
-        <div class="nav-tab" onclick="tab(this, 's-depositos')">💰 Depósitos</div>
-        <div class="nav-tab" onclick="tab(this, 's-saques')">💸 Saques</div>
-        <div class="nav-tab" onclick="tab(this, 's-planos')">📋 Planos</div>
-        <div class="nav-tab" onclick="tab(this, 's-anuncios')">📢 Anúncios</div>
+    <!-- MENU DE TODOS OS BOTÕES (Igual à imagem) -->
+    <div class="admin-nav">
+        <button class="tab-btn active" onclick="openTab(this, 'tab-stats')">📊 Analytics</button>
+        <button class="tab-btn" onclick="openTab(this, 'tab-users')">👥 Usuários</button>
+        <button class="tab-btn" onclick="openTab(this, 'tab-deposits')">💰 Depósitos</button>
+        <button class="tab-btn" onclick="openTab(this, 'tab-withdraws')">💸 Saques</button>
+        <button class="tab-btn" onclick="openTab(this, 'tab-plans')">📋 Planos</button>
+        <button class="tab-btn" onclick="openTab(this, 'tab-ads')">📢 Anúncios</button>
     </div>
 
-    <div id="admin-content">
+    <div id="pages-container">
         
-        <!-- ABA: ANALYTICS -->
-        <section id="s-analytics" class="admin-section active">
-            <div class="grid-actions" style="grid-template-columns: 1fr 1fr;">
-                <div class="wealth-card">
-                    <small>Total Usuários</small>
-                    <h2 id="adm-u-count">0</h2>
-                </div>
-                <div class="wealth-card">
-                    <small>Saldo Total</small>
-                    <h2 id="adm-u-balance">MT 0.00</h2>
-                </div>
-            </div>
-            <div class="wealth-card" style="margin-top:15px">
-                <small>Depósitos Pendentes</small>
-                <h2 id="adm-d-pending" style="color:orange">0</h2>
+        <!-- PÁGINA: ANALYTICS -->
+        <section id="tab-stats" class="admin-page active">
+            <div class="grid-actions">
+                <div class="wealth-card"><small>Usuários</small><h2 id="st-u">0</h2></div>
+                <div class="wealth-card"><small>Saldo Total</small><h2 id="st-b">MT 0</h2></div>
             </div>
         </section>
 
-        <!-- ABA: USUÁRIOS -->
-        <section id="s-usuarios" class="admin-section">
-            <h3>Gestão de Usuários</h3>
-            <div id="list-users"><!-- Carregado via JS --></div>
+        <!-- PÁGINA: USUÁRIOS -->
+        <section id="tab-users" class="admin-page">
+            <h3>Lista de Membros</h3>
+            <div id="list-users">Carregando...</div>
         </section>
 
-        <!-- ABA: DEPÓSITOS -->
-        <section id="s-depositos" class="admin-section">
-            <h3>Depósitos Pendentes</h3>
-            <div id="list-deposits"></div>
+        <!-- PÁGINA: DEPÓSITOS -->
+        <section id="tab-deposits" class="admin-page">
+            <h3>Gerenciar Depósitos</h3>
+            <div id="list-deposits">Buscando comprovantes...</div>
         </section>
 
-        <!-- ABA: SAQUES -->
-        <section id="s-saques" class="admin-section">
-            <h3>Pedidos de Saque</h3>
-            <div id="list-withdraws"></div>
+        <!-- PÁGINA: SAQUES -->
+        <section id="tab-withdraws" class="admin-page">
+            <h3>Pedidos de Levantamento</h3>
+            <div id="list-withdraws">Buscando pedidos...</div>
         </section>
 
-        <!-- ABA: PLANOS -->
-        <section id="s-planos" class="admin-section">
+        <!-- PÁGINA: PLANOS -->
+        <section id="tab-plans" class="admin-page">
             <div class="wealth-card">
-                <h3>+ Novo Plano</h3>
-                <form id="form-plan">
-                    <input type="text" id="p_name" placeholder="Nome do Plano" required class="input-tiny">
-                    <input type="number" id="p_price" placeholder="Preço (MZN)" required class="input-tiny">
-                    <input type="number" id="p_daily" placeholder="Lucro Diário" required class="input-tiny">
-                    <input type="number" id="p_duration" placeholder="Duração (Dias)" required class="input-tiny">
-                    <p style="font-size:12px; margin-bottom:5px">Foto do Plano:</p>
-                    <input type="file" id="p_image" accept="image/*" class="input-tiny">
-                    <button type="submit" class="btn btn-green">Criar e Ativar Plano</button>
+                <h3>+ Adicionar Novo Plano</h3>
+                <form id="f-plan" enctype="multipart/form-data">
+                    <input type="text" id="pn" placeholder="Nome do Plano" class="input-tiny" required>
+                    <input type="number" id="pp" placeholder="Preço" class="input-tiny" required>
+                    <input type="number" id="pd" placeholder="Lucro Diário" class="input-tiny" required>
+                    <input type="number" id="pt" placeholder="Duração (Dias)" class="input-tiny" required>
+                    <p>Foto do Plano:</p>
+                    <input type="file" id="pi" accept="image/*" class="input-tiny">
+                    <button type="submit" class="btn btn-green">Salvar e Publicar</button>
                 </form>
             </div>
-            <h3 style="margin-top:20px">Planos Ativos</h3>
-            <div id="list-plans"></div>
+            <div id="list-plans-admin" style="margin-top:20px"></div>
         </section>
 
-        <!-- ABA: ANÚNCIOS -->
-        <section id="s-anuncios" class="admin-section">
+        <!-- PÁGINA: ANÚNCIOS -->
+        <section id="tab-ads" class="admin-page">
             <div class="wealth-card">
-                <h3>📢 Novo Anúncio Global</h3>
-                <textarea id="msg-text" placeholder="Digite a mensagem para todos os usuários..." class="input-tiny" style="height:100px; padding:10px"></textarea>
-                <button class="btn btn-blue" onclick="sendNotice()">Enviar para Todos</button>
+                <h3>📢 Notificação Global</h3>
+                <textarea id="ad-msg" class="input-tiny" style="height:100px" placeholder="Olá investidores, temos novidades..."></textarea>
+                <button class="btn btn-blue">Enviar para todos</button>
             </div>
         </section>
 
     </div>
 
     <script>
-        // Lógica de troca de abas
-        function tab(btn, sectionId) {
-            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+        function openTab(btn, tabId) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.admin-page').forEach(p => p.classList.remove('active'));
             btn.classList.add('active');
-            document.getElementById(sectionId).classList.add('active');
-            loadData(sectionId);
+            document.getElementById(tabId).classList.add('active');
+            
+            if(tabId === 'tab-stats') loadStats();
+            if(tabId === 'tab-users') loadUsers();
+            if(tabId === 'tab-deposits') loadTransactions('deposit');
+            if(tabId === 'tab-withdraws') loadTransactions('withdraw');
         }
 
-        async function loadData(section) {
-            if(section === 's-analytics') {
-                const res = await fetch('/api/admin/stats');
-                const data = await res.json();
-                document.getElementById('adm-u-count').innerText = data.totalUsers;
-                document.getElementById('adm-u-balance').innerText = 'MT ' + data.totalBalance.toFixed(2);
-                document.getElementById('adm-d-pending').innerText = data.pendingDeposits;
-            }
-            if(section === 's-depositos') {
-                const res = await fetch('/api/admin/transactions?type=deposit');
-                const list = await res.json();
-                let html = "";
-                list.forEach(d => {
-                    html +=
+        async function loadStats() {
+            const res = await fetch('/api/admin/stats');
+            const d = await res.json();
+            document.getElementById('st-u').innerText = d.totalUsers;
+            document.getElementById('st-b').innerText = 'MT ' + d.totalBalance.toFixed(2);
+        }
+
+        async function loadUsers() {
+            const res = await fetch('/api/admin/users');
+            const users = await res.json();
+            let html = "";
+            users.forEach(u => {
+                html += `
+                    <div class="data-card">
+                        <div class="flex-between">
+                            <strong>${u.name}</strong>
+                            <span>MT ${u.balance.toFixed(2)}</span>
+                        </div>
+                        <small>${u.phone} | Ref: ${u.ref_code}</small>
+                        <button onclick="editBalance(${u.id}, ${u.balance})" style="margin-top:10px; font-size:10px">Ajustar Saldo</button>
+                    </div>`;
+            });
+            document.getElementById('list-users').innerHTML = html;
+        }
+
+        async function loadTransactions(type) {
+            const res = await fetch(`/api/admin/transactions?type=${type}`);
+            const list = await res.json();
+            const container = type === 'deposit' ? 'list-deposits' : 'list-withdraws';
+            let html = "";
+            list.forEach(t => {
+                html += `
+                    <div class="data-card">
+                        <div class="flex-between">
+                            <strong>${t.name} (${t.phone})</strong>
+                            <span class="badge ${t.status === 'pending' ? 'bg-pending' : 'bg-approved'}">${t.status.toUpperCase()}</span>
+                        </div>
+                        <p>Valor: MT ${t.amount}</p>
+                        ${t.proof_url ? `<img src="${t.proof_url}" style="width:100%; border-radius:10px; margin:10px 0" onclick="window.open(this.src)">` : ''}
+                        <div class="btn-group" style="display:${t.status === 'pending' ? 'grid' : 'none'}">
+                            <button class="btn-sm btn-green" onclick="approve(${t.id}, 'approve', '${type}')">Confirmar</button>
+                            <button class="btn-sm" style="background:red" onclick="approve(${t.id}, 'reject', '${type}')">Negar</button>
+                        </div>
+                    </div>`;
+            });
+            document.getElementById(container).innerHTML = html || "Nada encontrado.";
+        }
+
+        async function approve(id, action, type) {
+            await fetch('/api/admin/transaction-action', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ id, action })
+            });
+            loadTransactions(type);
+        }
+
+        // Lógica de Criar Plano com Foto
+        document.getElementById('f-plan').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('name', document.getElementById('pn').value);
+            formData.append('price', document.getElementById('pp').value);
+            formData.append('daily', document.getElementById('pd').value);
+            formData.append('duration', document.getElementById('pt').value);
+            formData.append('image', document.getElementById('pi').files[0]);
+
+            const res = await fetch('/api/admin/create-plan', { method: 'POST', body: formData });
+            if(res.ok) { alert("Plano Ativado!"); location.reload(); }
+        }
+
+        loadStats(); // Inicial
+    </script>
+</body>
+                    </html>
