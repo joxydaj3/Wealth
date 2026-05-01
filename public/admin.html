@@ -6,20 +6,25 @@
     <title>Wealth Admin - PRO</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .admin-nav { display: flex; overflow-x: auto; gap: 10px; padding: 15px; background: #0d1b3e; position: sticky; top: 0; z-index: 1000; }
-        .nav-tab { padding: 10px 18px; background: rgba(255,255,255,0.05); border: 1px solid #1e3a8a; border-radius: 8px; color: #8899ac; cursor: pointer; white-space: nowrap; font-size: 13px; }
+        .admin-body { background: #050a30; min-height: 100vh; padding-bottom: 60px; }
+        .admin-nav { display: flex; overflow-x: auto; gap: 10px; padding: 15px; background: #0d1b3e; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid #1e3a8a; }
+        .nav-tab { padding: 10px 18px; background: rgba(255,255,255,0.05); border: 1px solid #1e3a8a; border-radius: 8px; color: #8899ac; cursor: pointer; white-space: nowrap; font-size: 13px; font-weight: 600; }
         .nav-tab.active { background: var(--blue); color: white; border-color: white; }
         .tab-content { display: none; padding: 15px; animation: fadeIn 0.3s; }
         .tab-content.active { display: block; }
-        
+        .admin-grid-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .mini-card { background: var(--card); padding: 12px; border-radius: 12px; border-left: 4px solid var(--blue); }
+        .mini-card h4 { margin: 0; font-size: 10px; color: #8899ac; text-transform: uppercase; }
+        .mini-card p { margin: 5px 0 0; font-size: 14px; font-weight: 800; }
         .card-user { background: #0b1437; border-radius: 15px; padding: 15px; margin-bottom: 12px; border: 1px solid #1e3a8a; }
-        .grid-u { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px; margin-top: 10px; }
+        .grid-u { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 10px; margin-top: 10px; color: #8899ac; }
         .grid-u b { color: white; }
-        .btn-adm-sm { padding: 8px; border: none; border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer; color: white; }
+        .btn-adm-sm { padding: 8px; border: none; border-radius: 6px; font-size: 9px; font-weight: bold; cursor: pointer; color: white; }
+        .search-box { width: 100%; padding: 12px; background: #0b1437; border: 1px solid var(--blue); border-radius: 10px; color: white; margin-bottom: 10px; }
+        .proof-img { width: 100%; border-radius: 10px; margin: 10px 0; border: 1px solid #1e3a8a; }
     </style>
 </head>
 <body class="admin-body">
-
     <div class="admin-nav">
         <div class="nav-tab active" onclick="openTab(this, 'view-analytics')">📊 Analytics</div>
         <div class="nav-tab" onclick="openTab(this, 'view-users')">👥 Usuários</div>
@@ -30,50 +35,23 @@
     </div>
 
     <div id="admin-main">
-        <!-- ANALYTICS -->
-        <section id="view-analytics" class="tab-content active">
-            <div id="stats-render" class="admin-grid-stats">Carregando dados...</div>
-        </section>
-
-        <!-- USUÁRIOS -->
+        <section id="view-analytics" class="tab-content active"><div id="stats-render" class="admin-grid-stats"></div></section>
         <section id="view-users" class="tab-content">
-            <input type="text" id="searchU" class="search-box" placeholder="Buscar telefone ou nome..." onkeyup="filterUsers()">
-            <div id="users-render" style="margin-top:15px"></div>
+            <input type="text" id="searchU" class="search-box" placeholder="Buscar telefone, nome ou convite..." onkeyup="filterUsers()">
+            <div id="users-render"></div>
         </section>
-
-        <!-- DEPÓSITOS -->
-        <section id="view-deposits" class="tab-content">
-            <div id="deposits-render"></div>
-        </section>
-
-        <!-- SAQUES -->
-        <section id="view-withdraws" class="tab-content">
-            <div id="withdraws-render"></div>
-        </section>
-
-        <!-- PLANOS -->
+        <section id="view-deposits" class="tab-content"><div id="deposits-render"></div></section>
+        <section id="view-withdraws" class="tab-content"><div id="withdraws-render"></div></section>
         <section id="view-plans" class="tab-content">
             <div class="wealth-card">
                 <h3>+ Novo Plano</h3>
-                <form id="form-plan-admin" enctype="multipart/form-data">
-                    <input type="text" id="p_name" placeholder="Nome" class="input-tiny" required>
-                    <input type="number" id="p_price" placeholder="Preço" class="input-tiny" required>
-                    <input type="number" id="p_daily" placeholder="Lucro Diário" class="input-tiny" required>
-                    <input type="number" id="p_duration" placeholder="Duração" class="input-tiny" required>
-                    <input type="file" id="p_image" accept="image/*" class="input-tiny">
-                    <button type="submit" class="btn btn-green">Publicar Plano</button>
-                </form>
+                <form id="form-plan-admin"><input type="text" id="p_name" placeholder="Nome" class="input-tiny" required><input type="number" id="p_price" placeholder="Preço" class="input-tiny" required><input type="number" id="p_daily" placeholder="Diário" class="input-tiny" required><input type="number" id="p_dur" placeholder="Dias" class="input-tiny" required><input type="file" id="p_img" class="input-tiny"><button type="submit" class="btn btn-green">Publicar</button></form>
             </div>
-            <div id="plans-render" style="margin-top:20px"></div>
+            <div id="plans-render" style="margin-top:15px"></div>
         </section>
-
-        <!-- ANÚNCIOS -->
         <section id="view-ads" class="tab-content">
-            <div class="wealth-card">
-                <textarea id="ad_msg" class="input-tiny" placeholder="Mensagem do anúncio..."></textarea>
-                <button class="btn btn-blue" onclick="postAd()">Postar Notificação</button>
-            </div>
-            <div id="ads-render" style="margin-top:20px"></div>
+            <div class="wealth-card"><textarea id="ad_msg" class="input-tiny" placeholder="Aviso global..."></textarea><button class="btn btn-blue" onclick="postAd()">Enviar Anúncio</button></div>
+            <div id="ads-render" style="margin-top:15px"></div>
         </section>
     </div>
 
@@ -81,102 +59,88 @@
         function openTab(btn, id) {
             document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById(id).classList.add('active');
+            btn.classList.add('active'); document.getElementById(id).classList.add('active');
             refresh(id);
         }
 
         async function refresh(id) {
             if(id === 'view-analytics') {
-                const res = await fetch('/api/admin/full-stats');
-                const s = await res.json();
-                document.getElementById('stats-render').innerHTML = `<div class="mini-card"><h4>Usuários</h4><p>${s.totalUsers}</p></div><div class="mini-card"><h4>Saldo Total</h4><p>MT ${s.totalBalance}</p></div>`;
+                const res = await fetch('/api/admin/full-stats'); const s = await res.json();
+                document.getElementById('stats-render').innerHTML = `
+                    <div class="mini-card"><h4>Usuários</h4><p>${s.totalUsers}</p></div>
+                    <div class="mini-card"><h4>Saldo Total</h4><p>MT ${s.totalBalance.toFixed(2)}</p></div>
+                    <div class="mini-card"><h4>Dep. Pendentes</h4><p>${s.depPending.c} (MT ${s.depPending.s || 0})</p></div>
+                    <div class="mini-card"><h4>Saq. Pendentes</h4><p>${s.withPending.c} (MT ${s.withPending.s || 0})</p></div>
+                `;
             }
-
             if(id === 'view-users') {
-                const res = await fetch('/api/admin/user-details');
-                const users = await res.json();
+                const res = await fetch('/api/admin/user-details'); const users = await res.json();
                 let html = "";
                 users.forEach(u => {
-                    html += `
-                    <div class="card-user">
-                        <div style="display:flex; justify-content:space-between"><b>${u.name}</b> <span>MT ${u.balance}</span></div>
+                    html += `<div class="card-user">
+                        <div style="display:flex; justify-content:space-between"><b>${u.name}</b> <span>MT ${u.balance.toFixed(2)}</span></div>
                         <div class="grid-u">
-                            <div>📞 Tel: <b>${u.phone}</b></div>
-                            <div>🔑 Senha: <b style="color:orange">${u.password_plain || '---'}</b></div>
-                            <div>👥 Convidados: <b>${u.total_invites}</b></div>
-                            <div>💰 Ganhou: <b>MT ${u.total_earned || 0}</b></div>
+                            <div>📞 Tel: <b>${u.phone}</b></div><div>🔑 Senha: <b style="color:orange">${u.password_plain || '---'}</b></div>
+                            <div>👥 Convidados: <b>${u.total_invites}</b></div><div>💰 Ganhos: <b>MT ${u.total_earned || 0}</b></div>
+                            <div>🆔 Ref: <b>${u.ref_code}</b></div><div>Inv. por: <b>${u.invited_by || 'Nenhum'}</b></div>
                         </div>
-                        <div style="margin-top:10px; display:flex; gap:5px">
-                            <button class="btn-adm-sm btn-blue" onclick="editPhone(${u.id})">Editar Tel</button>
-                            <button class="btn-adm-sm btn-green" onclick="addPlan(${u.id})">+ Plano</button>
-                            <button class="btn-adm-sm" style="background:red" onclick="ban(${u.id})">Banir</button>
+                        <div style="margin-top:10px; display:flex; gap:5px; flex-wrap:wrap">
+                            <button class="btn-adm-sm" style="background:var(--blue)" onclick="editPhone(${u.id})">Edit Tel</button>
+                            <button class="btn-adm-sm" style="background:var(--green)" onclick="adjBal(${u.id})">Saldo</button>
+                            <button class="btn-adm-sm" style="background:${u.status==='active'?'red':'gray'}" onclick="ban(${u.id}, '${u.status}')">${u.status==='active'?'Banir':'Ativar'}</button>
                         </div>
                     </div>`;
                 });
                 document.getElementById('users-render').innerHTML = html;
             }
-
-            if(id === 'view-deposits' || id === 'view-withdraws') {
-                const type = id === 'view-deposits' ? 'deposit' : 'withdraw';
-                const res = await fetch(`/api/admin/transactions?type=${type}`);
-                const list = await res.json();
+            if(id==='view-deposits'||id==='view-withdraws'){
+                const type = id==='view-deposits'?'deposit':'withdraw';
+                const res = await fetch(`/api/admin/transactions?type=${type}`); const list = await res.json();
                 let html = "";
                 list.forEach(t => {
-                    html += `
-                    <div class="card-user">
-                        <p><b>${t.name}</b> - MT ${t.amount}</p>
-                        ${t.proof_url ? `<img src="${t.proof_url}" style="width:100%; border-radius:10px">` : ''}
-                        <button onclick="handleTrans(${t.id}, 'approve', '${id}')" class="btn-adm-sm btn-green">Aprovar</button>
-                        <button onclick="handleTrans(${t.id}, 'reject', '${id}')" class="btn-adm-sm" style="background:red">Recusar</button>
-                    </div>`;
+                    html += `<div class="card-user"><p><b>${t.name} (${t.phone})</b><br>Valor: MT ${t.amount} | Status: ${t.status}</p>
+                        ${t.proof_url ? `<img src="${t.proof_url}" class="proof-img" onclick="window.open(this.src)">` : ''}
+                        <div style="display:flex; gap:5px"><button onclick="handleT(${t.id},'approve','${id}')" class="btn-adm-sm" style="background:var(--green)">Aprovar</button>
+                        <button onclick="handleT(${t.id},'reject','${id}')" class="btn-adm-sm" style="background:red">Recusar</button></div></div>`;
                 });
-                document.getElementById(type + 's-render').innerHTML = html || "Vazio.";
+                document.getElementById(type+'s-render').innerHTML = html || "Vazio.";
             }
-
-            if(id === 'view-ads') {
-                const res = await fetch('/api/admin/list-ads');
-                const ads = await res.json();
+            if(id==='view-plans'){
+                const res = await fetch('/api/admin/list-plans'); const plans = await res.json();
                 let html = "";
-                ads.forEach(a => {
-                    html += `<div class="card-user"><p>${a.message}</p><button class="btn-adm-sm" style="background:red" onclick="delAd(${a.id})">Eliminar</button></div>`;
+                plans.forEach(p => {
+                    html += `<div class="card-user"><div style="display:flex; gap:10px"><img src="${p.image_url}" style="width:50px; height:50px; border-radius:5px">
+                        <div><b>${p.name}</b><br><small>MT ${p.price} | Diário: MT ${p.daily_profit}</small></div></div>
+                        <button class="btn-adm-sm" style="background:red; margin-top:10px" onclick="delPlan(${p.id})">Eliminar</button></div>`;
                 });
+                document.getElementById('plans-render').innerHTML = html;
+            }
+            if(id==='view-ads'){
+                const res = await fetch('/api/admin/list-ads'); const ads = await res.json();
+                let html = ""; ads.forEach(a => { html += `<div class="card-user"><p>${a.message}</p><button class="btn-adm-sm" style="background:red" onclick="delAd(${a.id})">Apagar</button></div>`; });
                 document.getElementById('ads-render').innerHTML = html;
             }
         }
 
-        async function editPhone(id) {
-            const n = prompt("Novo número de telefone:");
-            if(n) await fetch('/api/admin/user/update-phone', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({userId: id, newPhone: n}) });
-            refresh('view-users');
+        function filterUsers() {
+            const term = document.getElementById('searchU').value.toLowerCase();
+            document.querySelectorAll('.card-user').forEach(c => c.style.display = c.innerText.toLowerCase().includes(term) ? 'block' : 'none');
         }
+        async function editPhone(id) { const n = prompt("Novo Tel:"); if(n) await fetch('/api/admin/user/update-phone',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId:id,newPhone:n})}); refresh('view-users'); }
+        async function adjBal(id) { const n = prompt("Novo Saldo:"); if(n) await fetch('/api/admin/update-balance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId:id,newBalance:n})}); refresh('view-users'); }
+        async function ban(id, s) { const ns = s==='active'?'banned':'active'; await fetch('/api/admin/user/status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId:id,status:ns})}); refresh('view-users'); }
+        async function handleT(id, a, t) { await fetch('/api/admin/transaction-action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,action:a})}); refresh(t); }
+        async function postAd() { const m = document.getElementById('ad_msg').value; await fetch('/api/admin/send-ad',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:m})}); document.getElementById('ad_msg').value=""; refresh('view-ads'); }
+        async function delAd(id) { await fetch('/api/admin/delete-ad',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})}); refresh('view-ads'); }
+        async function delPlan(id) { await fetch('/api/admin/delete-plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})}); refresh('view-plans'); }
 
-        async function postAd() {
-            const m = document.getElementById('ad_msg').value;
-            await fetch('/api/admin/send-ad', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({message: m}) });
-            document.getElementById('ad_msg').value = "";
-            refresh('view-ads');
-        }
-
-        async function delAd(id) {
-            await fetch('/api/admin/delete-ad', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id}) });
-            refresh('view-ads');
-        }
-
-        // Script de envio do Plano com Foto
         document.getElementById('form-plan-admin').onsubmit = async (e) => {
-            e.preventDefault();
-            const fd = new FormData();
-            fd.append('name', document.getElementById('p_name').value);
-            fd.append('price', document.getElementById('p_price').value);
-            fd.append('daily', document.getElementById('p_daily').value);
-            fd.append('duration', document.getElementById('p_duration').value);
-            fd.append('image', document.getElementById('p_image').files[0]);
-            await fetch('/api/admin/create-plan', { method: 'POST', body: fd });
-            alert("Plano Criado!");
-            refresh('view-plans');
+            e.preventDefault(); const fd = new FormData();
+            fd.append('name', document.getElementById('p_name').value); fd.append('price', document.getElementById('p_price').value);
+            fd.append('daily', document.getElementById('p_daily').value); fd.append('duration', document.getElementById('p_dur').value);
+            fd.append('image', document.getElementById('p_img').files[0]);
+            await fetch('/api/admin/create-plan', { method: 'POST', body: fd }); refresh('view-plans'); e.target.reset();
         }
-
         refresh('view-analytics');
     </script>
 </body>
