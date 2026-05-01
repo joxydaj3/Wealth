@@ -2,72 +2,75 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Wealth - Fintech</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
-
-    <!-- TELA LOGIN/REGISTRO -->
-    <div id="auth-page">
-        <div class="wealth-header" style="text-align: center;">
-            <h1>WEALTH</h1>
-            <p>Sua plataforma de investimentos</p>
-        </div>
-        <div style="padding: 30px;">
-            <input type="text" id="phone" placeholder="Número de Telefone" class="wealth-input">
-            <input type="password" id="pass" placeholder="Senha" class="wealth-input">
-            <button onclick="login()" class="btn-wealth btn-withdraw" style="width: 100%; margin-top: 20px;">Entrar</button>
-            <p onclick="toggleRegister()" style="text-align: center; margin-top: 15px; color: var(--text-gray);">Criar nova conta</p>
-        </div>
-    </div>
-
-    <!-- DASHBOARD PRINCIPAL -->
-    <div id="main-dashboard" style="display:none;">
-        <div class="wealth-header">
-            <h3>Bem-vindo, <span id="user-name-display">Joaquim</span>! 👋</h3>
-            <small id="current-date">Friday, 1 de May de 2026</small>
-        </div>
-
-        <div class="saldo-card">
-            <small>Saldo Atual</small>
-            <div class="amount-large">MT <span id="balance-val">0.00</span></div>
-            <div style="margin-top: 10px;">
-                <span class="plan-badge">MZN</span>
+    <div id="app">
+        
+        <!-- PÁGINA: LOGIN -->
+        <section id="page-login" class="page active">
+            <div class="auth-header">
+                <h1>WEALTH</h1>
+                <p style="color: #888;">Sua plataforma de investimentos</p>
             </div>
-        </div>
+            <input type="text" id="login-phone" placeholder="Número de Telefone">
+            <input type="password" id="login-pass" placeholder="Senha">
+            <button class="btn btn-primary" onclick="handleLogin()">Entrar</button>
+            <p style="text-align: center; margin-top: 20px;" onclick="showPage('page-register')">Criar nova conta</p>
+        </section>
 
-        <div class="action-grid">
-            <button class="btn-wealth btn-deposit" onclick="openDeposit()">+ Depositar</button>
-            <button class="btn-wealth btn-withdraw" onclick="openWithdraw()">$ Levantar</button>
-        </div>
+        <!-- PÁGINA: REGISTRO -->
+        <section id="page-register" class="page">
+            <div class="auth-header">
+                <h2>CRIAR CONTA</h2>
+            </div>
+            <input type="text" id="reg-name" placeholder="Nome Completo">
+            <input type="text" id="reg-phone" placeholder="Número de Telefone">
+            <input type="password" id="reg-pass" placeholder="Criar Senha">
+            <input type="text" id="reg-invite" placeholder="Código de Convite (Opcional)">
+            <button class="btn btn-green" onclick="handleRegister()">Registrar</button>
+            <p style="text-align: center; margin-top: 20px;" onclick="showPage('page-login')">Já tenho conta</p>
+        </section>
 
-        <div id="plans-container">
-            <!-- Planos carregados via JS -->
-        </div>
+        <!-- PÁGINA: HOME (DASHBOARD) -->
+        <section id="page-home" class="page">
+            <div class="user-greeting">
+                <h3 id="display-name">Olá, Usuário! 👋</h3>
+                <small id="current-date"></small>
+            </div>
+            <div class="balance-card">
+                <small style="color: #aaa;">Saldo Atual</small>
+                <div class="balance-amount">MT <span id="val-balance">0.00</span></div>
+                <div style="background: rgba(255,255,255,0.1); display: inline-block; padding: 5px 12px; border-radius: 10px; font-size: 12px;">
+                    MZN 🇲🇿
+                </div>
+            </div>
+            <div class="action-grid">
+                <button class="btn btn-green" onclick="showPage('page-deposit')">+ Depositar</button>
+                <button class="btn btn-primary" onclick="showPage('page-withdraw')">$ Levantar</button>
+            </div>
+            
+            <h4 style="margin-top: 30px;">Plano Iniciante</h4>
+            <div class="balance-card" style="background: var(--card); margin-top: 10px;">
+                <div style="display: flex; justify-content: space-between;">
+                    <strong>Boas Vindas</strong>
+                    <span style="color: var(--green);">150% Lucro</span>
+                </div>
+                <p style="font-size: 14px; color: #888;">Investimento: MT 300.00</p>
+                <button class="btn btn-primary" style="padding: 10px; margin-top: 10px;">Investir Agora</button>
+            </div>
+        </section>
 
-        <nav class="bottom-nav">
-            <div class="nav-item active">🏠<br>Início</div>
-            <div class="nav-item">📈<br>Projetos</div>
-            <div class="nav-item">💰<br>Lucros</div>
-            <div class="nav-item">👥<br>Equipe</div>
-            <div class="nav-item">⚙️<br>Conta</div>
+        <!-- NAVEGAÇÃO INFERIOR -->
+        <nav class="nav-bottom" id="main-nav" style="display: none;">
+            <div class="nav-item active" onclick="showPage('page-home')">🏦<br>Início</div>
+            <div class="nav-item" onclick="showPage('page-projects')">📂<br>Projetos</div>
+            <div class="nav-item" onclick="showPage('page-team')">👥<br>Equipe</div>
+            <div class="nav-item" onclick="showPage('page-account')">⚙️<br>Conta</div>
         </nav>
-    </div>
-
-    <!-- MODAL DEPÓSITO COM TIMER -->
-    <div id="deposit-modal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <h3>Finalizar Depósito</h3>
-            <p>Valor: MT 500.00</p>
-            <div id="deposit-timer">05:00</div>
-            <div class="instr-box">
-                Envie para: <strong>878354556</strong><br>
-                Titular: Moz Wealth Pay
-            </div>
-            <input type="file" id="proof-img" style="margin-top: 15px;">
-            <button id="send-dep-btn" class="btn-wealth btn-deposit" style="width: 100%; margin-top: 15px;">Enviar Comprovativo</button>
-        </div>
     </div>
 
     <script src="app.js"></script>
