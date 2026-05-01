@@ -8,13 +8,15 @@ const fs = require('fs');
 
 const app = express();
 
-// Configuração otimizada para o Pooler do Supabase
+// Configuração Blindada para Supabase no Railway
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
-  max: 10, // Limite de conexões para não travar o banco grátis
+  ssl: {
+    rejectUnauthorized: false // Isso permite a conexão mesmo com certificados auto-assinados
+  },
+  max: 10,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 5000,
+  connectionTimeoutMillis: 10000,
 });
 
 // --- CONFIGURAÇÃO DE UPLOADS ---
