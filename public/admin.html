@@ -1,241 +1,54 @@
 <!DOCTYPE html>
-
 <html lang="pt">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Wealth - Painel Admin</title>
-
+    <title>Wealth Admin</title>
     <link rel="stylesheet" href="style.css">
-
-    <style>
-
-        /* Estilos específicos para o Admin (Grid de estatísticas das imagens) */
-
-        .admin-stats-grid {
-
-            display: grid;
-
-            grid-template-columns: 1fr 1fr;
-
-            gap: 15px;
-
-            padding: 20px;
-
-        }
-
-        .stat-box {
-
-            background: var(--card-bg);
-
-            padding: 20px;
-
-            border-radius: 15px;
-
-            border-left: 5px solid var(--accent-blue);
-
-        }
-
-        .tab-menu {
-
-            display: flex;
-
-            overflow-x: auto;
-
-            background: #0d1b3e;
-
-            padding: 10px;
-
-            gap: 10px;
-
-        }
-
-        .tab-item {
-
-            padding: 8px 15px;
-
-            white-space: nowrap;
-
-            color: var(--text-gray);
-
-            cursor: pointer;
-
-        }
-
-        .tab-item.active {
-
-            color: white;
-
-            border-bottom: 2px solid var(--accent-blue);
-
-        }
-
-    </style>
-
 </head>
-
-<body>
-
-
-
-    <div class="wealth-header">
-
-        <h2>🛡️ Painel de Administração</h2>
-
-        <p>Gerencie a plataforma Trustiva/Wealth</p>
-
+<body style="padding: 20px;">
+    <h2>🛡️ Painel de Administração</h2>
+    <div class="card-glass" style="display:flex; gap:10px; overflow-x:auto;">
+        <button class="btn-small" onclick="loadStats()">📊 Analytics</button>
+        <button class="btn-small" onclick="loadTab('users')">👥 Usuários</button>
+        <button class="btn-small" onclick="loadTab('trans')">💰 Transações</button>
     </div>
 
-
-
-    <!-- Menu de Abas conforme as imagens -->
-
-    <div class="tab-menu">
-
-        <div class="tab-item active" onclick="loadTab('analytics')">📊 Analytics</div>
-
-        <div class="tab-item" onclick="loadTab('usuarios')">👥 Usuários</div>
-
-        <div class="tab-item" onclick="loadTab('depositos')">💰 Depósitos</div>
-
-        <div class="tab-item" onclick="loadTab('saques')">💸 Saques</div>
-
-        <div class="tab-item" onclick="loadTab('planos')">📋 Planos</div>
-
-    </div>
-
-
-
-    <div id="admin-content">
-
-        <!-- O conteúdo muda conforme a aba clicada -->
-
-        <div class="admin-stats-grid">
-
-            <div class="stat-box">
-
-                <small>Total Usuários</small>
-
-                <h2 id="stat-users">0</h2>
-
-            </div>
-
-            <div class="stat-box" style="border-left-color: var(--accent-green);">
-
-                <small>Saldo Total (MZN)</small>
-
-                <h2 id="stat-balance">0.00</h2>
-
-            </div>
-
-            <div class="stat-box" style="border-left-color: orange;">
-
-                <small>Saques Pendentes</small>
-
-                <h2 id="stat-withdraws">0</h2>
-
-            </div>
-
+    <div id="admin-view" style="margin-top:20px;">
+        <!-- Analytics Inicial -->
+        <div class="card-glass">
+            <p>Total Usuários: <strong id="adm-u">0</strong></p>
+            <p>Saldo Total: <strong id="adm-b">0</strong></p>
         </div>
 
-
-
-        <div style="padding: 20px;">
-
-            <h3>Ações Rápidas</h3>
-
-            <button class="btn-wealth btn-deposit" onclick="openNewPlanModal()">+ Novo Plano</button>
-
-            <div id="pending-list" style="margin-top: 20px;">
-
-                <!-- Lista de depósitos para aprovar -->
-
-            </div>
-
+        <div class="card-glass" style="margin-top:20px;">
+            <h3>+ Novo Plano</h3>
+            <input type="text" id="p-name" placeholder="Nome do Plano">
+            <input type="number" id="p-price" placeholder="Preço (MZN)">
+            <input type="number" id="p-daily" placeholder="Lucro Diário">
+            <input type="number" id="p-duration" placeholder="Duração (Dias)">
+            <button class="btn-blue" onclick="createPlan()">Criar Plano</button>
         </div>
-
     </div>
-
-
 
     <script>
-
-        // Função para carregar dados do admin
-
-        async function loadAdminData() {
-
-            const res = await fetch('/api/admin/stats');
-
+        async function loadStats() {
+            const res = await fetch('/api/admin/dashboard');
             const data = await res.json();
-
-            document.getElementById('stat-users').innerText = data.totalUsers;
-
-            document.getElementById('stat-balance').innerText = data.totalBalance.toFixed(2);
-
-            
-
-            // Carregar depósitos pendentes
-
-            const depRes = await fetch('/api/admin/pending-deposits');
-
-            const deps = await depRes.json();
-
-            let html = '<h4>Depósitos Pendentes</h4>';
-
-            deps.forEach(d => {
-
-                html += `
-
-                    <div class="plan-card">
-
-                        <p>Usuário ID: ${d.user_id} - <strong>MT ${d.amount}</strong></p>
-
-                        <p>Método: ${d.method}</p>
-
-                        <a href="/uploads/${d.proof_url}" target="_blank">Ver Comprovativo</a><br><br>
-
-                        <button onclick="approveDep(${d.id}, 'approve')" class="btn-wealth btn-deposit">Aprovar</button>
-
-                        <button onclick="approveDep(${d.id}, 'reject')" class="btn-wealth btn-withdraw" style="background:red">Rejeitar</button>
-
-                    </div>
-
-                `;
-
-            });
-
-            document.getElementById('pending-list').innerHTML = html;
-
+            document.getElementById('adm-u').innerText = data.users;
+            document.getElementById('adm-b').innerText = 'MT ' + data.balance.toFixed(2);
         }
-
-
-
-        async function approveDep(id, action) {
-
-            await fetch('/api/admin/approve-deposit', {
-
-                method: 'POST',
-
-                headers: {'Content-Type': 'application/json'},
-
-                body: JSON.stringify({ id, action })
-
-            });
-
-            loadAdminData();
-
+        async function createPlan() {
+            const body = {
+                name: document.getElementById('p-name').value,
+                price: document.getElementById('p-price').value,
+                daily: document.getElementById('p-daily').value,
+                duration: document.getElementById('p-duration').value,
+                total: document.getElementById('p-daily').value * document.getElementById('p-duration').value
+            };
+            await fetch('/api/admin/create-plan', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body)});
+            alert("Plano Criado!");
         }
-
-
-
-        loadAdminData();
-
+        loadStats();
     </script>
-
 </body>
-
-                                                                    </html>
+</html>
