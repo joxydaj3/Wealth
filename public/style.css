@@ -1,0 +1,211 @@
+:root {
+
+    --bg-dark: #050a30; /* Azul Marinho das imagens */
+
+    --card-bg: #1b264f; /* Azul dos cards */
+
+    --accent-blue: #007bff;
+
+    --accent-green: #00d084;
+
+    --accent-red: #ff4d4d;
+
+    --text-white: #ffffff;
+
+    --text-gray: #b0b0b0;
+
+}
+
+
+
+body {
+
+    background-color: var(--bg-dark);
+
+    color: var(--text-white);
+
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+    margin: 0;
+
+    padding-bottom: 70px; /* Para a bottom bar */
+
+}
+
+
+
+/* Header conforme imagem 1 */
+
+.wealth-header {
+
+    background: linear-gradient(180deg, #0d1b3e 0%, #050a30 100%);
+
+    padding: 30px 20px;
+
+    border-radius: 0 0 30px 30px;
+
+}
+
+
+
+.saldo-card {
+
+    background: var(--card-bg);
+
+    margin: 20px;
+
+    padding: 25px;
+
+    border-radius: 20px;
+
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+
+    border: 1px solid rgba(255,255,255,0.1);
+
+}
+
+
+
+.amount-large {
+
+    font-size: 38px;
+
+    font-weight: bold;
+
+    color: var(--text-white);
+
+}
+
+
+
+/* Botões de Depósito/Saque (Imagem 1) */
+
+.action-grid {
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 15px;
+
+    padding: 0 20px;
+
+}
+
+
+
+.btn-wealth {
+
+    padding: 15px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    font-weight: 600;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    cursor: pointer;
+
+}
+
+
+
+.btn-deposit { background-color: var(--accent-green); color: white; }
+
+.btn-withdraw { background-color: var(--accent-blue); color: white; }
+
+
+
+/* Plan Cards (Imagem 9) */
+
+.plan-card {
+
+    background: var(--card-bg);
+
+    margin: 15px 20px;
+
+    padding: 20px;
+
+    border-radius: 18px;
+
+}
+
+
+
+.plan-badge {
+
+    background: rgba(0,208,132,0.2);
+
+    color: var(--accent-green);
+
+    padding: 4px 12px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+
+}
+
+
+
+/* Bottom Navigation (Imagem 1) */
+
+.bottom-nav {
+
+    position: fixed;
+
+    bottom: 0;
+
+    width: 100%;
+
+    background: #0d1b3e;
+
+    display: flex;
+
+    justify-content: space-around;
+
+    padding: 12px 0;
+
+    border-top: 1px solid rgba(255,255,255,0.1);
+
+}
+
+
+
+.nav-item {
+
+    text-align: center;
+
+    font-size: 11px;
+
+    color: var(--text-gray);
+
+}
+
+
+
+.nav-item.active { color: var(--accent-blue); }
+
+
+
+/* Timer de Depósito (Conforme pedido) */
+
+#deposit-timer {
+
+    font-size: 24px;
+
+    color: var(--accent-red);
+
+    text-align: center;
+
+    margin: 20px 0;
+
+  }
