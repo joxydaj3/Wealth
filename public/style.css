@@ -1,67 +1,30 @@
 :root {
     --bg: #050a30;
     --card: #0d1b3e;
-    --accent: #007bff;
+    --blue: #007bff;
     --green: #00d084;
-    --red: #ff4d4d;
-    --text: #ffffff;
 }
-
-body {
-    background-color: var(--bg);
-    color: var(--text);
-    font-family: 'Inter', sans-serif;
-    margin: 0;
-    overflow-x: hidden;
-}
-
-.page { display: none; padding: 20px; padding-bottom: 100px; animation: fadeIn 0.4s; }
+body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; margin: 0; }
+.page { display: none; padding: 20px 20px 100px; animation: slideUp 0.3s; }
 .page.active { display: block; }
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.top-bar { font-size: 20px; font-weight: 800; padding: 20px 0; }
+.balance-card { background: linear-gradient(135deg, #1e3a8a, #0b1437); padding: 30px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+.main-amount { font-size: 38px; font-weight: 800; margin: 10px 0; }
+.btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
 
-/* Cards */
-.balance-card {
-    background: linear-gradient(135deg, #1e3a8a 0%, #0d1b3e 100%);
-    padding: 25px;
-    border-radius: 20px;
-    margin: 20px 0;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-}
+.btn-small { background: var(--card); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 15px; color: white; font-weight: bold; cursor: pointer; }
+.btn-small:first-child { background: var(--green); }
+.btn-small:last-child { background: var(--blue); }
 
-.currency-tag {
-    background: rgba(255,255,255,0.15);
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 8px;
-    font-size: 12px;
-}
+.card-glass { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); }
+.nav-bar { position: fixed; bottom: 0; width: 100%; background: #0b1437; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid rgba(255,255,255,0.1); }
+.nav-btn { font-size: 11px; color: #6e84ab; text-align: center; cursor: pointer; }
+.nav-btn.active { color: white; }
 
-/* Botões */
-.btn {
-    width: 100%; padding: 16px; border: none; border-radius: 14px;
-    font-weight: bold; cursor: pointer; transition: 0.3s;
-}
-.btn-primary { background: var(--accent); color: white; }
-.btn-green { background: var(--green); color: white; }
-.btn-primary-outline { border: 2px solid var(--accent); background: transparent; color: var(--accent); }
+input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 12px; color: white; margin-bottom: 10px; box-sizing: border-box; }
+.btn-blue { background: var(--blue); color: white; width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: bold; }
 
-/* Menu Inferior */
-.nav-bottom {
-    position: fixed; bottom: 0; width: 100%; background: #0b1a3d;
-    display: flex; justify-content: space-around; padding: 12px 0;
-    border-top: 1px solid rgba(255,255,255,0.1);
-}
-.nav-item { color: #6e84ab; font-size: 11px; text-align: center; }
-.nav-item.active { color: white; font-weight: bold; }
-
-/* Admin Panel Fix */
-.admin-header { background: #0d1b3e; padding: 20px; border-bottom: 1px solid #1e3a8a; }
-.admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; }
-.stat-card { background: #0b1a3d; padding: 15px; border-radius: 12px; border-left: 4px solid var(--accent); }
-
-/* Auth */
-.auth-container { padding: 40px 20px; text-align: center; }
-.auth-header h1 { font-size: 45px; letter-spacing: 3px; margin-bottom: 10px; }
-.auth-link { margin-top: 20px; color: var(--accent); cursor: pointer; }
-input { width: 100%; background: #0b1a3d; border: 1px solid #1e3a8a; padding: 15px; border-radius: 12px; color: white; margin-bottom: 10px; }
+.plan-card { background: var(--card); padding: 20px; border-radius: 20px; margin-top: 15px; }
+.menu-item { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
