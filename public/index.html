@@ -3,97 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wealth - Investimentos</title>
+    <title>Wealth - Fintech</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="app">
-        
-        <!-- LOGIN -->
-        <section id="page-login" class="page active">
-            <div class="auth-header"><h1>WEALTH</h1><p>Invista no seu futuro</p></div>
-            <div class="card-glass">
-                <input type="text" id="l-phone" placeholder="Telefone">
-                <input type="password" id="l-pass" placeholder="Senha">
-                <button class="btn btn-blue" onclick="doLogin()">Entrar</button>
+        <!-- REGISTRO -->
+        <section id="page-register" class="page active">
+            <div style="text-align:center; padding: 40px 0;">
+                <h1 style="font-size: 45px; margin:0;">WEALTH</h1>
+                <p style="color: #888;">Bem-vindo à maior plataforma de investimentos de Moçambique.</p>
             </div>
+            <input type="text" id="reg-phone" placeholder="Número de Telefone">
+            <input type="text" id="reg-name" placeholder="Nome Completo">
+            <input type="password" id="reg-pass" placeholder="Senha">
+            <input type="password" id="reg-confirm" placeholder="Confirmar Senha">
+            <input type="text" id="reg-invite" placeholder="Código de Convite">
+            <div class="captcha-box">Escreva: <strong style="color:var(--blue)">wealth2026</strong></div>
+            <input type="text" id="reg-captcha" placeholder="Digite o código acima">
+            <button class="btn-blue" onclick="handleRegister()" style="width:100%; padding:18px; border-radius:14px; border:none; font-weight:bold; background:var(--blue); color:white;">Criar Conta</button>
+            <p style="text-align:center; margin-top:20px;" onclick="showPage('page-login')">Já tem conta? Entrar</p>
+        </section>
+
+        <!-- LOGIN -->
+        <section id="page-login" class="page">
+            <div style="text-align:center; padding: 60px 0;"><h1>ENTRAR</h1></div>
+            <input type="text" id="log-phone" placeholder="Número de Telefone">
+            <input type="password" id="log-pass" placeholder="Senha">
+            <button class="btn-blue" onclick="handleLogin()" style="width:100%; padding:18px; border-radius:14px; border:none; font-weight:bold; background:var(--blue); color:white;">Aceder Conta</button>
         </section>
 
         <!-- HOME -->
         <section id="page-home" class="page">
-            <div class="top-bar">Olá, <span id="u-name">Usuário</span> 👋</div>
-            <div class="balance-card">
-                <small>Saldo Disponível</small>
-                <div class="main-amount">MT <span id="u-balance">0.00</span></div>
-                <div class="tag-mzn">MZN 🇲🇿</div>
+            <div style="padding: 10px 0;">Olá, <span id="u-name">Usuário</span> 👋<br><small id="cur-date" style="color:#6e84ab"></small></div>
+            <div class="wealth-card" style="margin-top:20px;">
+                <small style="color:#6e84ab">Saldo Total</small>
+                <div class="main-balance">MT <span id="u-balance">0.00</span></div>
+                <div style="background:rgba(255,255,255,0.1); display:inline-block; padding:5px 12px; border-radius:10px; font-size:12px;">MZN 🇲🇿</div>
             </div>
-            <div class="btn-group">
-                <button class="btn-small" onclick="showPage('page-deposit')">📥 Depósito</button>
-                <button class="btn-small" onclick="showPage('page-withdraw')">📤 Saque</button>
+            <div class="btn-row">
+                <button class="btn-action btn-deposit" onclick="showPage('page-deposit')">📥 Depositar</button>
+                <button class="btn-action btn-withdraw" onclick="showPage('page-withdraw')">📤 Sacar</button>
             </div>
-            
-            <div class="section-title">Plano Iniciante</div>
-            <div id="plans-list">
-                <!-- Planos aparecem aqui -->
-                <div class="plan-card">
-                    <div class="plan-header"><strong>Welcome to Wealth</strong> <span>150%</span></div>
-                    <p>Mínimo: MT 300.00</p>
-                    <button class="btn btn-blue-outline">Investir Agora</button>
-                </div>
-            </div>
+            <h3>Plano Iniciante</h3>
+            <div id="plan-list"></div>
         </section>
 
-        <!-- PÁGINA DE LUCROS (Onde recebe o dinheiro) -->
+        <!-- LUCROS -->
         <section id="page-profits" class="page">
-            <div class="top-bar">Meus Lucros Diários</div>
-            <div id="profit-claims">
-                <p style="text-align:center; color:#888;">Nenhum lucro pendente hoje.</p>
+            <h3>Meus Rendimentos</h3>
+            <div id="profits-available">
+                <p style="text-align:center; color:#6e84ab; margin-top:50px;">Aguardando processamento de hoje...</p>
             </div>
         </section>
-
-        <!-- PROJETOS (Vazio como solicitado) -->
-        <section id="page-projects" class="page"></section>
 
         <!-- EQUIPE -->
         <section id="page-team" class="page">
-            <div class="top-bar">Minha Equipe</div>
-            <div class="card-glass">
-                <p>Comissões de Rede</p>
-                <div style="display:flex; justify-content:space-around;">
-                    <div>6%<br><small>Nível 1</small></div>
-                    <div>3%<br><small>Nível 2</small></div>
-                    <div>1%<br><small>Nível 3</small></div>
+            <h3>Minha Rede</h3>
+            <div class="wealth-card">
+                <p>Comissões de Indicação:</p>
+                <div style="display:flex; justify-content:space-around; text-align:center;">
+                    <div><strong>6%</strong><br><small>Nível 1</small></div>
+                    <div><strong>3%</strong><br><small>Nível 2</small></div>
+                    <div><strong>1%</strong><br><small>Nível 3</small></div>
                 </div>
             </div>
-            <div class="card-glass" style="margin-top:20px;">
-                <p>Link de Convite</p>
-                <input type="text" readonly id="ref-link" value="Carregando...">
-                <button class="btn btn-blue" onclick="copyRef()">Copiar Link</button>
+            <div class="wealth-card" style="margin-top:20px;">
+                <p>Seu Link:</p>
+                <input type="text" id="share-link" readonly style="margin-bottom:10px;">
+                <button class="btn-action btn-withdraw" onclick="copyLink()" style="width:100%">Copiar Link</button>
             </div>
         </section>
 
         <!-- CONTA -->
         <section id="page-account" class="page">
-            <div class="top-bar">Minha Conta</div>
-            <div class="profile-header">👤 <h3 id="acc-name">Usuário</h3></div>
-            <div class="menu-list">
-                <div class="menu-item">📄 Sobre Nós</div>
-                <div class="menu-item">🛡️ Política de Privacidade</div>
-                <div class="menu-item">📲 Baixar Aplicativo</div>
-                <div class="menu-item" style="color:red; opacity:0.5; pointer-events:none;">🚪 Sair (Desativado)</div>
+            <div style="text-align:center; padding:30px 0;">
+                <div style="font-size:60px;">👤</div>
+                <h2 id="acc-name">Nome Usuário</h2>
+                <small id="acc-phone" style="color:#6e84ab"></small>
+            </div>
+            <div class="wealth-card">
+                <div style="padding:15px 0; border-bottom:1px solid rgba(255,255,255,0.05)">📄 Sobre Nós</div>
+                <div style="padding:15px 0; border-bottom:1px solid rgba(255,255,255,0.05)">📲 Baixar APP (Android/iOS)</div>
+                <div style="padding:15px 0; color:red" onclick="location.reload()">Sair da Conta</div>
             </div>
         </section>
 
-        <!-- NAVEGAÇÃO -->
-        <nav class="nav-bar">
-            <div onclick="showPage('page-home', this)" class="nav-btn active">🏠<br>Início</div>
-            <div onclick="showPage('page-projects', this)" class="nav-btn">📂<br>Projetos</div>
-            <div onclick="showPage('page-profits', this)" class="nav-btn">💰<br>Lucros</div>
-            <div onclick="showPage('page-team', this)" class="nav-btn">👥<br>Equipe</div>
-            <div onclick="showPage('page-account', this)" class="nav-btn">⚙️<br>Conta</div>
+        <!-- NAV -->
+        <nav class="bottom-nav" id="main-nav" style="display:none">
+            <div class="nav-item active" onclick="showPage('page-home', this)">🏠<br>Início</div>
+            <div class="nav-item" onclick="showPage('page-profits', this)">💰<br>Lucros</div>
+            <div class="nav-item" onclick="showPage('page-team', this)">👥<br>Equipe</div>
+            <div class="nav-item" onclick="showPage('page-account', this)">⚙️<br>Conta</div>
         </nav>
     </div>
     <script src="app.js"></script>
 </body>
-    </html>
+</html>
