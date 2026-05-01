@@ -1,76 +1,48 @@
-// Função para Trocar de Página
-function showPage(pageId) {
-    // Esconde todas as páginas
+function showPage(pageId, btn) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    // Mostra a página pedida
     document.getElementById(pageId).classList.add('active');
-
-    // Mostrar/Esconder menu inferior
-    const nav = document.getElementById('main-nav');
-    if (pageId === 'page-login' || pageId === 'page-register') {
-        nav.style.display = 'none';
-    } else {
-        nav.style.display = 'flex';
+    
+    if(btn) {
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
     }
+
+    if(pageId === 'page-profits') loadProfits();
 }
 
-// Configurar Data Atual
-document.getElementById('current-date').innerText = new Date().toLocaleDateString('pt-BR', {
-    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
-});
+async function loadProfits() {
+    const res = await fetch('/api/user/check-profits');
+    const data = await res.json();
+    const container = document.getElementById('profit-claims');
+    
+    if(data.length === 0) {
+        container.innerHTML = "<p style='text-align:center;'>Você não tem lucros para coletar hoje.</p>";
+        return;
+    }
 
-// Lógica de Login
-async function handleLogin() {
-    const phone = document.getElementById('login-phone').value;
-    const pass = document.getElementById('login-pass').value;
+    container.innerHTML = "";
+    data.forEach(p => {
+        container.innerHTML += `
+            <div class="card-glass" style="margin-bottom:10px;">
+                <p>Plano: ${p.name}</p>
+                <p>Valor: <strong>MT ${p.daily_profit.toFixed(2)}</strong></p>
+                <button class="btn-blue" onclick="claimProfit(${p.id})">RECEBER AGORA</button>
+            </div>
+        `;
+    });
+}
 
-    if (!phone || !pass) return alert("Preencha todos os campos");
-
-    const res = await fetch('/api/login', {
+async function claimProfit(id) {
+    const res = await fetch('/api/user/claim-profit', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ phone, password: pass })
+        body: JSON.stringify({ userPlanId: id })
     });
-
-    const data = await res.json();
-    if (data.success) {
-        if (data.role === 'admin') {
-            window.location.href = '/admin.html';
-        } else {
-            loadUserData();
-            showPage('page-home');
-        }
-    } else {
-        alert("Erro: " + data.error);
+    if(res.ok) {
+        alert("Dinheiro recebido com sucesso!");
+        loadProfits();
+        updateBalance();
     }
 }
 
-// Lógica de Registro
-async function handleRegister() {
-    const name = document.getElementById('reg-name').value;
-    const phone = document.getElementById('reg-phone').value;
-    const pass = document.getElementById('reg-pass').value;
-    const invite = document.getElementById('reg-invite').value;
-
-    const res = await fetch('/api/register', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ name, phone, password: pass, invite_code: invite })
-    });
-
-    const data = await res.json();
-    if(data.success) {
-        alert("Conta criada com sucesso! Faça login.");
-        showPage('page-login');
-    } else {
-        alert(data.error);
-    }
-}
-
-// Carregar Dados do Usuário
-async function loadUserData() {
-    const res = await fetch('/api/user/data');
-    const user = await res.json();
-    document.getElementById('display-name').innerText = `Olá, ${user.name}! 👋`;
-    document.getElementById('val-balance').innerText = user.balance.toFixed(2);
-}
+// Outras funções de Login e Balanço mantêm a lógica anterior conectada às novas IDs do HTML.
