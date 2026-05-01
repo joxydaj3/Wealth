@@ -3,42 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wealth Admin - Controle Total</title>
+    <title>Wealth Admin - PRO</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        .admin-body { background: #050a30; min-height: 100vh; padding-bottom: 50px; }
-        .admin-nav { display: flex; overflow-x: auto; gap: 10px; padding: 15px; background: #0d1b3e; border-bottom: 1px solid #1e3a8a; position: sticky; top: 0; z-index: 1000; }
-        .nav-tab { padding: 10px 20px; background: rgba(255,255,255,0.05); border: 1px solid #1e3a8a; border-radius: 10px; color: #8899ac; cursor: pointer; white-space: nowrap; font-size: 13px; font-weight: 600; }
+        .admin-nav { display: flex; overflow-x: auto; gap: 10px; padding: 15px; background: #0d1b3e; position: sticky; top: 0; z-index: 1000; }
+        .nav-tab { padding: 10px 18px; background: rgba(255,255,255,0.05); border: 1px solid #1e3a8a; border-radius: 8px; color: #8899ac; cursor: pointer; white-space: nowrap; font-size: 13px; }
         .nav-tab.active { background: var(--blue); color: white; border-color: white; }
-        
-        .tab-content { display: none; padding: 20px; animation: fadeIn 0.3s; }
+        .tab-content { display: none; padding: 15px; animation: fadeIn 0.3s; }
         .tab-content.active { display: block; }
-
-        .admin-grid-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-        .mini-card { background: var(--card); padding: 12px; border-radius: 15px; border-left: 4px solid var(--blue); }
-        .mini-card h4 { margin: 0; font-size: 10px; color: #8899ac; text-transform: uppercase; }
-        .mini-card p { margin: 5px 0 0; font-size: 14px; font-weight: 800; color: white; }
-
-        .user-card-main { background: #0b1437; border-radius: 15px; padding: 15px; margin-bottom: 15px; border: 1px solid #1e3a8a; position: relative; }
-        .user-header { display: flex; justify-content: space-between; border-bottom: 1px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 10px; }
-        .user-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px; color: #8899ac; }
-        .user-details-grid b { color: white; font-weight: 600; }
         
-        .btn-group-admin { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 15px; }
-        .btn-adm { padding: 10px; border: none; border-radius: 8px; font-size: 10px; font-weight: bold; cursor: pointer; color: white; text-align: center; }
-        
-        .plan-img-admin { width: 100%; height: 120px; object-fit: cover; border-radius: 10px; margin-bottom: 10px; }
-        .search-box { width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--blue); border-radius: 10px; color: white; margin-bottom: 20px; outline: none; }
-        
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .card-user { background: #0b1437; border-radius: 15px; padding: 15px; margin-bottom: 12px; border: 1px solid #1e3a8a; }
+        .grid-u { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px; margin-top: 10px; }
+        .grid-u b { color: white; }
+        .btn-adm-sm { padding: 8px; border: none; border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer; color: white; }
     </style>
 </head>
 <body class="admin-body">
-
-    <div class="header" style="padding: 20px;">
-        <h2 style="margin:0">🛡️ Painel de Administração</h2>
-    </div>
 
     <div class="admin-nav">
         <div class="nav-tab active" onclick="openTab(this, 'view-analytics')">📊 Analytics</div>
@@ -49,40 +29,39 @@
         <div class="nav-tab" onclick="openTab(this, 'view-ads')">📢 Anúncios</div>
     </div>
 
-    <div id="main-admin-container">
-        
+    <div id="admin-main">
         <!-- ANALYTICS -->
         <section id="view-analytics" class="tab-content active">
-            <div class="admin-grid-stats" id="stats-render"></div>
+            <div id="stats-render" class="admin-grid-stats">Carregando dados...</div>
         </section>
 
         <!-- USUÁRIOS -->
         <section id="view-users" class="tab-content">
-            <input type="text" id="searchUser" class="search-box" placeholder="Buscar por Telefone, Nome ou Convite..." onkeyup="filterUsers()">
-            <div id="users-render">Carregando membros...</div>
+            <input type="text" id="searchU" class="search-box" placeholder="Buscar telefone ou nome..." onkeyup="filterUsers()">
+            <div id="users-render" style="margin-top:15px"></div>
         </section>
 
         <!-- DEPÓSITOS -->
         <section id="view-deposits" class="tab-content">
-            <div id="deposits-render">Buscando depósitos...</div>
+            <div id="deposits-render"></div>
         </section>
 
         <!-- SAQUES -->
         <section id="view-withdraws" class="tab-content">
-            <div id="withdraws-render">Buscando saques...</div>
+            <div id="withdraws-render"></div>
         </section>
 
         <!-- PLANOS -->
         <section id="view-plans" class="tab-content">
             <div class="wealth-card">
                 <h3>+ Novo Plano</h3>
-                <form id="form-new-plan">
-                    <input type="text" id="p_name" placeholder="Nome do Plano" class="input-tiny" required>
-                    <input type="number" id="p_price" placeholder="Preço (MZN)" class="input-tiny" required>
+                <form id="form-plan-admin" enctype="multipart/form-data">
+                    <input type="text" id="p_name" placeholder="Nome" class="input-tiny" required>
+                    <input type="number" id="p_price" placeholder="Preço" class="input-tiny" required>
                     <input type="number" id="p_daily" placeholder="Lucro Diário" class="input-tiny" required>
-                    <input type="number" id="p_duration" placeholder="Duração (Dias)" class="input-tiny" required>
+                    <input type="number" id="p_duration" placeholder="Duração" class="input-tiny" required>
                     <input type="file" id="p_image" accept="image/*" class="input-tiny">
-                    <button type="submit" class="btn btn-green" style="width:100%">Publicar Plano</button>
+                    <button type="submit" class="btn btn-green">Publicar Plano</button>
                 </form>
             </div>
             <div id="plans-render" style="margin-top:20px"></div>
@@ -91,150 +70,114 @@
         <!-- ANÚNCIOS -->
         <section id="view-ads" class="tab-content">
             <div class="wealth-card">
-                <h3>📢 Novo Anúncio</h3>
-                <textarea id="ad_msg" class="input-tiny" style="height:80px; padding:10px" placeholder="Mensagem do anúncio..."></textarea>
-                <button class="btn btn-blue" style="width:100%" onclick="sendAd()">Postar Agora</button>
+                <textarea id="ad_msg" class="input-tiny" placeholder="Mensagem do anúncio..."></textarea>
+                <button class="btn btn-blue" onclick="postAd()">Postar Notificação</button>
             </div>
             <div id="ads-render" style="margin-top:20px"></div>
         </section>
-
     </div>
 
     <script>
-        function openTab(btn, tabId) {
+        function openTab(btn, id) {
             document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             btn.classList.add('active');
-            document.getElementById(tabId).classList.add('active');
-            refreshData(tabId);
+            document.getElementById(id).classList.add('active');
+            refresh(id);
         }
 
-        async function refreshData(tabId) {
-            if(tabId === 'view-analytics') {
+        async function refresh(id) {
+            if(id === 'view-analytics') {
                 const res = await fetch('/api/admin/full-stats');
                 const s = await res.json();
-                document.getElementById('stats-render').innerHTML = `
-                    <div class="mini-card"><h4>Usuários</h4><p>${s.totalUsers}</p></div>
-                    <div class="mini-card" style="border-color:var(--green)"><h4>Saldo Total</h4><p>MT ${s.totalBalance.toFixed(2)}</p></div>
-                    <div class="mini-card"><h4>Dep. Pendentes</h4><p>${s.depPending.c} (MT ${s.depPending.s || 0})</p></div>
-                    <div class="mini-card"><h4>Saq. Pendentes</h4><p>${s.withPending.c} (MT ${s.withPending.s || 0})</p></div>
-                    <div class="mini-card"><h4>Dep. Aprovados</h4><p>MT ${s.depApproved.s || 0}</p></div>
-                    <div class="mini-card"><h4>Saq. Aprovados</h4><p>MT ${s.withApproved.s || 0}</p></div>
-                `;
+                document.getElementById('stats-render').innerHTML = `<div class="mini-card"><h4>Usuários</h4><p>${s.totalUsers}</p></div><div class="mini-card"><h4>Saldo Total</h4><p>MT ${s.totalBalance}</p></div>`;
             }
 
-            if(tabId === 'view-users') {
+            if(id === 'view-users') {
                 const res = await fetch('/api/admin/user-details');
                 const users = await res.json();
                 let html = "";
                 users.forEach(u => {
                     html += `
-                    <div class="user-card-main" style="border-left: 5px solid ${u.status === 'banned' ? '#ff4d4d' : 'var(--green)'}">
-                        <div class="user-header">
-                            <strong>${u.name} ${u.status === 'banned' ? '(BANIDO)' : ''}</strong>
-                            <span style="color:var(--green)">MT ${u.balance.toFixed(2)}</span>
-                        </div>
-                        <div class="user-details-grid">
-                            <div>📞 Telefone: <b>${u.phone}</b></div>
-                            <div>🆔 Convite: <b>${u.ref_code}</b></div>
+                    <div class="card-user">
+                        <div style="display:flex; justify-content:space-between"><b>${u.name}</b> <span>MT ${u.balance}</span></div>
+                        <div class="grid-u">
+                            <div>📞 Tel: <b>${u.phone}</b></div>
+                            <div>🔑 Senha: <b style="color:orange">${u.password_plain || '---'}</b></div>
                             <div>👥 Convidados: <b>${u.total_invites}</b></div>
-                            <div>📥 Depositantes: <b>${u.total_depositors}</b></div>
-                            <div>💰 Ganhos: <b>MT ${u.total_earned || 0}</b></div>
-                            <div style="color:orange">🔑 Senha: <b>${u.pass_hash ? 'Protegida (Hash)' : 'N/A'}</b></div>
+                            <div>💰 Ganhou: <b>MT ${u.total_earned || 0}</b></div>
                         </div>
-                        <div style="margin-top:10px; font-size:10px; color:#8899ac">
-                            <b>PLANOS ATIVOS:</b> ${u.active_plans.length ? u.active_plans.map(p=>p.name).join(', ') : 'Nenhum'}
-                        </div>
-                        <div class="btn-group-admin">
-                            <button class="btn-adm" style="background:var(--blue)" onclick="adjustBalance(${u.id})">Saldo</button>
-                            <button class="btn-adm" style="background:#6c757d" onclick="givePlan(${u.id})">+Plano</button>
-                            ${u.status === 'active' ? 
-                                `<button class="btn-adm" style="background:#ff4d4d" onclick="changeStatus(${u.id}, 'banned')">Banir</button>` :
-                                `<button class="btn-adm" style="background:var(--green)" onclick="changeStatus(${u.id}, 'active')">Ativar</button>`
-                            }
+                        <div style="margin-top:10px; display:flex; gap:5px">
+                            <button class="btn-adm-sm btn-blue" onclick="editPhone(${u.id})">Editar Tel</button>
+                            <button class="btn-adm-sm btn-green" onclick="addPlan(${u.id})">+ Plano</button>
+                            <button class="btn-adm-sm" style="background:red" onclick="ban(${u.id})">Banir</button>
                         </div>
                     </div>`;
                 });
                 document.getElementById('users-render').innerHTML = html;
             }
 
-            if(tabId === 'view-plans') {
-                const res = await fetch('/api/admin/list-plans');
-                const plans = await res.json();
+            if(id === 'view-deposits' || id === 'view-withdraws') {
+                const type = id === 'view-deposits' ? 'deposit' : 'withdraw';
+                const res = await fetch(`/api/admin/transactions?type=${type}`);
+                const list = await res.json();
                 let html = "";
-                plans.forEach(p => {
+                list.forEach(t => {
                     html += `
-                    <div class="user-card-main">
-                        <img src="${p.image_url}" class="plan-img-admin">
-                        <div class="user-header"><strong>${p.name}</strong> <span>${p.active ? '✅ ATIVO' : '❌ OFF'}</span></div>
-                        <div class="user-details-grid">
-                            <div>Preço: <b>MT ${p.price}</b></div>
-                            <div>Diário: <b>MT ${p.daily_profit}</b></div>
-                            <div>Dias: <b>${p.duration}</b></div>
-                            <div>Total: <b>MT ${p.total_return}</b></div>
-                        </div>
-                        <div class="btn-group-admin">
-                            <button class="btn-adm" style="background:var(--blue)" onclick="editPlan(${p.id})">Editar</button>
-                            <button class="btn-adm" style="background:#ff4d4d" onclick="deletePlan(${p.id})">Eliminar</button>
-                        </div>
+                    <div class="card-user">
+                        <p><b>${t.name}</b> - MT ${t.amount}</p>
+                        ${t.proof_url ? `<img src="${t.proof_url}" style="width:100%; border-radius:10px">` : ''}
+                        <button onclick="handleTrans(${t.id}, 'approve', '${id}')" class="btn-adm-sm btn-green">Aprovar</button>
+                        <button onclick="handleTrans(${t.id}, 'reject', '${id}')" class="btn-adm-sm" style="background:red">Recusar</button>
                     </div>`;
                 });
-                document.getElementById('plans-render').innerHTML = html;
+                document.getElementById(type + 's-render').innerHTML = html || "Vazio.";
             }
 
-            if(tabId === 'view-ads') {
+            if(id === 'view-ads') {
                 const res = await fetch('/api/admin/list-ads');
                 const ads = await res.json();
                 let html = "";
-                ads.forEach(ad => {
-                    html += `
-                    <div class="user-card-main">
-                        <p style="font-size:12px">${ad.message}</p>
-                        <button class="btn-adm" style="background:#ff4d4d; width:80px" onclick="deleteAd(${ad.id})">Apagar</button>
-                    </div>`;
+                ads.forEach(a => {
+                    html += `<div class="card-user"><p>${a.message}</p><button class="btn-adm-sm" style="background:red" onclick="delAd(${a.id})">Eliminar</button></div>`;
                 });
                 document.getElementById('ads-render').innerHTML = html;
             }
         }
 
-        // FUNÇÕES DE AÇÃO
-        function filterUsers() {
-            const term = document.getElementById('searchUser').value.toLowerCase();
-            document.querySelectorAll('.user-card-main').forEach(c => {
-                c.style.display = c.innerText.toLowerCase().includes(term) ? 'block' : 'none';
-            });
+        async function editPhone(id) {
+            const n = prompt("Novo número de telefone:");
+            if(n) await fetch('/api/admin/user/update-phone', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({userId: id, newPhone: n}) });
+            refresh('view-users');
         }
 
-        async function changeStatus(userId, status) {
-            await fetch('/api/admin/user/status', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ userId, status })
-            });
-            refreshData('view-users');
-        }
-
-        async function sendAd() {
-            const message = document.getElementById('ad_msg').value;
-            await fetch('/api/admin/send-ad', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ message })
-            });
-            alert("Anúncio Enviado!");
+        async function postAd() {
+            const m = document.getElementById('ad_msg').value;
+            await fetch('/api/admin/send-ad', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({message: m}) });
             document.getElementById('ad_msg').value = "";
-            refreshData('view-ads');
+            refresh('view-ads');
         }
 
-        async function deleteAd(id) {
-            if(confirm("Apagar anúncio?")) {
-                await fetch('/api/admin/delete-ad', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({id}) });
-                refreshData('view-ads');
-            }
+        async function delAd(id) {
+            await fetch('/api/admin/delete-ad', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id}) });
+            refresh('view-ads');
         }
 
-        // Inicializar
-        refreshData('view-analytics');
+        // Script de envio do Plano com Foto
+        document.getElementById('form-plan-admin').onsubmit = async (e) => {
+            e.preventDefault();
+            const fd = new FormData();
+            fd.append('name', document.getElementById('p_name').value);
+            fd.append('price', document.getElementById('p_price').value);
+            fd.append('daily', document.getElementById('p_daily').value);
+            fd.append('duration', document.getElementById('p_duration').value);
+            fd.append('image', document.getElementById('p_image').files[0]);
+            await fetch('/api/admin/create-plan', { method: 'POST', body: fd });
+            alert("Plano Criado!");
+            refresh('view-plans');
+        }
+
+        refresh('view-analytics');
     </script>
 </body>
-                                                             </html>
+</html>
