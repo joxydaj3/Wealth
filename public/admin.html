@@ -1,29 +1,129 @@
 <!DOCTYPE html>
 <html lang="pt">
-<head><meta charset="UTF-8"><link rel="stylesheet" href="style.css"></head>
-<body style="padding:20px">
-    <h2>🛡️ Painel Admin</h2>
-    <div class="wealth-card">
-        <h3>+ Adicionar Novo Plano</h3>
-        <form id="plan-form">
-            <input type="text" name="name" placeholder="Nome do Plano" required>
-            <input type="number" name="price" placeholder="Preço do Plano" required>
-            <input type="number" name="daily" placeholder="Lucro Diário" required>
-            <input type="number" name="duration" placeholder="Duração (Dias)" required>
-            <p>Foto do Plano:</p>
-            <input type="file" name="image" accept="image/*">
-            <button type="submit" class="btn-sm btn-dep" style="width:100%">Salvar Plano</button>
-        </form>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wealth - Painel de Administração</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos específicos para o Admin (Grid e Tabs) */
+        .admin-nav-scroll { display: flex; overflow-x: auto; gap: 10px; padding: 15px; background: #0d1b3e; border-bottom: 1px solid #1e3a8a; }
+        .nav-tab { padding: 8px 16px; background: rgba(255,255,255,0.05); border: 1px solid #1e3a8a; border-radius: 8px; color: #8899ac; cursor: pointer; white-space: nowrap; font-size: 13px; }
+        .nav-tab.active { background: var(--blue); color: white; border-color: var(--blue); }
+        .admin-section { display: none; padding: 20px; animation: fadeIn 0.3s; }
+        .admin-section.active { display: block; }
+        .user-card, .trans-card { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 4px solid var(--blue); }
+        .status-pending { color: orange; }
+        .status-approved { color: var(--green); }
+        .status-rejected { color: var(--red); }
+        .proof-img { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; margin: 10px 0; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="header" style="padding: 20px;">
+        <h2 style="margin:0">🛡️ Painel de Administração</h2>
+        <small style="color: #6e84ab;">Gerencie a plataforma Wealth Pro</small>
+    </div>
+
+    <!-- Menu de Abas (Todos os botões da sua imagem) -->
+    <div class="admin-nav-scroll">
+        <div class="nav-tab active" onclick="tab(this, 's-analytics')">📊 Analytics</div>
+        <div class="nav-tab" onclick="tab(this, 's-usuarios')">👥 Usuários</div>
+        <div class="nav-tab" onclick="tab(this, 's-depositos')">💰 Depósitos</div>
+        <div class="nav-tab" onclick="tab(this, 's-saques')">💸 Saques</div>
+        <div class="nav-tab" onclick="tab(this, 's-planos')">📋 Planos</div>
+        <div class="nav-tab" onclick="tab(this, 's-anuncios')">📢 Anúncios</div>
+    </div>
+
+    <div id="admin-content">
+        
+        <!-- ABA: ANALYTICS -->
+        <section id="s-analytics" class="admin-section active">
+            <div class="grid-actions" style="grid-template-columns: 1fr 1fr;">
+                <div class="wealth-card">
+                    <small>Total Usuários</small>
+                    <h2 id="adm-u-count">0</h2>
+                </div>
+                <div class="wealth-card">
+                    <small>Saldo Total</small>
+                    <h2 id="adm-u-balance">MT 0.00</h2>
+                </div>
+            </div>
+            <div class="wealth-card" style="margin-top:15px">
+                <small>Depósitos Pendentes</small>
+                <h2 id="adm-d-pending" style="color:orange">0</h2>
+            </div>
+        </section>
+
+        <!-- ABA: USUÁRIOS -->
+        <section id="s-usuarios" class="admin-section">
+            <h3>Gestão de Usuários</h3>
+            <div id="list-users"><!-- Carregado via JS --></div>
+        </section>
+
+        <!-- ABA: DEPÓSITOS -->
+        <section id="s-depositos" class="admin-section">
+            <h3>Depósitos Pendentes</h3>
+            <div id="list-deposits"></div>
+        </section>
+
+        <!-- ABA: SAQUES -->
+        <section id="s-saques" class="admin-section">
+            <h3>Pedidos de Saque</h3>
+            <div id="list-withdraws"></div>
+        </section>
+
+        <!-- ABA: PLANOS -->
+        <section id="s-planos" class="admin-section">
+            <div class="wealth-card">
+                <h3>+ Novo Plano</h3>
+                <form id="form-plan">
+                    <input type="text" id="p_name" placeholder="Nome do Plano" required class="input-tiny">
+                    <input type="number" id="p_price" placeholder="Preço (MZN)" required class="input-tiny">
+                    <input type="number" id="p_daily" placeholder="Lucro Diário" required class="input-tiny">
+                    <input type="number" id="p_duration" placeholder="Duração (Dias)" required class="input-tiny">
+                    <p style="font-size:12px; margin-bottom:5px">Foto do Plano:</p>
+                    <input type="file" id="p_image" accept="image/*" class="input-tiny">
+                    <button type="submit" class="btn btn-green">Criar e Ativar Plano</button>
+                </form>
+            </div>
+            <h3 style="margin-top:20px">Planos Ativos</h3>
+            <div id="list-plans"></div>
+        </section>
+
+        <!-- ABA: ANÚNCIOS -->
+        <section id="s-anuncios" class="admin-section">
+            <div class="wealth-card">
+                <h3>📢 Novo Anúncio Global</h3>
+                <textarea id="msg-text" placeholder="Digite a mensagem para todos os usuários..." class="input-tiny" style="height:100px; padding:10px"></textarea>
+                <button class="btn btn-blue" onclick="sendNotice()">Enviar para Todos</button>
+            </div>
+        </section>
+
     </div>
 
     <script>
-        document.getElementById('plan-form').onsubmit = async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            await fetch('/api/admin/create-plan', { method: 'POST', body: formData });
-            alert("Plano criado com sucesso!");
-            e.target.reset();
-        };
-    </script>
-</body>
-</html>
+        // Lógica de troca de abas
+        function tab(btn, sectionId) {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(sectionId).classList.add('active');
+            loadData(sectionId);
+        }
+
+        async function loadData(section) {
+            if(section === 's-analytics') {
+                const res = await fetch('/api/admin/stats');
+                const data = await res.json();
+                document.getElementById('adm-u-count').innerText = data.totalUsers;
+                document.getElementById('adm-u-balance').innerText = 'MT ' + data.totalBalance.toFixed(2);
+                document.getElementById('adm-d-pending').innerText = data.pendingDeposits;
+            }
+            if(section === 's-depositos') {
+                const res = await fetch('/api/admin/transactions?type=deposit');
+                const list = await res.json();
+                let html = "";
+                list.forEach(d => {
+                    html +=
