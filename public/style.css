@@ -3,77 +3,62 @@
     --card: #0d1b3e;
     --blue: #007bff;
     --green: #00d084;
+    --red: #ff4d4d;
     --text: #ffffff;
     --text-dim: #8899ac;
 }
 
-* { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+* { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
 
-body { background: var(--bg); color: var(--text); margin: 0; overflow-x: hidden; }
+body { background: var(--bg) !important; color: var(--text); margin: 0; padding: 0; min-height: 100vh; overflow-x: hidden; }
 
-/* Páginas e Transições */
-.page { display: none; padding: 20px; padding-bottom: 100px; animation: slideUp 0.4s ease; }
+/* Sistema de Páginas */
+.page { display: none; padding: 20px 20px 100px; min-height: 100vh; background: var(--bg); animation: fadeIn 0.3s ease; }
 .page.active { display: block; }
-@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Cabeçalhos de Auth */
-.auth-container { padding: 40px 10px; text-align: center; }
-.auth-header h1 { font-size: 42px; font-weight: 900; margin: 0; letter-spacing: 3px; }
-.auth-subtitle { color: var(--text-dim); font-size: 13px; margin: 15px 0 30px; line-height: 1.6; }
-
-/* Inputs pequenos e elegantes */
-.input-small {
-    width: 100%; height: 48px; background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
-    color: white; padding: 0 15px; margin-bottom: 12px; font-size: 14px;
+/* Cards de Luxo */
+.wealth-card {
+    background: linear-gradient(145deg, #122558 0%, #0d1b3e 100%);
+    border-radius: 24px; padding: 25px; margin-bottom: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05);
 }
 
-/* Captcha Estilizado */
-.captcha-wrapper { display: flex; gap: 10px; margin-bottom: 15px; }
-.captcha-code {
-    flex: 1; height: 48px; background: linear-gradient(45deg, #1e3a8a, #0d1b3e);
-    border-radius: 12px; display: flex; align-items: center; justify-content: center;
-    font-weight: bold; letter-spacing: 4px; color: var(--green); border: 1px dashed var(--blue);
-}
-.input-captcha {
-    width: 100px; height: 48px; background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
-    color: white; text-align: center;
-}
+.amount { font-size: 38px; font-weight: 800; margin: 10px 0; }
+.currency { background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 10px; font-size: 12px; }
 
 /* Botões */
-.btn { border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; width: 100%; }
-.btn-h { height: 50px; font-size: 15px; }
-.btn-primary { background: var(--blue); color: white; }
-.btn-green { background: var(--green); color: white; }
-
-/* Dashboard Cards */
-.balance-card {
-    background: linear-gradient(135deg, #1e3a8a 0%, #0b1437 100%);
-    padding: 30px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-}
-.main-amount { font-size: 38px; font-weight: 800; margin: 10px 0; }
-.tag-currency { background: rgba(255,255,255,0.1); display: inline-block; padding: 5px 12px; border-radius: 10px; font-size: 12px; }
-
-/* Action Grid (Botões Pequenos com Ícones) */
-.action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
-.btn-action {
+.btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+.btn-sm { 
     height: 45px; border: none; border-radius: 12px; color: white; font-weight: bold;
-    display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
 }
 .btn-dep { background: var(--green); }
 .btn-saq { background: var(--blue); }
 
-/* Menu Inferior */
-.bottom-nav {
-    position: fixed; bottom: 0; width: 100%; background: #0b1437;
-    display: flex; justify-content: space-around; padding: 12px 0;
-    border-top: 1px solid rgba(255,255,255,0.1);
+/* Formulários */
+.auth-header { text-align: center; padding: 40px 0; }
+.auth-header h1 { font-size: 45px; margin: 0; letter-spacing: 3px; }
+input { 
+    width: 100%; height: 50px; background: #0b1437; border: 1px solid #1e3a8a; 
+    border-radius: 12px; color: white; padding: 0 15px; margin-bottom: 12px; font-size: 14px;
 }
-.nav-btn { font-size: 10px; color: #6e84ab; text-align: center; cursor: pointer; }
-.nav-btn.active { color: white; font-weight: bold; }
 
-/* Listas */
-.card-glass { background: var(--card); padding: 20px; border-radius: 15px; }
-.menu-item { padding: 18px 0; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
-.logout { color: #ff4d4d; }
+/* Captcha Wrapper */
+.captcha-box { display: flex; gap: 10px; margin-bottom: 15px; }
+.captcha-val { 
+    flex: 1; height: 50px; background: #0d1b3e; border: 1px dashed var(--blue);
+    border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    font-weight: 900; letter-spacing: 5px; color: var(--green); font-size: 20px;
+}
+
+/* Navegação Inferior */
+.nav-bar {
+    position: fixed; bottom: 0; width: 100%; background: #0b1437;
+    display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.1);
+}
+.nav-item { font-size: 10px; color: #6e84ab; text-align: center; cursor: pointer; }
+.nav-item.active { color: white; font-weight: bold; }
+
+/* Planos */
+.plan-img { width: 100%; height: 180px; object-fit: cover; border-radius: 15px; margin-bottom: 15px; }
