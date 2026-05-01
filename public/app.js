@@ -1,97 +1,76 @@
-let timeLeft = 300; // 5 minutos
+// Função para Trocar de Página
+function showPage(pageId) {
+    // Esconde todas as páginas
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    // Mostra a página pedida
+    document.getElementById(pageId).classList.add('active');
 
-let timerId;
-
-
-
-function startDepositTimer() {
-
-    timerId = setInterval(() => {
-
-        timeLeft--;
-
-        let mins = Math.floor(timeLeft / 60);
-
-        let secs = timeLeft % 60;
-
-        document.getElementById('deposit-timer').innerText = 
-
-            `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-
-        
-
-        if (timeLeft <= 0) {
-
-            clearInterval(timerId);
-
-            document.getElementById('send-dep-btn').style.display = 'none';
-
-            alert('Tempo esgotado! O depósito foi cancelado automaticamente.');
-
-            location.reload();
-
-        }
-
-    }, 1000);
-
+    // Mostrar/Esconder menu inferior
+    const nav = document.getElementById('main-nav');
+    if (pageId === 'page-login' || pageId === 'page-register') {
+        nav.style.display = 'none';
+    } else {
+        nav.style.display = 'flex';
+    }
 }
 
+// Configurar Data Atual
+document.getElementById('current-date').innerText = new Date().toLocaleDateString('pt-BR', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+});
 
+// Lógica de Login
+async function handleLogin() {
+    const phone = document.getElementById('login-phone').value;
+    const pass = document.getElementById('login-pass').value;
 
-// Lógica de Login/Navegação baseada no texto fornecido
-
-async function login() {
-
-    const phone = document.getElementById('phone').value;
-
-    const pass = document.getElementById('pass').value;
-
-
+    if (!phone || !pass) return alert("Preencha todos os campos");
 
     const res = await fetch('/api/login', {
-
         method: 'POST',
-
         headers: {'Content-Type': 'application/json'},
-
         body: JSON.stringify({ phone, password: pass })
-
     });
 
-
-
     const data = await res.json();
-
-    if(data.success) {
-
-        if(data.role === 'admin') {
-
+    if (data.success) {
+        if (data.role === 'admin') {
             window.location.href = '/admin.html';
-
         } else {
-
-            document.getElementById('auth-page').style.display = 'none';
-
-            document.getElementById('main-dashboard').style.display = 'block';
-
             loadUserData();
-
+            showPage('page-home');
         }
-
     } else {
-
-        alert('Erro ao entrar');
-
+        alert("Erro: " + data.error);
     }
-
 }
 
+// Lógica de Registro
+async function handleRegister() {
+    const name = document.getElementById('reg-name').value;
+    const phone = document.getElementById('reg-phone').value;
+    const pass = document.getElementById('reg-pass').value;
+    const invite = document.getElementById('reg-invite').value;
 
+    const res = await fetch('/api/register', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ name, phone, password: pass, invite_code: invite })
+    });
 
-function openDeposit() {
-
-    document.getElementById('deposit-modal').style.display = 'flex';
-
-    startDepositTimer();
-
+    const data = await res.json();
+    if(data.success) {
+        alert("Conta criada com sucesso! Faça login.");
+        showPage('page-login');
+    } else {
+        alert(data.error);
     }
+}
+
+// Carregar Dados do Usuário
+async function loadUserData() {
+    const res = await fetch('/api/user/data');
+    const user = await res.json();
+    document.getElementById('display-name').innerText = `Olá, ${user.name}! 👋`;
+    document.getElementById('val-balance').innerText = user.balance.toFixed(2);
+}
