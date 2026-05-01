@@ -219,6 +219,41 @@ app.get('/api/admin/users', (req, res) => {
     res.json(users);
 });
 
+// --- ROTAS EXCLUSIVAS DO ADMIN ---
+
+// Listar todos os usuários
+app.get('/api/admin/users', (req, res) => {
+    if (req.session.role !== 'admin') return res.status(403).send();
+    const users = db.prepare("SELECT * FROM users ORDER BY id DESC").all();
+    res.json(users);
+});
+
+// Listar transações por tipo (deposit ou withdraw)
+app.get('/api/admin/transactions', (req, res) => {
+    const { type } = req.query; // ?type=deposit ou ?type=withdraw
+    const list = db.prepare(`
+        SELECT t.*, u.phone, u.name 
+        FROM transactions t 
+        JOIN users u ON t.user_id = u.id 
+        WHERE t.type = ? ORDER BY t.id DESC
+    `).all(type);
+    res.json(list);
+});
+
+// Editar saldo de usuário manualmente (Como na imagem)
+app.post('/api/admin/update-balance', (req, res) => {
+    const { userId, newBalance } = req.body;
+    db.prepare("UPDATE users SET balance = ? WHERE id = ?").run(newBalance, userId);
+    res.json({ success: true });
+});
+
+// Deletar ou Desativar Plano
+app.post('/api/admin/delete-plan', (req, res) => {
+    const { id } = req.body;
+    db.prepare("DELETE FROM plans WHERE id = ?").run(id);
+    res.json({ success: true });
+});
+
 // --- INICIALIZAÇÃO ---
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
