@@ -1,54 +1,29 @@
 <!DOCTYPE html>
 <html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <title>Wealth Admin</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body style="padding: 20px;">
-    <h2>🛡️ Painel de Administração</h2>
-    <div class="card-glass" style="display:flex; gap:10px; overflow-x:auto;">
-        <button class="btn-small" onclick="loadStats()">📊 Analytics</button>
-        <button class="btn-small" onclick="loadTab('users')">👥 Usuários</button>
-        <button class="btn-small" onclick="loadTab('trans')">💰 Transações</button>
-    </div>
-
-    <div id="admin-view" style="margin-top:20px;">
-        <!-- Analytics Inicial -->
-        <div class="card-glass">
-            <p>Total Usuários: <strong id="adm-u">0</strong></p>
-            <p>Saldo Total: <strong id="adm-b">0</strong></p>
-        </div>
-
-        <div class="card-glass" style="margin-top:20px;">
-            <h3>+ Novo Plano</h3>
-            <input type="text" id="p-name" placeholder="Nome do Plano">
-            <input type="number" id="p-price" placeholder="Preço (MZN)">
-            <input type="number" id="p-daily" placeholder="Lucro Diário">
-            <input type="number" id="p-duration" placeholder="Duração (Dias)">
-            <button class="btn-blue" onclick="createPlan()">Criar Plano</button>
-        </div>
+<head><meta charset="UTF-8"><link rel="stylesheet" href="style.css"></head>
+<body style="padding:20px">
+    <h2>🛡️ Painel Admin</h2>
+    <div class="wealth-card">
+        <h3>+ Adicionar Novo Plano</h3>
+        <form id="plan-form">
+            <input type="text" name="name" placeholder="Nome do Plano" required>
+            <input type="number" name="price" placeholder="Preço do Plano" required>
+            <input type="number" name="daily" placeholder="Lucro Diário" required>
+            <input type="number" name="duration" placeholder="Duração (Dias)" required>
+            <p>Foto do Plano:</p>
+            <input type="file" name="image" accept="image/*">
+            <button type="submit" class="btn-sm btn-dep" style="width:100%">Salvar Plano</button>
+        </form>
     </div>
 
     <script>
-        async function loadStats() {
-            const res = await fetch('/api/admin/dashboard');
-            const data = await res.json();
-            document.getElementById('adm-u').innerText = data.users;
-            document.getElementById('adm-b').innerText = 'MT ' + data.balance.toFixed(2);
-        }
-        async function createPlan() {
-            const body = {
-                name: document.getElementById('p-name').value,
-                price: document.getElementById('p-price').value,
-                daily: document.getElementById('p-daily').value,
-                duration: document.getElementById('p-duration').value,
-                total: document.getElementById('p-daily').value * document.getElementById('p-duration').value
-            };
-            await fetch('/api/admin/create-plan', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body)});
-            alert("Plano Criado!");
-        }
-        loadStats();
+        document.getElementById('plan-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            await fetch('/api/admin/create-plan', { method: 'POST', body: formData });
+            alert("Plano criado com sucesso!");
+            e.target.reset();
+        };
     </script>
 </body>
 </html>
