@@ -3,73 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wealth - Fintech</title>
+    <title>Wealth - Investimentos</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="app">
         
-        <!-- PÁGINA: LOGIN -->
+        <!-- TELA: LOGIN -->
         <section id="page-login" class="page active">
-            <div class="auth-header">
-                <h1>WEALTH</h1>
-                <p style="color: #888;">Sua plataforma de investimentos</p>
+            <div class="auth-container">
+                <div class="auth-header">
+                    <h1>WEALTH</h1>
+                    <p>Sua plataforma de investimentos profissional</p>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="login-phone" placeholder="Número de Telefone">
+                    <input type="password" id="login-pass" placeholder="Senha">
+                    <button class="btn btn-primary" onclick="handleLogin()">Entrar</button>
+                    <p class="auth-link" onclick="showPage('page-register')">Criar nova conta</p>
+                </div>
             </div>
-            <input type="text" id="login-phone" placeholder="Número de Telefone">
-            <input type="password" id="login-pass" placeholder="Senha">
-            <button class="btn btn-primary" onclick="handleLogin()">Entrar</button>
-            <p style="text-align: center; margin-top: 20px;" onclick="showPage('page-register')">Criar nova conta</p>
         </section>
 
-        <!-- PÁGINA: REGISTRO -->
+        <!-- TELA: REGISTRO (COM TEXTO PROFISSIONAL) -->
         <section id="page-register" class="page">
-            <div class="auth-header">
-                <h2>CRIAR CONTA</h2>
+            <div class="auth-container">
+                <div class="auth-header">
+                    <h2>Bem-vindo à Wealth</h2>
+                    <p>Comece sua jornada para a liberdade financeira com a plataforma mais confiável do mercado.</p>
+                </div>
+                <input type="text" id="reg-name" placeholder="Nome Completo">
+                <input type="text" id="reg-phone" placeholder="Telefone">
+                <input type="password" id="reg-pass" placeholder="Criar Senha">
+                <input type="text" id="reg-invite" placeholder="Código de Convite (Opcional)">
+                <button class="btn btn-green" onclick="handleRegister()">Criar Minha Conta Grátis</button>
+                <p class="auth-link" onclick="showPage('page-login')">Já tem uma conta? Entre aqui</p>
             </div>
-            <input type="text" id="reg-name" placeholder="Nome Completo">
-            <input type="text" id="reg-phone" placeholder="Número de Telefone">
-            <input type="password" id="reg-pass" placeholder="Criar Senha">
-            <input type="text" id="reg-invite" placeholder="Código de Convite (Opcional)">
-            <button class="btn btn-green" onclick="handleRegister()">Registrar</button>
-            <p style="text-align: center; margin-top: 20px;" onclick="showPage('page-login')">Já tenho conta</p>
         </section>
 
-        <!-- PÁGINA: HOME (DASHBOARD) -->
+        <!-- TELA: HOME -->
         <section id="page-home" class="page">
-            <div class="user-greeting">
-                <h3 id="display-name">Olá, Usuário! 👋</h3>
-                <small id="current-date"></small>
+            <div class="header-main">
+                <h3 id="display-name">Olá, Joaquim Jorge! 👋</h3>
+                <small>sexta-feira, 1 de maio de 2026</small>
             </div>
             <div class="balance-card">
-                <small style="color: #aaa;">Saldo Atual</small>
+                <p>Saldo Atual</p>
                 <div class="balance-amount">MT <span id="val-balance">0.00</span></div>
-                <div style="background: rgba(255,255,255,0.1); display: inline-block; padding: 5px 12px; border-radius: 10px; font-size: 12px;">
-                    MZN 🇲🇿
-                </div>
+                <div class="currency-tag">MZN 🇲🇿</div>
             </div>
             <div class="action-grid">
                 <button class="btn btn-green" onclick="showPage('page-deposit')">+ Depositar</button>
                 <button class="btn btn-primary" onclick="showPage('page-withdraw')">$ Levantar</button>
             </div>
-            
-            <h4 style="margin-top: 30px;">Plano Iniciante</h4>
-            <div class="balance-card" style="background: var(--card); margin-top: 10px;">
-                <div style="display: flex; justify-content: space-between;">
-                    <strong>Boas Vindas</strong>
-                    <span style="color: var(--green);">150% Lucro</span>
+            <div class="plan-section">
+                <h4>Plano Iniciante</h4>
+                <div class="card-plan">
+                    <div class="plan-info">
+                        <strong>Boas Vindas</strong>
+                        <span class="profit-tag">150% Lucro</span>
+                    </div>
+                    <p>Investimento: MT 300.00</p>
+                    <button class="btn btn-primary-outline" onclick="alert('Saldo insuficiente para este plano')">Investir Agora</button>
                 </div>
-                <p style="font-size: 14px; color: #888;">Investimento: MT 300.00</p>
-                <button class="btn btn-primary" style="padding: 10px; margin-top: 10px;">Investir Agora</button>
+            </div>
+        </section>
+
+        <!-- TELA: EQUIPE (REFERRAL) -->
+        <section id="page-team" class="page">
+            <div class="header-main"><h3>Minha Equipe</h3></div>
+            <div class="balance-card" style="background: var(--card);">
+                <p>Ganhos Totais de Equipe</p>
+                <h2>MT 0.00</h2>
+            </div>
+            <div class="info-box">
+                <h4>Como funcionam as comissões?</h4>
+                <p>Nível 1: <strong>6%</strong> do primeiro depósito</p>
+                <p>Nível 2: <strong>3%</strong> do primeiro depósito</p>
+                <p>Nível 3: <strong>1%</strong> do primeiro depósito</p>
+            </div>
+            <div class="invite-section">
+                <p>Seu código de convite:</p>
+                <div class="code-box" id="ref-code">CARREGANDO...</div>
+                <button class="btn btn-primary" onclick="copyInvite()">Copiar Link</button>
+            </div>
+        </section>
+
+        <!-- TELA: CONTA (CONFIGURAÇÕES) -->
+        <section id="page-account" class="page">
+            <div class="header-main"><h3>Configurações de Conta</h3></div>
+            <div class="profile-section">
+                <div class="avatar">👤</div>
+                <h4 id="acc-name">Nome Usuário</h4>
+                <p id="acc-phone">86XXXXXXX</p>
+            </div>
+            <div class="menu-list">
+                <div class="menu-item">Histórico de Transações</div>
+                <div class="menu-item">Dados Bancários</div>
+                <div class="menu-item">Alterar PIN de Saque</div>
+                <div class="menu-item" style="color: var(--red);" onclick="location.reload()">Sair da Conta</div>
+            </div>
+        </section>
+
+        <!-- TELA: DEPÓSITO -->
+        <section id="page-deposit" class="page">
+            <div class="header-main"><h3>Fazer Depósito</h3></div>
+            <div class="card-plan">
+                <p>Selecione o valor:</p>
+                <input type="number" id="dep-val" placeholder="Ex: 500">
+                <p>Método: <strong>M-Pesa / e-Mola</strong></p>
+                <button class="btn btn-green" onclick="startDeposit()">Prosseguir</button>
+                <button class="btn" onclick="showPage('page-home')">Voltar</button>
             </div>
         </section>
 
         <!-- NAVEGAÇÃO INFERIOR -->
         <nav class="nav-bottom" id="main-nav" style="display: none;">
-            <div class="nav-item active" onclick="showPage('page-home')">🏦<br>Início</div>
-            <div class="nav-item" onclick="showPage('page-projects')">📂<br>Projetos</div>
-            <div class="nav-item" onclick="showPage('page-team')">👥<br>Equipe</div>
-            <div class="nav-item" onclick="showPage('page-account')">⚙️<br>Conta</div>
+            <div class="nav-item active" onclick="showPage('page-home', this)">🏦<br>Início</div>
+            <div class="nav-item" onclick="showPage('page-projects', this)">📂<br>Projetos</div>
+            <div class="nav-item" onclick="showPage('page-team', this)">👥<br>Equipe</div>
+            <div class="nav-item" onclick="showPage('page-account', this)">⚙️<br>Conta</div>
         </nav>
     </div>
 
