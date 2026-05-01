@@ -5,93 +5,63 @@
     --green: #00d084;
     --red: #ff4d4d;
     --text: #ffffff;
-    --input-bg: rgba(255, 255, 255, 0.05);
 }
-
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 body {
     background-color: var(--bg);
     color: var(--text);
-    font-family: 'Inter', -apple-system, sans-serif;
+    font-family: 'Inter', sans-serif;
     margin: 0;
-    display: flex;
-    justify-content: center;
+    overflow-x: hidden;
 }
 
-#app {
-    width: 100%;
-    max-width: 500px; /* Estilo Mobile App */
-    min-height: 100vh;
-    position: relative;
-    padding-bottom: 80px;
-}
-
-/* Telas */
-.page { display: none; padding: 20px; animation: fadeIn 0.3s; }
+.page { display: none; padding: 20px; padding-bottom: 100px; animation: fadeIn 0.4s; }
 .page.active { display: block; }
 
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Formulários */
-.auth-header { text-align: center; padding: 50px 0; }
-.auth-header h1 { font-size: 40px; margin: 0; letter-spacing: 2px; }
-
-input {
-    width: 100%;
-    padding: 16px;
-    margin-bottom: 15px;
-    background: var(--input-bg);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px;
-    color: white;
-    font-size: 16px;
-}
-
-.btn {
-    width: 100%;
-    padding: 16px;
-    border: none;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.btn-primary { background: var(--accent); color: white; }
-.btn-green { background: var(--green); color: white; }
-
-/* Dashboard */
-.user-greeting { padding: 20px 0; }
+/* Cards */
 .balance-card {
     background: linear-gradient(135deg, #1e3a8a 0%, #0d1b3e 100%);
-    padding: 30px;
-    border-radius: 24px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    margin-bottom: 25px;
+    padding: 25px;
+    border-radius: 20px;
+    margin: 20px 0;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
 }
 
-.balance-amount { font-size: 36px; font-weight: 800; margin: 10px 0; }
+.currency-tag {
+    background: rgba(255,255,255,0.15);
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+}
 
-.action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+/* Botões */
+.btn {
+    width: 100%; padding: 16px; border: none; border-radius: 14px;
+    font-weight: bold; cursor: pointer; transition: 0.3s;
+}
+.btn-primary { background: var(--accent); color: white; }
+.btn-green { background: var(--green); color: white; }
+.btn-primary-outline { border: 2px solid var(--accent); background: transparent; color: var(--accent); }
 
-/* Navegação */
+/* Menu Inferior */
 .nav-bottom {
-    position: fixed;
-    bottom: 0;
-    max-width: 500px;
-    width: 100%;
-    background: #0d1b3e;
-    display: flex;
-    justify-content: space-around;
-    padding: 15px 0;
+    position: fixed; bottom: 0; width: 100%; background: #0b1a3d;
+    display: flex; justify-content: space-around; padding: 12px 0;
     border-top: 1px solid rgba(255,255,255,0.1);
 }
+.nav-item { color: #6e84ab; font-size: 11px; text-align: center; }
+.nav-item.active { color: white; font-weight: bold; }
 
-.nav-item { text-align: center; font-size: 12px; color: #888; cursor: pointer; }
-.nav-item.active { color: var(--accent); }
+/* Admin Panel Fix */
+.admin-header { background: #0d1b3e; padding: 20px; border-bottom: 1px solid #1e3a8a; }
+.admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; }
+.stat-card { background: #0b1a3d; padding: 15px; border-radius: 12px; border-left: 4px solid var(--accent); }
 
-/* Admin */
-.admin-tab-menu { display: flex; overflow-x: auto; gap: 10px; padding: 10px 0; }
-.admin-tab { padding: 10px 20px; background: var(--card); border-radius: 10px; white-space: nowrap; }
+/* Auth */
+.auth-container { padding: 40px 20px; text-align: center; }
+.auth-header h1 { font-size: 45px; letter-spacing: 3px; margin-bottom: 10px; }
+.auth-link { margin-top: 20px; color: var(--accent); cursor: pointer; }
+input { width: 100%; background: #0b1a3d; border: 1px solid #1e3a8a; padding: 15px; border-radius: 12px; color: white; margin-bottom: 10px; }
