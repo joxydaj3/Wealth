@@ -8,10 +8,13 @@ const fs = require('fs');
 
 const app = express();
 
-// Conexão com o Banco de Dados Externo (Supabase/Railway)
+// Configuração otimizada para o Pooler do Supabase
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
+  ssl: { rejectUnauthorized: false },
+  max: 10, // Limite de conexões para não travar o banco grátis
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 5000,
 });
 
 // --- CONFIGURAÇÃO DE UPLOADS ---
