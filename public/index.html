@@ -1,1 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wealth - Fintech</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+    <!-- TELA LOGIN/REGISTRO -->
+    <div id="auth-page">
+        <div class="wealth-header" style="text-align: center;">
+            <h1>WEALTH</h1>
+            <p>Sua plataforma de investimentos</p>
+        </div>
+        <div style="padding: 30px;">
+            <input type="text" id="phone" placeholder="Número de Telefone" class="wealth-input">
+            <input type="password" id="pass" placeholder="Senha" class="wealth-input">
+            <button onclick="login()" class="btn-wealth btn-withdraw" style="width: 100%; margin-top: 20px;">Entrar</button>
+            <p onclick="toggleRegister()" style="text-align: center; margin-top: 15px; color: var(--text-gray);">Criar nova conta</p>
+        </div>
+    </div>
+
+    <!-- DASHBOARD PRINCIPAL -->
+    <div id="main-dashboard" style="display:none;">
+        <div class="wealth-header">
+            <h3>Bem-vindo, <span id="user-name-display">Joaquim</span>! 👋</h3>
+            <small id="current-date">Friday, 1 de May de 2026</small>
+        </div>
+
+        <div class="saldo-card">
+            <small>Saldo Atual</small>
+            <div class="amount-large">MT <span id="balance-val">0.00</span></div>
+            <div style="margin-top: 10px;">
+                <span class="plan-badge">MZN</span>
+            </div>
+        </div>
+
+        <div class="action-grid">
+            <button class="btn-wealth btn-deposit" onclick="openDeposit()">+ Depositar</button>
+            <button class="btn-wealth btn-withdraw" onclick="openWithdraw()">$ Levantar</button>
+        </div>
+
+        <div id="plans-container">
+            <!-- Planos carregados via JS -->
+        </div>
+
+        <nav class="bottom-nav">
+            <div class="nav-item active">🏠<br>Início</div>
+            <div class="nav-item">📈<br>Projetos</div>
+            <div class="nav-item">💰<br>Lucros</div>
+            <div class="nav-item">👥<br>Equipe</div>
+            <div class="nav-item">⚙️<br>Conta</div>
+        </nav>
+    </div>
+
+    <!-- MODAL DEPÓSITO COM TIMER -->
+    <div id="deposit-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3>Finalizar Depósito</h3>
+            <p>Valor: MT 500.00</p>
+            <div id="deposit-timer">05:00</div>
+            <div class="instr-box">
+                Envie para: <strong>878354556</strong><br>
+                Titular: Moz Wealth Pay
+            </div>
+            <input type="file" id="proof-img" style="margin-top: 15px;">
+            <button id="send-dep-btn" class="btn-wealth btn-deposit" style="width: 100%; margin-top: 15px;">Enviar Comprovativo</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
