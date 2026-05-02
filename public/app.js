@@ -82,23 +82,67 @@ window.loadHome = async function() {
 
 // 5. Renderizar Planos (Abas Normal / VIP)
 window.renderPlans = function(category) {
-    const list = document.getElementById('beginner-plans');
+    const list = document.getElementById('plans_container_all');
     if(!list) return;
-    const filtered = window.allPlans.filter(p => p.category === category).slice(0, 2); // Pega apenas 2 como pediu
+
+    // Alternar descrições e botões
+    document.getElementById('desc-normal').style.display = (category === 'Normal') ? 'block' : 'none';
+    document.getElementById('desc-vip').style.display = (category === 'VIP') ? 'block' : 'none';
+    document.getElementById('btn-cat-normal').classList.toggle('active', category === 'Normal');
+    document.getElementById('btn-cat-vip').classList.toggle('active', category === 'VIP');
+
+    // Filtrar planos da memória (carregada no loadHome)
+    const filtered = window.allPlans.filter(p => p.category === category);
     
     let html = "";
     filtered.forEach(p => {
+        const totalProfit = (p.daily_profit * p.duration).toFixed(2);
+        const totalGain = (p.price + parseFloat(totalProfit)).toFixed(2);
+
         html += `
-        <div class="wealth-card" style="margin-bottom:10px; border-left: 4px solid ${category === 'VIP' ? 'gold' : 'var(--blue)'}">
-            <div style="display:flex; justify-content:space-between">
-                <strong>${p.name}</strong>
-                <span class="badge-mzn">${category}</span>
+        <div class="plan-mini-card ${category === 'VIP' ? 'vip-border' : ''}">
+            <div class="plan-details-left">
+                <h5>${p.name}</h5>
+                <p>Compra: <b>MT ${p.price}</b> | Dias: <b>${p.duration}</b></p>
+                <p>Diário: <b>MT ${p.daily_profit}</b> | Ganho: <b>MT ${totalProfit}</b></p>
+                <p>Total + Capital: <b>MT ${totalGain}</b></p>
+                <button class="btn-invest-mini" onclick="buyPlan(${p.id}, '${category}')">INVESTIR AGORA</button>
             </div>
-            <p style="font-size:12px; color:#8899ac">Lucro: MT ${p.daily_profit} / dia</p>
-            <button class="btn btn-blue" style="height:35px; font-size:12px; margin-top:5px" onclick="alert('Funcionalidade de compra em breve')">Investir MT ${p.price}</button>
+            <img src="${p.image_url}" class="plan-img-right">
         </div>`;
     });
     list.innerHTML = html;
+}
+
+window.buyPlan = async function(planId, category) {
+    // 1. Verificar se é VIP e se o usuário tem plano normal
+    if (category === 'VIP') {
+        const res = await fetch('/api/user/data');
+        const user = await res.json();
+        
+        // No server.js garantimos que 'plans_count' seja enviado
+        if (!user.plans_count || user.plans_count === 0) {
+            alert("🚫 Acesso Negado! Você precisa ter pelo menos 1 Plano Normal ativo para comprar planos VIP.");
+            return;
+        }
+    }
+
+    // 2. Lógica de Compra (Chamar API)
+    if(confirm("Deseja confirmar o investimento neste plano?")) {
+        const buyRes = await fetch('/api/user/buy-plan', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ planId })
+        });
+        const data = await buyRes.json();
+        if(data.success) {
+            alert("✅ Investimento realizado com sucesso!");
+            loadUserData();
+            goTo('page-home');
+        } else {
+            alert(data.error || "Erro ao processar compra.");
+        }
+    }
 }
 
 // 6. Lógica de Login
