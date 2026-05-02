@@ -8,18 +8,16 @@ const fs = require('fs');
 
 const app = express();
 
-// Configuração Blindada para Supabase no Railway
+// Configuração do Banco de Dados (Supabase Pooler)
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false // Isso permite a conexão mesmo com certificados auto-assinados
-  },
+  ssl: { rejectUnauthorized: false },
   max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
 });
 
-// --- CONFIGURAÇÃO DE UPLOADS ---
+// Configuração de Uploads
 const uploadDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 const storage = multer.diskStorage({
@@ -32,69 +30,53 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
-    secret: 'wealth_pro_2026_everlasting_key',
+    secret: 'wealth_pro_max_final_2026',
     resave: false,
     saveUninitialized: false,
     cookie: { maxAge: 86400000 }
 }));
 
-// --- INICIALIZAÇÃO DO BANCO PERSISTENTE ---
+// --- INICIALIZAÇÃO DO BANCO ---
 async function initDB() {
   const client = await pool.connect();
   try {
     await client.query(`
       CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
-        phone TEXT UNIQUE, name TEXT, password TEXT, password_plain TEXT, balance REAL DEFAULT 0,
-        ref_code TEXT UNIQUE, invited_by TEXT, pin TEXT DEFAULT '0000',
+        id SERIAL PRIMARY KEY, phone TEXT UNIQUE, name TEXT, password TEXT, password_plain TEXT, 
+        balance REAL DEFAULT 0, ref_code TEXT UNIQUE, invited_by TEXT, pin TEXT DEFAULT '0000',
         role TEXT DEFAULT 'user', status TEXT DEFAULT 'active', created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
       CREATE TABLE IF NOT EXISTS plans (
-        id SERIAL PRIMARY KEY,
-        name TEXT, price REAL, daily_profit REAL, duration INTEGER, 
-        total_return REAL, image_url TEXT, active INTEGER DEFAULT 1
+        id SERIAL PRIMARY KEY, name TEXT UNIQUE, price REAL, daily_profit REAL, duration INTEGER, 
+        total_return REAL, image_url TEXT, category TEXT DEFAULT 'Normal', active INTEGER DEFAULT 1
       );
       CREATE TABLE IF NOT EXISTS user_plans (
-        id SERIAL PRIMARY KEY,
-        user_id INTEGER, plan_id INTEGER, buy_date DATE DEFAULT CURRENT_DATE, 
+        id SERIAL PRIMARY KEY, user_id INTEGER, plan_id INTEGER, buy_date DATE DEFAULT CURRENT_DATE, 
         last_claim DATE, expires_at DATE, status TEXT DEFAULT 'active'
       );
       CREATE TABLE IF NOT EXISTS transactions (
-        id SERIAL PRIMARY KEY,
-        user_id INTEGER, type TEXT, amount REAL, method TEXT, 
+        id SERIAL PRIMARY KEY, user_id INTEGER, type TEXT, amount REAL, method TEXT, 
         status TEXT DEFAULT 'pending', proof_url TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
       CREATE TABLE IF NOT EXISTS ads (
         id SERIAL PRIMARY KEY, message TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
-      async function seedPlans() {
-  const plans = [
-    // PLANOS NORMAS (Retorno de capital no fim)
-    { name: 'Wealth Vanguard Core', price: 500, daily: 35, duration: 30, total: 1550, cat: 'Normal', img: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=400' },
-    { name: 'Wealth BlackRock Flow', price: 1000, daily: 75, duration: 30, total: 3250, cat: 'Normal', img: 'https://images.unsplash.com/photo-1611974714024-4607a5146b91?w=400' },
-    { name: 'Wealth Berkshire Growth', price: 2500, daily: 200, duration: 30, total: 8500, cat: 'Normal', img: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=400' },
-    { name: 'Wealth Goldman Edge', price: 5000, daily: 425, duration: 30, total: 17750, cat: 'Normal', img: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=400' },
-    { name: 'Wealth Morgan Prime', price: 10000, daily: 900, duration: 30, total: 37000, cat: 'Normal', img: 'https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=400' },
-    { name: 'Wealth Fidelity Boost', price: 25000, daily: 2375, duration: 30, total: 96250, cat: 'Normal', img: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400' },
-    { name: 'Wealth Citadel Power', price: 50000, daily: 5000, duration: 30, total: 200000, cat: 'Normal', img: 'https://images.unsplash.com/photo-1639754390267-dc26d370126a?w=400' },
-    { name: 'Wealth Bridgewater Max', price: 100000, daily: 11000, duration: 30, total: 430000, cat: 'Normal', img: 'https://images.unsplash.com/photo-1642104704074-907c0698bcd9?w=400' },
-    { name: 'Wealth Renaissance Ultra', price: 150000, daily: 17250, duration: 30, total: 667500, cat: 'Normal', img: 'https://images.unsplash.com/photo-1621905252507-b354bcadc08e?w=400' },
-    { name: 'Wealth Rothschild Apex', price: 250000, daily: 30000, duration: 30, total: 1150000, cat: 'Normal', img: 'https://images.unsplash.com/photo-1554224155-1696413565d3?w=400' },
-    
-    // PLANOS VIP (Pagamento único no fim)
-    { name: 'VIP 1 – Wealth Starter Surge', price: 300, daily: 93, duration: 5, total: 465, cat: 'VIP', img: 'https://images.unsplash.com/photo-1633151209829-3070446c1418?w=400' },
-    { name: 'VIP 2 – Wealth Silver Boost', price: 1000, daily: 250, duration: 7, total: 1750, cat: 'VIP', img: 'https://images.unsplash.com/photo-1502920514313-52581002a659?w=400' },
-    { name: 'VIP 3 – Wealth Gold Multiplier', price: 5000, daily: 1250, duration: 10, total: 12500, cat: 'VIP', img: 'https://images.unsplash.com/photo-1589758438368-0ad531db3366?w=400' },
-    { name: 'VIP 4 – Wealth Platinum Hyper', price: 15000, daily: 4050, duration: 12, total: 48600, cat: 'VIP', img: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=400' },
-    { name: 'VIP 5 – Wealth Diamond Prime', price: 50000, daily: 11850, duration: 15, total: 177750, cat: 'VIP', img: 'https://images.unsplash.com/photo-1599056377704-5853406399a0?w=400' }
-  ];
-
-  for (let p of plans) {
-    await pool.query(`INSERT INTO plans (name, price, daily_profit, duration, total_return, image_url, category) VALUES ($1,$2,$3,$4,$5,$6,$7) ON CONFLICT DO NOTHING`, 
-    [p.name, p.price, p.daily, p.duration, p.total, p.img, p.cat]);
-  }
-}
     `);
+    
+    // Criar Planos Iniciais Fixos
+    const plans = [
+        { n: 'Wealth Vanguard Core', p: 500, d: 35, dur: 30, t: 1550, c: 'Normal', i: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=400' },
+        { n: 'Wealth BlackRock Flow', p: 1000, d: 75, dur: 30, t: 3250, c: 'Normal', i: 'https://images.unsplash.com/photo-1611974714024-4607a5146b91?w=400' },
+        { n: 'Wealth Berkshire Growth', p: 2500, d: 200, dur: 30, t: 8500, c: 'Normal', i: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=400' },
+        { n: 'Wealth Goldman Edge', p: 5000, d: 425, dur: 30, t: 17750, c: 'Normal', i: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=400' },
+        { n: 'Wealth Morgan Prime', p: 10000, d: 900, dur: 30, t: 37000, c: 'Normal', i: 'https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=400' },
+        { n: 'VIP 1 – Wealth Starter Surge', p: 300, d: 93, dur: 5, t: 465, c: 'VIP', i: 'https://images.unsplash.com/photo-1633151209829-3070446c1418?w=400' },
+        { n: 'VIP 2 – Wealth Silver Boost', p: 1000, d: 250, dur: 7, t: 1750, c: 'VIP', i: 'https://images.unsplash.com/photo-1502920514313-52581002a659?w=400' }
+    ];
+    for (let p of plans) {
+        await client.query(`INSERT INTO plans (name, price, daily_profit, duration, total_return, image_url, category) VALUES ($1,$2,$3,$4,$5,$6,$7) ON CONFLICT (name) DO NOTHING`, [p.n, p.p, p.d, p.dur, p.t, p.i, p.c]);
+    }
+    console.log("Database Ready.");
   } finally { client.release(); }
 }
 initDB();
@@ -123,8 +105,7 @@ app.post('/api/register', async (req, res) => {
     const hash = await bcrypt.hash(password, 10);
     const myRef = Math.random().toString(36).substring(2, 8).toUpperCase();
     try {
-        await pool.query('INSERT INTO users (phone, name, password, password_plain, ref_code, invited_by) VALUES ($1,$2,$3,$4,$5,$6)', 
-        [phone, name, hash, password, myRef, invite || null]);
+        await pool.query('INSERT INTO users (phone, name, password, password_plain, ref_code, invited_by) VALUES ($1,$2,$3,$4,$5,$6)', [phone, name, hash, password, myRef, invite || null]);
         res.json({ success: true });
     } catch (e) { res.status(400).json({ error: 'Telefone já registrado.' }); }
 });
@@ -140,16 +121,23 @@ app.post('/api/login', async (req, res) => {
         if (user.status === 'banned') return res.status(403).json({ error: 'Conta Banida.' });
         req.session.userId = user.id; req.session.role = 'user';
         res.json({ success: true, role: 'user' });
-    } else res.status(401).json({ error: 'Falha no login' });
+    } else res.status(401).json({ error: 'Dados incorretos' });
 });
 
-// --- ROTAS DE USUÁRIO (LUCROS) ---
+// --- ROTAS USUÁRIO ---
+app.get('/api/user/data', async (req, res) => {
+    if (!req.session.userId) return res.status(401).send();
+    const user = (await pool.query("SELECT * FROM users WHERE id = $1", [req.session.userId])).rows[0];
+    res.json(user);
+});
+
+app.get('/api/plans', async (req, res) => {
+    const plans = await pool.query("SELECT * FROM plans WHERE active = 1 ORDER BY price ASC");
+    res.json(plans.rows);
+});
+
 app.get('/api/user/available-profits', async (req, res) => {
-    const profits = await pool.query(`
-        SELECT up.id, p.name, p.daily_profit FROM user_plans up 
-        JOIN plans p ON up.plan_id = p.id 
-        WHERE up.user_id = $1 AND up.status = 'active' AND (up.last_claim IS NULL OR up.last_claim < CURRENT_DATE)`, 
-        [req.session.userId]);
+    const profits = await pool.query(`SELECT up.id, p.name, p.daily_profit FROM user_plans up JOIN plans p ON up.plan_id = p.id WHERE up.user_id = $1 AND up.status = 'active' AND (up.last_claim IS NULL OR up.last_claim < CURRENT_DATE)`, [req.session.userId]);
     res.json(profits.rows);
 });
 
@@ -164,79 +152,102 @@ app.post('/api/user/claim-profit', async (req, res) => {
     } else res.status(400).send();
 });
 
-// --- DEPÓSITO E SAQUE ---
-app.post('/api/user/deposit', upload.single('proof'), async (req, res) => {
-    const { amount, method } = req.body;
-    const result = await pool.query("INSERT INTO transactions (user_id, type, amount, method, proof_url, status) VALUES ($1, 'deposit', $2, $3, $4, 'pending') RETURNING id", 
-    [req.session.userId, amount, method, req.file ? `/uploads/${req.file.filename}` : null]);
-    
-    const transId = result.rows[0].id;
-    const delay = (Math.floor(Math.random() * 15) + 5) * 60000;
-    setTimeout(async () => {
-        const t = (await pool.query("SELECT status FROM transactions WHERE id = $1", [transId])).rows[0];
-        if (t && t.status === 'pending') {
-            await pool.query("UPDATE transactions SET status = 'approved' WHERE id = $1", [transId]);
-            await pool.query("UPDATE users SET balance = balance + $1 WHERE id = $2", [amount, req.session.userId]);
-            payCommissions(req.session.userId, amount);
-        }
-    }, delay);
-    res.json({ success: true });
-});
-
-// --Admin API
+// --- ROTAS ADMIN ---
 app.get('/api/admin/full-stats', async (req, res) => {
     if (req.session.role !== 'admin') return res.status(403).send();
-    
-    const stats = {
-        totalUsers: (await pool.query("SELECT count(*) FROM users")).rows[0].count,
-        totalBalance: (await pool.query("SELECT sum(balance) FROM users")).rows[0].sum || 0,
-        activePlans: (await pool.query("SELECT count(*) FROM user_plans WHERE status='active'")).rows[0].count,
-        noPlanUsers: (await pool.query("SELECT count(*) FROM users WHERE id NOT IN (SELECT user_id FROM user_plans WHERE status='active')")).rows[0].count,
-        
-        // Ganhos
-        referralGains: (await pool.query("SELECT sum(amount) FROM transactions WHERE type='referral'")).rows[0].sum || 0,
-        totalProfitPaid: (await pool.query("SELECT sum(amount) FROM transactions WHERE type='profit'")).rows[0].sum || 0,
-        
-        // Depósitos/Saques
-        depApproved: (await pool.query("SELECT sum(amount) FROM transactions WHERE type='deposit' AND status='approved'")).rows[0].sum || 0,
-        withApproved: (await pool.query("SELECT sum(amount) FROM transactions WHERE type='withdraw' AND status='approved'")).rows[0].sum || 0,
-        depPending: (await pool.query("SELECT count(*) FROM transactions WHERE type='deposit' AND status='pending'")).rows[0].count,
-        withPending: (await pool.query("SELECT count(*) FROM transactions WHERE type='withdraw' AND status='pending'")).rows[0].count,
-        
-        // Novos Hoje
-        newUsersToday: (await pool.query("SELECT count(*) FROM users WHERE created_at >= CURRENT_DATE")).rows[0].count
-    };
-    res.json(stats);
+    const uCount = (await pool.query("SELECT count(*) FROM users")).rows[0].count;
+    const bSum = (await pool.query("SELECT sum(balance) FROM users")).rows[0].sum || 0;
+    const depP = (await pool.query("SELECT count(*) as c, sum(amount) as s FROM transactions WHERE type='deposit' AND status='pending'")).rows[0];
+    const withP = (await pool.query("SELECT count(*) as c, sum(amount) as s FROM transactions WHERE type='withdraw' AND status='pending'")).rows[0];
+    const depA = (await pool.query("SELECT sum(amount) as s FROM transactions WHERE type='deposit' AND status='approved'")).rows[0];
+    const withA = (await pool.query("SELECT sum(amount) as s FROM transactions WHERE type='withdraw' AND status='approved'")).rows[0];
+    const refG = (await pool.query("SELECT sum(amount) as s FROM transactions WHERE type='referral'")).rows[0];
+    const newT = (await pool.query("SELECT count(*) as c FROM users WHERE created_at >= CURRENT_DATE")).rows[0];
+
+    res.json({
+        totalUsers: uCount, totalBalance: bSum,
+        depPending: depP, withPending: withP,
+        depApproved: depA, withApproved: withA,
+        referralGains: refG.s || 0, newUsersToday: newT.c
+    });
 });
 
 app.get('/api/admin/user-details', async (req, res) => {
-    const users = (await pool.query(`
-        SELECT u.*, (SELECT count(*) FROM users WHERE invited_by = u.ref_code) as total_invites,
-        (SELECT sum(amount) FROM transactions WHERE user_id = u.id AND type = 'deposit' AND status = 'approved') as total_dep,
-        (SELECT sum(amount) FROM transactions WHERE user_id = u.id AND type = 'withdraw' AND status = 'approved') as total_with,
-        (SELECT sum(amount) FROM transactions WHERE user_id = u.id AND type = 'profit') as total_earned
-        FROM users u ORDER BY u.id DESC`)).rows;
-
+    const users = (await pool.query(`SELECT u.*, (SELECT count(*) FROM users WHERE invited_by = u.ref_code) as total_invites, (SELECT sum(amount) FROM transactions WHERE user_id = u.id AND type = 'deposit' AND status = 'approved') as total_dep, (SELECT sum(amount) FROM transactions WHERE user_id = u.id AND type = 'withdraw' AND status = 'approved') as total_with, (SELECT sum(amount) FROM transactions WHERE user_id = u.id AND type = 'profit') as total_earned FROM users u ORDER BY u.id DESC`)).rows;
     for (let u of users) {
-        u.active_plans = (await pool.query(`SELECT up.id, p.name FROM user_plans up JOIN plans p ON up.plan_id = p.id WHERE up.user_id = $1 AND up.status = 'active'`, [u.id])).rows;
+        u.active_plans = (await pool.query(`SELECT up.id, p.name, up.expires_at FROM user_plans up JOIN plans p ON up.plan_id = p.id WHERE up.user_id = $1 AND up.status = 'active'`, [u.id])).rows;
     }
     res.json(users);
 });
 
 app.post('/api/admin/create-plan', upload.single('image'), async (req, res) => {
     const { name, price, daily, duration } = req.body;
-    const imgUrl = req.file ? `/uploads/${req.file.filename}` : null;
-    await pool.query("INSERT INTO plans (name, price, daily_profit, duration, total_return, image_url) VALUES ($1,$2,$3,$4,$5,$6)", 
-    [name, price, daily, duration, daily * duration, imgUrl]);
+    const imgUrl = req.file ? `/uploads/${req.file.filename}` : 'https://via.placeholder.com/400';
+    await pool.query("INSERT INTO plans (name, price, daily_profit, duration, total_return, image_url) VALUES ($1,$2,$3,$4,$5,$6)", [name, price, daily, duration, daily * duration, imgUrl]);
     res.json({ success: true });
 });
 
-app.get('/api/user/data', async (req, res) => {
-    const user = (await pool.query("SELECT * FROM users WHERE id = $1", [req.session.userId])).rows[0];
-    res.json(user);
+app.post('/api/admin/transaction-action', async (req, res) => {
+    const { id, action } = req.body;
+    const t = (await pool.query("SELECT * FROM transactions WHERE id = $1", [id])).rows[0];
+    if (action === 'approve') {
+        await pool.query("UPDATE transactions SET status = 'approved' WHERE id = $1", [id]);
+        if (t.type === 'deposit') {
+            await pool.query("UPDATE users SET balance = balance + $1 WHERE id = $2", [t.amount, t.user_id]);
+            await payCommissions(t.user_id, t.amount);
+        }
+    } else {
+        if (t.status === 'approved' && t.type === 'deposit') await pool.query("UPDATE users SET balance = balance - $1 WHERE id = $2", [t.amount, t.user_id]);
+        await pool.query("UPDATE transactions SET status = 'rejected' WHERE id = $1", [id]);
+    }
+    res.json({ success: true });
 });
 
-// Outras rotas como delete-ad, list-ads, transaction-action seguem o mesmo padrão de client.query...
+app.get('/api/admin/transactions', async (req, res) => {
+    const { type } = req.query;
+    const list = await pool.query(`SELECT t.*, u.phone, u.name FROM transactions t JOIN users u ON t.user_id = u.id WHERE t.type = $1 ORDER BY t.id DESC`, [type]);
+    res.json(list.rows);
+});
+
+app.post('/api/admin/user/update-phone', async (req, res) => {
+    await pool.query("UPDATE users SET phone = $1 WHERE id = $2", [req.body.newPhone, req.body.userId]);
+    res.json({ success: true });
+});
+
+app.post('/api/admin/user/status', async (req, res) => {
+    await pool.query("UPDATE users SET status = $1 WHERE id = $2", [req.body.status, req.body.userId]);
+    res.json({ success: true });
+});
+
+app.get('/api/admin/list-ads', async (req, res) => {
+    const ads = await pool.query("SELECT * FROM ads ORDER BY id DESC");
+    res.json(ads.rows);
+});
+
+app.post('/api/admin/send-ad', async (req, res) => {
+    await pool.query("INSERT INTO ads (message) VALUES ($1)", [req.body.message]);
+    res.json({ success: true });
+});
+
+app.post('/api/admin/delete-ad', async (req, res) => {
+    await pool.query("DELETE FROM ads WHERE id = $1", [req.body.id]);
+    res.json({ success: true });
+});
+
+app.post('/api/admin/update-balance', async (req, res) => {
+    await pool.query("UPDATE users SET balance = $1 WHERE id = $2", [req.body.newBalance, req.body.userId]);
+    res.json({ success: true });
+});
+
+app.get('/api/admin/list-plans', async (req, res) => {
+    const plans = await pool.query("SELECT * FROM plans");
+    res.json(plans.rows);
+});
+
+app.post('/api/admin/delete-plan', async (req, res) => {
+    await pool.query("DELETE FROM plans WHERE id = $1", [req.body.id]);
+    res.json({ success: true });
+});
 
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => console.log(`Wealth Pro Max na porta ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => console.log(`Wealth Pro Max Online`));
