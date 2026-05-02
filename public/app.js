@@ -79,6 +79,81 @@ window.loadHome = async function() {
         plansContainer.prepend(adBox);
     }
 }
+// Chame esta função dentro do loadUserData ou no goTo('page-projects')
+window.loadAllPlans = async function() {
+    const res = await fetch('/api/plans');
+    const plans = await res.json();
+    
+    const normalContainer = document.getElementById('plans_normal_list');
+    const vipContainer = document.getElementById('plans_vip_list');
+    
+    if(!normalContainer || !vipContainer) return;
+
+    let normalHtml = "";
+    let vipHtml = "";
+
+    plans.forEach(p => {
+        const totalProfit = (p.daily_profit * p.duration).toFixed(2);
+        const totalGain = (parseFloat(p.price) + parseFloat(totalProfit)).toFixed(2);
+
+        const cardHtml = `
+        <div class="plan-mini-card ${p.category === 'VIP' ? 'vip-card' : ''}">
+            <div class="plan-info-left">
+                <h5>${p.name}</h5>
+                <p>Compra: <b>MT ${p.price}</b> | Dias: <b>${p.duration}</b></p>
+                <p>Diário: <b>MT ${p.daily_profit}</b> | Lucro: <b>MT ${totalProfit}</b></p>
+                <p>Ganho Total: <b>MT ${totalGain}</b></p>
+                <button class="btn-buy-mini" onclick="handleBuyPlan(${p.id}, '${p.category}')">INVESTIR AGORA</button>
+            </div>
+            <img src="${p.image_url || 'https://via.placeholder.com/80'}" class="plan-img-right">
+        </div>`;
+
+        if(p.category === 'VIP') {
+            vipHtml += cardHtml;
+        } else {
+            normalHtml += cardHtml;
+        }
+    });
+
+    normalContainer.innerHTML = normalHtml;
+    vipContainer.innerHTML = vipHtml;
+}
+
+// Lógica de Compra com Trava
+window.handleBuyPlan = async function(planId, category) {
+    if(category === 'VIP') {
+        const res = await fetch('/api/user/data');
+        const user = await res.json();
+        // Se o usuário não tiver planos ativos, bloqueia
+        if(!user.plans_count || user.plans_count === 0) {
+            return alert("🚫 Bloqueado! Você precisa ter pelo menos um Plano Normal ativo para investir em planos VIP.");
+        }
+    }
+    
+    if(confirm("Deseja confirmar este investimento?")) {
+        // Enviar para a API de compra que você tem no server.js
+        const res = await fetch('/api/user/buy-plan', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ planId })
+        });
+        if(res.ok) {
+            alert("✅ Sucesso! Plano ativado.");
+            goTo('page-home');
+        } else {
+            alert("Erro: Verifique seu saldo.");
+        }
+    }
+}
+
+// Atualize a função goTo para carregar os planos sempre que entrar em projetos
+const originalGoTo = window.goTo;
+window.goTo = function(pageId, btn) {
+    if(pageId === 'page-projects' || pageId === 'page-vip-list') {
+        loadAllPlans();
+    }
+    originalGoTo(pageId, btn);
+}
 
 // 5. Renderizar Planos (Abas Normal / VIP)
 window.renderPlans = function(category) {
