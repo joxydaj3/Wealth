@@ -12,6 +12,50 @@ window.generateCaptcha = function() {
     if(document.getElementById('r_cap_val')) document.getElementById('r_cap_val').innerText = code;
 }
 
+window.loadHome = async function() {
+    const res = await fetch('/api/plans');
+    const plans = await res.json();
+    const container = document.getElementById('plans_container');
+    
+    // Div de abas para o usuário escolher
+    let html = `
+        <div class="btn-group" style="margin-bottom:20px">
+            <button class="btn-sm active" id="btn-normal" onclick="renderPlans('Normal')">Planos Normais</button>
+            <button class="btn-sm" id="btn-vip" onclick="renderPlans('VIP')">👑 Planos VIP</button>
+        </div>
+        <div id="plan-list-render"></div>
+    `;
+    container.innerHTML = html;
+    window.allPlans = plans; // Guarda na memória
+    renderPlans('Normal'); 
+}
+
+window.renderPlans = function(category) {
+    const list = document.getElementById('plan-list-render');
+    const filtered = window.allPlans.filter(p => p.category === category);
+    
+    // Atualiza botões
+    document.getElementById('btn-normal').classList.toggle('active', category === 'Normal');
+    document.getElementById('btn-vip').classList.toggle('active', category === 'VIP');
+
+    let html = "";
+    filtered.forEach(p => {
+        html += `
+        <div class="wealth-card">
+            <img src="${p.image_url}" class="plan-img">
+            <div class="plan-header">
+                <strong>${p.name}</strong>
+                <span class="badge-mzn">${category}</span>
+            </div>
+            <p>💰 Valor: <b>MT ${p.price}</b></p>
+            <p>📈 Lucro Diário: <b>MT ${p.daily_profit}</b></p>
+            <p>⏳ Duração: <b>${p.duration} Dias</b></p>
+            <button class="btn btn-blue" style="margin-top:10px" onclick="buyPlan(${p.id})">Investir Agora</button>
+        </div>`;
+    });
+    list.innerHTML = html;
+}
+
 // Troca de Páginas
 window.goTo = function(pageId, btn) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
