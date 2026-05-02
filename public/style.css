@@ -55,6 +55,23 @@ html, body {
 .btn-action-sm { flex: 1; height: 38px; font-size: 11px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; }
 .btn-check { background: linear-gradient(to right, #ff9800, #f44336); }
 
+/* Isso esconde todas as seções por padrão */
+.page {
+    display: none !important;
+}
+
+/* Isso mostra apenas a seção que tiver a classe 'active' */
+.page.active {
+    display: block !important;
+}
+
+/* Garante que o fundo seja sempre escuro para não ver nada branco */
+body {
+    background-color: #050a30 !important;
+    margin: 0;
+    padding: 0;
+}
+
 /* Chat Flutuante */
 .floating-chat {
     position: fixed;
