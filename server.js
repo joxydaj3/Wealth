@@ -30,16 +30,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
-    secret: 'wealth_pro_max_final_2026',
+    secret: 'wealth_pro_max_final_2026_v4',
     resave: false,
     saveUninitialized: false,
     cookie: { maxAge: 86400000 }
 }));
 
-// --- INICIALIZAÇÃO DO BANCO ---
+// --- INICIALIZAÇÃO DO BANCO COM CORREÇÃO DE COLUNAS ---
 async function initDB() {
   const client = await pool.connect();
   try {
+    // 1. Criar tabelas básicas
     await client.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY, phone TEXT UNIQUE, name TEXT, password TEXT, password_plain TEXT, 
@@ -48,7 +49,7 @@ async function initDB() {
       );
       CREATE TABLE IF NOT EXISTS plans (
         id SERIAL PRIMARY KEY, name TEXT UNIQUE, price REAL, daily_profit REAL, duration INTEGER, 
-        total_return REAL, image_url TEXT, category TEXT DEFAULT 'Normal', active INTEGER DEFAULT 1
+        total_return REAL, image_url TEXT, active INTEGER DEFAULT 1
       );
       CREATE TABLE IF NOT EXISTS user_plans (
         id SERIAL PRIMARY KEY, user_id INTEGER, plan_id INTEGER, buy_date DATE DEFAULT CURRENT_DATE, 
@@ -62,8 +63,18 @@ async function initDB() {
         id SERIAL PRIMARY KEY, message TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
+
+    // 2. CORREÇÃO: Adicionar a coluna 'category' se ela não existir
+    await client.query(`
+      DO $$ 
+      BEGIN 
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='plans' AND column_name='category') THEN
+          ALTER TABLE plans ADD COLUMN category TEXT DEFAULT 'Normal';
+        END IF;
+      END $$;
+    `);
     
-    // Criar Planos Iniciais Fixos
+    // 3. Criar Planos Iniciais Fixos
     const plans = [
         { n: 'Wealth Vanguard Core', p: 500, d: 35, dur: 30, t: 1550, c: 'Normal', i: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=400' },
         { n: 'Wealth BlackRock Flow', p: 1000, d: 75, dur: 30, t: 3250, c: 'Normal', i: 'https://images.unsplash.com/photo-1611974714024-4607a5146b91?w=400' },
@@ -73,15 +84,22 @@ async function initDB() {
         { n: 'VIP 1 – Wealth Starter Surge', p: 300, d: 93, dur: 5, t: 465, c: 'VIP', i: 'https://images.unsplash.com/photo-1633151209829-3070446c1418?w=400' },
         { n: 'VIP 2 – Wealth Silver Boost', p: 1000, d: 250, dur: 7, t: 1750, c: 'VIP', i: 'https://images.unsplash.com/photo-1502920514313-52581002a659?w=400' }
     ];
+    
     for (let p of plans) {
-        await client.query(`INSERT INTO plans (name, price, daily_profit, duration, total_return, image_url, category) VALUES ($1,$2,$3,$4,$5,$6,$7) ON CONFLICT (name) DO NOTHING`, [p.n, p.p, p.d, p.dur, p.t, p.i, p.c]);
+        await client.query(`
+            INSERT INTO plans (name, price, daily_profit, duration, total_return, image_url, category) 
+            VALUES ($1,$2,$3,$4,$5,$6,$7) 
+            ON CONFLICT (name) DO UPDATE SET category = EXCLUDED.category`, 
+            [p.n, p.p, p.d, p.dur, p.t, p.i, p.c]);
     }
-    console.log("Database Ready.");
+    console.log("Database Ready and Migrated.");
+  } catch (err) {
+      console.error("Erro na inicialização do DB:", err);
   } finally { client.release(); }
 }
 initDB();
 
-// --- LÓGICA DE COMISSÃO ---
+// --- LÓGICA DE COMISSÃO (6%, 3%, 1%) ---
 async function payCommissions(userId, amount) {
     const user = (await pool.query("SELECT invited_by FROM users WHERE id = $1", [userId])).rows[0];
     if (!user || !user.invited_by) return;
@@ -155,21 +173,22 @@ app.post('/api/user/claim-profit', async (req, res) => {
 // --- ROTAS ADMIN ---
 app.get('/api/admin/full-stats', async (req, res) => {
     if (req.session.role !== 'admin') return res.status(403).send();
-    const uCount = (await pool.query("SELECT count(*) FROM users")).rows[0].count;
-    const bSum = (await pool.query("SELECT sum(balance) FROM users")).rows[0].sum || 0;
-    const depP = (await pool.query("SELECT count(*) as c, sum(amount) as s FROM transactions WHERE type='deposit' AND status='pending'")).rows[0];
-    const withP = (await pool.query("SELECT count(*) as c, sum(amount) as s FROM transactions WHERE type='withdraw' AND status='pending'")).rows[0];
-    const depA = (await pool.query("SELECT sum(amount) as s FROM transactions WHERE type='deposit' AND status='approved'")).rows[0];
-    const withA = (await pool.query("SELECT sum(amount) as s FROM transactions WHERE type='withdraw' AND status='approved'")).rows[0];
-    const refG = (await pool.query("SELECT sum(amount) as s FROM transactions WHERE type='referral'")).rows[0];
-    const newT = (await pool.query("SELECT count(*) as c FROM users WHERE created_at >= CURRENT_DATE")).rows[0];
+    try {
+        const uCount = (await pool.query("SELECT count(*) FROM users")).rows[0].count;
+        const bSum = (await pool.query("SELECT sum(balance) FROM users")).rows[0].sum || 0;
+        const depP = (await pool.query("SELECT count(*) as c, sum(amount) as s FROM transactions WHERE type='deposit' AND status='pending'")).rows[0];
+        const withP = (await pool.query("SELECT count(*) as c, sum(amount) as s FROM transactions WHERE type='withdraw' AND status='pending'")).rows[0];
+        const depA = (await pool.query("SELECT sum(amount) as s FROM transactions WHERE type='deposit' AND status='approved'")).rows[0];
+        const withA = (await pool.query("SELECT sum(amount) as s FROM transactions WHERE type='withdraw' AND status='approved'")).rows[0];
+        const refG = (await pool.query("SELECT sum(amount) as s FROM transactions WHERE type='referral'")).rows[0];
 
-    res.json({
-        totalUsers: uCount, totalBalance: bSum,
-        depPending: depP, withPending: withP,
-        depApproved: depA, withApproved: withA,
-        referralGains: refG.s || 0, newUsersToday: newT.c
-    });
+        res.json({
+            totalUsers: uCount, totalBalance: bSum,
+            depPending: depP, withPending: withP,
+            depApproved: depA, withApproved: withA,
+            referralGains: refG.s || 0
+        });
+    } catch (e) { res.json({error: true}); }
 });
 
 app.get('/api/admin/user-details', async (req, res) => {
@@ -250,4 +269,4 @@ app.post('/api/admin/delete-plan', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, '0.0.0.0', () => console.log(`Wealth Pro Max Online`));
+app.listen(PORT, '0.0.0.0', () => console.log(`Wealth Pro Max Online na porta ${PORT}`));
