@@ -27,7 +27,17 @@ window.loadHome = async function() {
     `;
     container.innerHTML = html;
     window.allPlans = plans; // Guarda na memória
-    renderPlans('Normal'); 
+    renderPlans('Normal');
+    // Adicionar ao final da função loadHome:
+const adsRes = await fetch('/api/admin/list-ads');
+const ads = await adsRes.json();
+if(ads.length > 0) {
+    const adBox = document.createElement('div');
+    adBox.className = "wealth-card";
+    adBox.style.background = "rgba(0,123,255,0.1)";
+    adBox.innerHTML = `📢 <b>AVISO:</b> ${ads[0].message}`;
+    document.getElementById('plans_container').prepend(adBox); // Coloca o aviso no topo
+        }
 }
 
 window.renderPlans = function(category) {
