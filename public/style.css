@@ -72,6 +72,50 @@ body {
     padding: 0;
 }
 
+/* Descrições */
+.plan-desc { font-size: 12px; color: #8899ac; line-height: 1.4; margin-top: 5px; }
+
+/* Lista de Planos em Coluna */
+.plans-column-list { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+
+/* Bloco Pequeno (Compacto) */
+.plan-mini-card {
+    background: linear-gradient(145deg, #122558 0%, #0d1b3e 100%);
+    border-radius: 16px;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid rgba(255,255,255,0.05);
+    height: 110px; /* Altura fixa para caber 4 na tela */
+}
+
+/* Detalhes na Esquerda */
+.plan-details-left { width: 70%; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
+.plan-details-left h5 { margin: 0; font-size: 14px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.plan-details-left p { margin: 2px 0; font-size: 10px; color: #8899ac; }
+.plan-details-left b { color: #00d084; font-size: 11px; }
+
+/* Imagem na Direita */
+.plan-img-right { width: 75px; height: 75px; border-radius: 12px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); }
+
+/* Botão de Investir dentro do card */
+.btn-invest-mini {
+    background: var(--blue);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 5px 10px;
+    width: fit-content;
+    margin-top: 5px;
+    cursor: pointer;
+}
+
+/* Estilo para Planos VIP */
+.vip-border { border: 1px solid #ffd700 !important; }
+
 /* Chat Flutuante */
 .floating-chat {
     position: fixed;
