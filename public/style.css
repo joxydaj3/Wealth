@@ -40,6 +40,45 @@ html, body {
 }
 .input-captcha { width: 100px; height: 45px; background: rgba(255,255,255,0.05); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); color: white; text-align: center; }
 
+/* Bloco de Saldo Grid */
+.balance-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+.balance-item.main { grid-column: span 2; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+.balance-item small { color: #8899ac; font-size: 10px; text-transform: uppercase; }
+.balance-item p { margin: 5px 0; font-weight: 700; font-size: 14px; }
+
+/* Botões Pequenos */
+.action-buttons { display: flex; justify-content: space-between; gap: 8px; margin: 20px 0; }
+.btn-action-sm { flex: 1; height: 38px; font-size: 11px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; }
+.btn-check { background: linear-gradient(to right, #ff9800, #f44336); }
+
+/* Chat Flutuante */
+.floating-chat {
+    position: fixed;
+    bottom: 85px; /* Acima da nav bar */
+    right: 20px;
+    background: var(--blue);
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+    z-index: 999;
+}
+
+/* Modal de Suporte */
+.modal-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index: 1001; align-items:center; justify-content:center; }
+.support-links { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+.support-btn { padding: 12px; border-radius: 8px; text-decoration: none; color: white; font-weight: bold; text-align: center; }
+.wa { background: #25d366; }
+.tg { background: #0088cc; }
+.gr { background: #673ab7; }
+
 /* Botões */
 .btn { width: 100%; height: 50px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; color: white; font-size: 15px; }
 .btn-blue { background: var(--blue); }
