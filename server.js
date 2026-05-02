@@ -67,6 +67,33 @@ async function initDB() {
       CREATE TABLE IF NOT EXISTS ads (
         id SERIAL PRIMARY KEY, message TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+      async function seedPlans() {
+  const plans = [
+    // PLANOS NORMAS (Retorno de capital no fim)
+    { name: 'Wealth Vanguard Core', price: 500, daily: 35, duration: 30, total: 1550, cat: 'Normal', img: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=400' },
+    { name: 'Wealth BlackRock Flow', price: 1000, daily: 75, duration: 30, total: 3250, cat: 'Normal', img: 'https://images.unsplash.com/photo-1611974714024-4607a5146b91?w=400' },
+    { name: 'Wealth Berkshire Growth', price: 2500, daily: 200, duration: 30, total: 8500, cat: 'Normal', img: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=400' },
+    { name: 'Wealth Goldman Edge', price: 5000, daily: 425, duration: 30, total: 17750, cat: 'Normal', img: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=400' },
+    { name: 'Wealth Morgan Prime', price: 10000, daily: 900, duration: 30, total: 37000, cat: 'Normal', img: 'https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=400' },
+    { name: 'Wealth Fidelity Boost', price: 25000, daily: 2375, duration: 30, total: 96250, cat: 'Normal', img: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400' },
+    { name: 'Wealth Citadel Power', price: 50000, daily: 5000, duration: 30, total: 200000, cat: 'Normal', img: 'https://images.unsplash.com/photo-1639754390267-dc26d370126a?w=400' },
+    { name: 'Wealth Bridgewater Max', price: 100000, daily: 11000, duration: 30, total: 430000, cat: 'Normal', img: 'https://images.unsplash.com/photo-1642104704074-907c0698bcd9?w=400' },
+    { name: 'Wealth Renaissance Ultra', price: 150000, daily: 17250, duration: 30, total: 667500, cat: 'Normal', img: 'https://images.unsplash.com/photo-1621905252507-b354bcadc08e?w=400' },
+    { name: 'Wealth Rothschild Apex', price: 250000, daily: 30000, duration: 30, total: 1150000, cat: 'Normal', img: 'https://images.unsplash.com/photo-1554224155-1696413565d3?w=400' },
+    
+    // PLANOS VIP (Pagamento único no fim)
+    { name: 'VIP 1 – Wealth Starter Surge', price: 300, daily: 93, duration: 5, total: 465, cat: 'VIP', img: 'https://images.unsplash.com/photo-1633151209829-3070446c1418?w=400' },
+    { name: 'VIP 2 – Wealth Silver Boost', price: 1000, daily: 250, duration: 7, total: 1750, cat: 'VIP', img: 'https://images.unsplash.com/photo-1502920514313-52581002a659?w=400' },
+    { name: 'VIP 3 – Wealth Gold Multiplier', price: 5000, daily: 1250, duration: 10, total: 12500, cat: 'VIP', img: 'https://images.unsplash.com/photo-1589758438368-0ad531db3366?w=400' },
+    { name: 'VIP 4 – Wealth Platinum Hyper', price: 15000, daily: 4050, duration: 12, total: 48600, cat: 'VIP', img: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=400' },
+    { name: 'VIP 5 – Wealth Diamond Prime', price: 50000, daily: 11850, duration: 15, total: 177750, cat: 'VIP', img: 'https://images.unsplash.com/photo-1599056377704-5853406399a0?w=400' }
+  ];
+
+  for (let p of plans) {
+    await pool.query(`INSERT INTO plans (name, price, daily_profit, duration, total_return, image_url, category) VALUES ($1,$2,$3,$4,$5,$6,$7) ON CONFLICT DO NOTHING`, 
+    [p.name, p.price, p.daily, p.duration, p.total, p.img, p.cat]);
+  }
+}
     `);
   } finally { client.release(); }
 }
