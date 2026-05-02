@@ -62,6 +62,8 @@ async function initDB() {
       CREATE TABLE IF NOT EXISTS ads (
         id SERIAL PRIMARY KEY, message TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+      // Adicione esta linha para criar a coluna de data do último check-in
+db.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS last_checkin DATE;").catch(e => {});
     `);
 
     // 2. CORREÇÃO: Adicionar a coluna 'category' se ela não existir
