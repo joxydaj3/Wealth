@@ -145,6 +145,36 @@ window.handleRegister = async function() {
     } catch(e) { alert("Erro ao processar registro."); }
 }
 
+// Função de Check-in
+async function doCheckin() {
+    try {
+        const res = await fetch('/api/user/checkin', { method: 'POST' });
+        const data = await res.json();
+        if (res.ok) {
+            alert(`🎉 Parabéns! Você ganhou MT ${data.amount} no seu check-in diário!`);
+            loadUserData(); // Atualiza o saldo na tela
+        } else {
+            alert(data.error);
+        }
+    } catch (e) { alert("Erro ao processar check-in."); }
+}
+
+// Abrir/Fechar Suporte
+function toggleSupport() {
+    const modal = document.getElementById('support-modal');
+    modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+}
+
+// Carregar Dados Extendidos (Substitua ou atualize sua função loadUserData)
+async function loadUserData() {
+    const res = await fetch('/api/user/data');
+    const user = await res.json();
+    
+    document.getElementById('u-balance').innerText = user.balance.toFixed(2);
+    // Aqui você deve fazer fetch de outras estatísticas do backend ou calcular
+    // No server.js, na rota /api/user/data, certifique-se de enviar esses totais
+}
+
 // Carregar Dados Reais do Banco
 window.loadUserData = async function() {
     try {
