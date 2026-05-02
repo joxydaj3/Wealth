@@ -89,27 +89,48 @@ window.handleLogin = async function() {
     const pass = document.getElementById('l_pass').value;
     const captchaInput = document.getElementById('l_cap_in').value.toUpperCase();
 
-    if(!phone || !pass) return alert("Por favor, preencha todos os campos.");
+    if(!phone || !pass) return alert("Preencha os campos!");
     if(captchaInput !== currentCaptcha) {
         alert("Captcha incorreto!");
         return window.generateCaptcha();
     }
 
-    try {
-        const res = await fetch('/api/login', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ phone, password: pass })
-        });
-        const data = await res.json();
-        if(data.success) {
-            if(data.role === 'admin') window.location.href = '/admin.html';
-            else window.goTo('page-home');
+    const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ phone, password: pass })
+    });
+
+    const data = await res.json();
+    if(data.success) {
+        if(data.role === 'admin') {
+            window.location.href = '/admin.html';
         } else {
-            alert("Credenciais inválidas!");
-            window.generateCaptcha();
+            // SUCESSO: Chama as funções para carregar os dados reais
+            await loadUserData(); 
+            // TROCA DE TELA: Esconde o login e mostra a home
+            goTo('page-home');
         }
-    } catch(e) { alert("Erro de conexão com o servidor."); }
+    } else {
+        alert("Erro: Telefone ou senha incorretos.");
+        window.generateCaptcha();
+    }
+}
+
+// Função para buscar os dados reais do banco de dados
+window.loadUserData = async function() {
+    const res = await fetch('/api/user/data');
+    const user = await res.json();
+    
+    // Preenche os campos da tela com os dados do banco
+    document.getElementById('u-name').innerText = user.name;
+    document.getElementById('u-balance').innerText = user.balance.toFixed(2);
+    
+    // Atualiza as outras estatísticas (se você adicionou as colunas no server.js)
+    if(document.getElementById('stat-with')) {
+        document.getElementById('stat-with').innerText = (user.total_with || 0).toFixed(2);
+        document.getElementById('stat-total').innerText = (user.total_earned || 0).toFixed(2);
+    }
 }
 
 // Lógica de Registro
