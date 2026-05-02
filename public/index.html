@@ -119,12 +119,22 @@
 
         <!-- SEÇÕES QUE FALTAVAM (Para não dar tela preta) -->
         <section id="page-projects" class="page">
-            <div class="header-main"><h3>Planos de Investimento</h3></div>
-            <div class="tab-category">
-                <button onclick="renderPlans('Normal')" class="tab-item active">Normal</button>
-                <button onclick="renderPlans('VIP')" class="tab-item">👑 VIP</button>
-            </div>
-            <div id="plans_container_all"></div>
+    <div class="header-main">
+        <h3>Planos de Investimento</h3>
+        <!-- Descrições Dinâmicas -->
+        <p id="desc-normal" class="plan-desc">Rentabilize o seu capital com os nossos fundos de investimento de baixo risco e alta performance.</p>
+        <p id="desc-vip" class="plan-desc" style="display:none">👑 <b>Exclusivo VIP:</b> Multiplique seus ganhos em curto prazo. (Requer 1 plano Normal ativo).</p>
+    </div>
+
+    <div class="tab-category">
+        <button id="btn-cat-normal" onclick="renderPlans('Normal')" class="tab-item active">Normal</button>
+        <button id="btn-cat-vip" onclick="renderPlans('VIP')" class="tab-item">👑 VIP</button>
+    </div>
+
+    <!-- Container onde os 4 planos por tela vão aparecer -->
+    <div id="plans_container_all" class="plans-column-list">
+        <!-- Renderizado pelo app.js -->
+    </div>
         </section>
 
         <section id="page-profits" class="page">
