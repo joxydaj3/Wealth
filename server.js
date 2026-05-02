@@ -172,6 +172,25 @@ app.post('/api/user/claim-profit', async (req, res) => {
     } else res.status(400).send();
 });
 
+app.post('/api/user/checkin', async (req, res) => {
+    if (!req.session.userId) return res.status(401).send();
+    const today = new Date().toISOString().split('T')[0];
+    
+    const user = (await pool.query("SELECT last_checkin FROM users WHERE id = $1", [req.session.userId])).rows[0];
+    
+    if (user.last_checkin === today) {
+        return res.status(400).json({ error: "Você já recebeu seu bônus hoje!" });
+    }
+
+    // Gera valor aleatório entre 0.50 e 5.00
+    const bonus = (Math.random() * (5.00 - 0.50) + 0.50).toFixed(2);
+    
+    await pool.query("UPDATE users SET balance = balance + $1, last_checkin = $2 WHERE id = $3", [bonus, today, req.session.userId]);
+    await pool.query("INSERT INTO transactions (user_id, type, amount, status) VALUES ($1, 'bonus', $2, 'approved')", [req.session.userId, bonus]);
+    
+    res.json({ success: true, amount: bonus });
+});
+
 // --- ROTAS ADMIN ---
 app.get('/api/admin/full-stats', async (req, res) => {
     if (req.session.role !== 'admin') return res.status(403).send();
