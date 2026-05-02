@@ -112,6 +112,77 @@ body {
     margin-top: 5px;
     cursor: pointer;
 }
+/* Botão VIP flutuante no topo */
+.btn-vip-toggle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: linear-gradient(to right, #ffd700, #ffa500);
+    border: none;
+    padding: 8px 15px;
+    border-radius: 10px;
+    color: #050a30;
+    font-weight: 800;
+    font-size: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3);
+}
+
+.btn-back {
+    background: none;
+    border: none;
+    color: var(--blue);
+    font-weight: bold;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+/* Card Compacto (4 por tela) */
+.plan-mini-card {
+    background: linear-gradient(145deg, #122558 0%, #0d1b3e 100%);
+    border-radius: 16px;
+    padding: 10px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    height: 115px; /* Altura ideal para caber 4 na tela */
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.plan-info-left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.plan-info-left h5 { margin: 0; font-size: 13px; color: white; margin-bottom: 4px; }
+.plan-info-left p { margin: 1px 0; font-size: 10px; color: #8899ac; }
+.plan-info-left b { color: #00d084; font-size: 10px; }
+
+.plan-img-right {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    object-fit: cover;
+    margin-left: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.btn-buy-mini {
+    background: var(--blue);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 9px;
+    font-weight: bold;
+    padding: 6px 12px;
+    margin-top: 6px;
+    width: fit-content;
+}
+
+.vip-card { border: 1px solid #ffd700 !important; }
 
 /* Estilo para Planos VIP */
 .vip-border { border: 1px solid #ffd700 !important; }
