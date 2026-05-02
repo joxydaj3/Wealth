@@ -183,17 +183,30 @@ app.post('/api/user/deposit', upload.single('proof'), async (req, res) => {
     res.json({ success: true });
 });
 
-// --- ADMIN API ---
+// --Admin API
 app.get('/api/admin/full-stats', async (req, res) => {
-    const uCount = (await pool.query("SELECT count(*) FROM users")).rows[0].count;
-    const bSum = (await pool.query("SELECT sum(balance) FROM users")).rows[0].sum || 0;
-    const getS = async (t, s) => (await pool.query("SELECT count(*), sum(amount) FROM transactions WHERE type=$1 AND status=$2", [t, s])).rows[0];
+    if (req.session.role !== 'admin') return res.status(403).send();
     
-    res.json({
-        totalUsers: uCount, totalBalance: bSum,
-        depPending: await getS('deposit', 'pending'),
-        withPending: await getS('withdraw', 'pending')
-    });
+    const stats = {
+        totalUsers: (await pool.query("SELECT count(*) FROM users")).rows[0].count,
+        totalBalance: (await pool.query("SELECT sum(balance) FROM users")).rows[0].sum || 0,
+        activePlans: (await pool.query("SELECT count(*) FROM user_plans WHERE status='active'")).rows[0].count,
+        noPlanUsers: (await pool.query("SELECT count(*) FROM users WHERE id NOT IN (SELECT user_id FROM user_plans WHERE status='active')")).rows[0].count,
+        
+        // Ganhos
+        referralGains: (await pool.query("SELECT sum(amount) FROM transactions WHERE type='referral'")).rows[0].sum || 0,
+        totalProfitPaid: (await pool.query("SELECT sum(amount) FROM transactions WHERE type='profit'")).rows[0].sum || 0,
+        
+        // Depósitos/Saques
+        depApproved: (await pool.query("SELECT sum(amount) FROM transactions WHERE type='deposit' AND status='approved'")).rows[0].sum || 0,
+        withApproved: (await pool.query("SELECT sum(amount) FROM transactions WHERE type='withdraw' AND status='approved'")).rows[0].sum || 0,
+        depPending: (await pool.query("SELECT count(*) FROM transactions WHERE type='deposit' AND status='pending'")).rows[0].count,
+        withPending: (await pool.query("SELECT count(*) FROM transactions WHERE type='withdraw' AND status='pending'")).rows[0].count,
+        
+        // Novos Hoje
+        newUsersToday: (await pool.query("SELECT count(*) FROM users WHERE created_at >= CURRENT_DATE")).rows[0].count
+    };
+    res.json(stats);
 });
 
 app.get('/api/admin/user-details', async (req, res) => {
