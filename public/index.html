@@ -60,20 +60,84 @@
         </section>
 
         <!-- DASHBOARD (Aparece após login) -->
-        <section id="page-home" class="page">
-            <div class="user-greeting">Olá, <span id="user_display_name">...</span> 👋<br><small id="display_date"></small></div>
-            <div class="wealth-card">
+        <section id="page-home" class="page active">
+    <!-- Cabeçalho -->
+    <div class="user-greeting">
+        Olá, <span id="u-name">Usuário</span> 👋<br>
+        <small id="cur-date"></small>
+    </div>
+
+    <!-- Bloco de Saldo Master -->
+    <div class="wealth-card main-balance-card">
+        <div class="balance-grid">
+            <div class="balance-item main">
                 <small>Saldo Total</small>
-                <div class="balance-text">MT <span id="user_balance">0.00</span></div>
-                <div class="currency-badge">MZN 🇲🇿</div>
+                <h3>MT <span id="u-balance">0.00</span></h3>
             </div>
-            <div class="action-grid">
-                <button class="btn-sm btn-green" onclick="goTo('page-deposit')">+ Depositar</button>
-                <button class="btn-sm btn-blue" onclick="goTo('page-withdraw')">$ Levantar</button>
+            <div class="balance-item">
+                <small>Total Sacado</small>
+                <p>MT <span id="stat-with">0.00</span></p>
             </div>
-            <h4 style="margin-top:25px">Plano Iniciante</h4>
-            <div id="plans_container"></div>
-        </section>
+            <div class="balance-item">
+                <small>Ganho Semana</small>
+                <p>MT <span id="stat-week">0.00</span></p>
+            </div>
+            <div class="balance-item">
+                <small>Ganho Total</small>
+                <p>MT <span id="stat-total">0.00</span></p>
+            </div>
+            <div class="balance-item">
+                <small>Ganho Convite</small>
+                <p>MT <span id="stat-ref">0.00</span></p>
+            </div>
+        </div>
+        <div class="tag-mzn">MZN 🇲🇿</div>
+    </div>
+
+    <!-- Botões de Ação (Reduzidos) -->
+    <div class="action-buttons">
+        <button class="btn-action-sm btn-dep" onclick="showPage('page-deposit')">📥 Depositar</button>
+        <button class="btn-action-sm btn-saq" onclick="showPage('page-withdraw')">📤 Sacar</button>
+        <button class="btn-action-sm btn-check" onclick="doCheckin()">🎁 Check-in</button>
+    </div>
+
+    <!-- Planos Iniciais -->
+    <div class="section-header">
+        <h4>Plano Iniciante</h4>
+        <span class="view-all" onclick="showPage('page-projects')">Ver todos ></span>
+    </div>
+    <div id="beginner-plans" class="plans-horizontal">
+        <!-- Renderizado via JS: 2 Normais e 2 VIPs -->
+    </div>
+
+    <!-- Histórico Curto -->
+    <div class="section-header" style="margin-top:25px">
+        <h4>Últimas Transações</h4>
+        <span class="view-all" onclick="showPage('page-history')">Ver Histórico</span>
+    </div>
+    <div id="mini-history" class="history-list">
+        <!-- Últimos 5 itens -->
+    </div>
+
+    <!-- Botão de Chat Flutuante -->
+    <div class="floating-chat" onclick="toggleSupport()">
+        <img src="https://cdn-icons-png.flaticon.com/512/134/134914.png" width="30">
+    </div>
+
+    <!-- Modal de Suporte (Oculto por padrão) -->
+    <div id="support-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Suporte Wealth Pro</h3>
+            <p>🕒 <b>Horário:</b> 09:00 - 20:00 (Seg a Dom)</p>
+            <div class="support-links">
+                <a href="#" class="support-btn wa">WhatsApp Oficial</a>
+                <a href="#" class="support-btn tg">Canal Telegram</a>
+                <a href="#" class="support-btn gr">Grupo de Membros</a>
+            </div>
+            <button class="btn-close" onclick="toggleSupport()">Fechar</button>
+        </div>
+    </div>
+                </section>
 
         <!-- MENU INFERIOR -->
         <nav class="bottom-nav" id="main-nav" style="display: none;">
