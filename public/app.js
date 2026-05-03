@@ -306,6 +306,41 @@ window.toggleSupport = () => {
     m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
 }
 
+// 1. Função para Copiar Link
+window.copyInvite = function() {
+    const linkInput = document.getElementById('ref-link-input');
+    linkInput.select();
+    linkInput.setSelectionRange(0, 99999); // Para celulares
+    navigator.clipboard.writeText(linkInput.value);
+    showAlert("Sucesso", "Link de convite copiado para a área de transferência!");
+}
+
+// 2. Função de Compartilhamento nas Redes Sociais
+window.shareSocial = function(platform) {
+    const link = document.getElementById('ref-link-input').value;
+    const message = encodeURIComponent(`Olá! Venha ganhar dinheiro comigo na Wealth Pro. Use meu link para começar: ${link}`);
+    
+    let url = "";
+    switch(platform) {
+        case 'wa': url = `https://wa.me/?text=${message}`; break;
+        case 'tg': url = `https://t.me/share/url?url=${link}&text=${message}`; break;
+        case 'fb': url = `https://www.facebook.com/sharer/sharer.php?u=${link}`; break;
+        case 'tw': url = `https://twitter.com/intent/tweet?text=${message}`; break;
+    }
+    window.open(url, '_blank');
+}
+
+// 3. Atualizar dados da Equipe (Adicionar dentro do seu loadUserData)
+// No fetch de /api/user/data, certifique-se que o server envie 'ref_code'
+if(user.ref_code) {
+    const fullLink = window.location.origin + "/?ref=" + user.ref_code;
+    document.getElementById('ref-link-input').value = fullLink;
+    document.getElementById('display-ref-id').innerText = user.ref_code;
+    
+    // Se você tiver os dados de ganhos por nível no banco, preencha aqui:
+    // document.getElementById('team-lv1-earned').innerText = user.lv1_bonus.toFixed(2);
+}
+
 // Inicialização
 window.onload = () => {
     window.generateCaptcha();
