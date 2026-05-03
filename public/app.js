@@ -137,15 +137,38 @@ function createPlanCard(p) {
     </div>`;
 }
 
-// 6. Lógica de Compra com Trava VIP
+// FUNÇÃO PARA ALERTAS BONITOS (Substitui window.alert e confirm)
+window.showAlert = function(title, text, confirmCallback = null) {
+    document.getElementById('modal-title').innerText = title;
+    document.getElementById('modal-text').innerText = text;
+    const modal = document.getElementById('wealth-modal');
+    const okBtn = document.getElementById('modal-ok');
+    const cancelBtn = document.getElementById('modal-cancel');
+    
+    modal.style.display = 'flex';
+    
+    if (confirmCallback) {
+        cancelBtn.style.display = 'block';
+        okBtn.onclick = () => { closeWealthModal(); confirmCallback(); };
+    } else {
+        cancelBtn.style.display = 'none';
+        okBtn.onclick = closeWealthModal;
+    }
+}
+
+window.closeWealthModal = () => document.getElementById('wealth-modal').style.display = 'none';
+
+// Lógica de Compra Corrigida
 window.handleBuyPlan = async function(planId, category) {
     if(category === 'VIP') {
-        if(!window.currentUser || !window.currentUser.plans_count || window.currentUser.plans_count === 0) {
-            return alert("🚫 Acesso Negado! Você precisa ter pelo menos um Plano Normal ativo para comprar planos VIP.");
+        const res = await fetch('/api/user/data');
+        const user = await res.json();
+        if(!user.plans_count || user.plans_count === 0) {
+            return showAlert("Acesso Negado", "Você precisa de um Plano Normal ativo para comprar planos VIP.");
         }
     }
     
-    if(confirm("Confirmar investimento?")) {
+    showAlert("Confirmar", "Deseja investir neste plano?", async () => {
         const res = await fetch('/api/user/buy-plan', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -153,13 +176,13 @@ window.handleBuyPlan = async function(planId, category) {
         });
         const data = await res.json();
         if(data.success) {
-            alert("✅ Sucesso! Plano ativado.");
-            window.loadUserData();
-            window.goTo('page-home');
+            showAlert("Sucesso", "Plano ativado com sucesso!");
+            loadUserData();
+            goTo('page-home');
         } else {
-            alert(data.error || "Erro: Saldo insuficiente.");
+            showAlert("Erro", data.error || "Saldo insuficiente!");
         }
-    }
+    });
 }
 
 // 7. Lógica de Login
