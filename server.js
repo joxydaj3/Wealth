@@ -145,21 +145,37 @@ app.post('/api/user/buy-plan', async (req, res) => {
 });
 
 // AJUSTE NA ROTA DE LUCROS (Para a regra VIP)
+// --- ROTA DE LUCROS DETALHADA (SUBSTITUIR A ANTIGA) ---
 app.get('/api/user/available-profits', async (req, res) => {
-    // Normal: Dá lucro todo dia
-    // VIP: Só dá o total no dia que expirar (conforme você pediu)
-    const profits = await pool.query(`
-        SELECT up.id, p.name, p.daily_profit, p.category, up.expires_at
-        FROM user_plans up 
-        JOIN plans p ON up.plan_id = p.id 
-        WHERE up.user_id = $1 AND up.status = 'active'
-        AND (
-            (p.category = 'Normal' AND (up.last_claim IS NULL OR up.last_claim < CURRENT_DATE))
-            OR
-            (p.category = 'VIP' AND CURRENT_DATE >= up.expires_at AND up.last_claim IS NULL)
-        )
-    `, [req.session.userId]);
-    res.json(profits.rows);
+    if (!req.session.userId) return res.status(401).send();
+
+    try {
+        const profits = await pool.query(`
+            SELECT 
+                up.id, 
+                p.name, 
+                p.price, 
+                p.daily_profit, 
+                p.duration, 
+                p.category,
+                -- Calcula quantos dias passaram desde a compra até hoje
+                (CURRENT_DATE - up.buy_date) as days_passed,
+                -- Calcula o lucro total acumulado até o momento
+                ((CURRENT_DATE - up.buy_date) * p.daily_profit) as total_accumulated,
+                -- Calcula quanto ainda falta para o término do plano
+                (p.duration - (CURRENT_DATE - up.buy_date)) as days_remaining,
+                -- Verifica se o lucro de hoje já foi coletado
+                (CASE WHEN up.last_claim = CURRENT_DATE THEN true ELSE false END) as claimed_today
+            FROM user_plans up 
+            JOIN plans p ON up.plan_id = p.id 
+            WHERE up.user_id = $1 AND up.status = 'active'
+        `, [req.session.userId]);
+
+        res.json(profits.rows);
+    } catch (e) {
+        console.error("Erro na rota de lucros:", e);
+        res.status(500).json({ error: "Erro ao processar lucros" });
+    }
 });
 
 // --- LÓGICA DE COMISSÃO ---
