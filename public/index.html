@@ -66,31 +66,36 @@
                 <small id="cur-date"></small>
             </div>
 
-            <div class="wealth-card main-balance-card">
-                <div class="balance-grid">
-                    <div class="balance-item main">
-                        <small>Saldo Total</small>
-                        <h3>MT <span id="u-balance">0.00</span></h3>
-                    </div>
-                    <div class="balance-item">
-                        <small>Total Sacado</small>
-                        <p>MT <span id="stat-with">0.00</span></p>
-                    </div>
-                    <div class="balance-item">
-                        <small>Ganho Semana</small>
-                        <p>MT <span id="stat-week">0.00</span></p>
-                    </div>
-                    <div class="balance-item">
-                        <small>Ganho Total</small>
-                        <p>MT <span id="stat-total">0.00</span></p>
-                    </div>
-                    <div class="balance-item">
-                        <small>Ganho Convite</small>
-                        <p>MT <span id="stat-ref">0.00</span></p>
-                    </div>
-                </div>
-                <div class="tag-mzn">MZN 🇲🇿</div>
-            </div>
+            <!-- Procure por <div class="wealth-card main-balance-card"> e substitua por isto -->
+<div class="wealth-card main-balance-card">
+    <div class="balance-grid">
+        <div class="balance-item main">
+            <small>SALDO DISPONÍVEL</small>
+            <h3>MT <span id="u-balance">0.00</span></h3>
+        </div>
+        <div class="balance-item">
+            <small>TOTAL SACADO</small>
+            <p>MT <span id="stat-with">0.00</span></p>
+        </div>
+        <div class="balance-item">
+            <small>GANHO SEMANAL</small>
+            <p>MT <span id="stat-week">0.00</span></p>
+        </div>
+        <div class="balance-item">
+            <small>GANHO MENSAL</small>
+            <p>MT <span id="stat-month">0.00</span></p>
+        </div>
+        <div class="balance-item">
+            <small>GANHO TOTAL</small>
+            <p style="color: var(--green);">MT <span id="stat-total">0.00</span></p>
+        </div>
+        <div class="balance-item">
+            <small>GANHO CONVITE</small>
+            <p>MT <span id="stat-ref">0.00</span></p>
+        </div>
+    </div>
+    <div class="tag-mzn">MZN 🇲🇿</div>
+</div>
 
             <div class="action-buttons">
                 <button class="btn-action-sm btn-dep" onclick="goTo('page-deposit')">📥 Depositar</button>
