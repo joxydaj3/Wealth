@@ -262,6 +262,72 @@ body {
 .nav-item { font-size: 10px; color: #6e84ab; text-align: center; cursor: pointer; }
 .nav-item.active { color: white; }
 
+/* Banner Promocional */
+.promo-banner {
+    background: linear-gradient(to right, #9c27b0, #673ab7);
+    border-radius: 15px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    cursor: pointer;
+}
+.promo-icon { font-size: 24px; }
+.promo-text { flex: 1; display: flex; flex-direction: column; }
+.promo-text strong { font-size: 14px; }
+.promo-text span { font-size: 11px; opacity: 0.8; }
+
+/* Resumo de Lucros */
+.profit-summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.summary-box { background: var(--card); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
+.summary-box small { font-size: 9px; color: #8899ac; text-transform: uppercase; }
+.summary-box p { font-size: 15px; font-weight: 800; margin-top: 5px; }
+
+/* Card de Plano Detalhado */
+.profit-card-full {
+    background: #0b1437;
+    border-radius: 20px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid #1e3a8a;
+}
+.profit-card-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+.status-badge { background: #00d08422; color: #00d084; padding: 2px 8px; border-radius: 5px; font-size: 10px; font-weight: bold; }
+
+.profit-card-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    background: rgba(0,0,0,0.2);
+    padding: 10px;
+    border-radius: 12px;
+}
+.grid-stat { display: flex; flex-direction: column; }
+.grid-stat small { font-size: 8px; color: #8899ac; }
+.grid-stat span { font-size: 12px; font-weight: bold; color: white; }
+
+/* Barra de Progresso */
+.progress-container { margin: 15px 0; }
+.progress-bar-bg { background: rgba(255,255,255,0.1); height: 6px; border-radius: 10px; overflow: hidden; }
+.progress-bar-fill { background: var(--blue); height: 100%; border-radius: 10px; }
+.progress-info { display: flex; justify-content: space-between; font-size: 9px; margin-top: 5px; color: #8899ac; }
+
+/* Botão de Receber Lucro */
+.btn-claim {
+    background: var(--green);
+    color: white;
+    width: 100%;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    }
+
 /* Estilo do Modal Customizado */
 .modal-overlay { 
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
