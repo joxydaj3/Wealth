@@ -129,6 +129,83 @@ function createPlanCard(p) {
     </div>`;
 }
 
+window.loadProfitClaims = async function() {
+    try {
+        const res = await fetch('/api/user/available-profits');
+        const data = await res.json();
+        
+        const activeContainer = document.getElementById('active-plans-container');
+        const historyList = document.getElementById('profit-history-list');
+        
+        // Atualiza Resumo (Soma simples na interface)
+        document.getElementById('total-invested').innerText = window.currentUser.total_invested || "0.00";
+        document.getElementById('total-collected').innerText = window.currentUser.total_earned || "0.00";
+
+        activeContainer.innerHTML = "";
+        
+        if (data.length === 0) {
+            activeContainer.innerHTML = "<p style='text-align:center; color:#8899ac; padding:20px;'>Nenhum plano gerando lucros no momento.</p>";
+        }
+
+        data.forEach(p => {
+            // Cálculo de porcentagem de dias passados
+            const progress = (p.days_passed / p.duration) * 100;
+            
+            activeContainer.innerHTML += `
+                <div class="profit-card-full">
+                    <div class="profit-card-header">
+                        <strong>${p.name}</strong>
+                        <span class="status-badge">ATIVO</span>
+                    </div>
+                    
+                    <div class="profit-card-grid">
+                        <div class="grid-stat"><small>Investimento</small><span>MT ${p.price}</span></div>
+                        <div class="grid-stat"><small>Dias Totais</small><span>${p.duration} dias</span></div>
+                        <div class="grid-stat"><small>Ganho/Dia</small><span>MT ${p.daily_profit}</span></div>
+                        <div class="grid-stat"><small>Acumulado</small><span>MT ${p.total_accumulated || 0}</span></div>
+                    </div>
+
+                    <div class="progress-container">
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                        </div>
+                        <div class="progress-info">
+                            <span>${progress.toFixed(0)}%</span>
+                            <span>${p.days_passed}/${p.duration} dias</span>
+                        </div>
+                    </div>
+
+                    <button class="btn-claim" onclick="claimProfit(${p.id})">
+                        💸 Receber — MT ${p.daily_profit}
+                    </button>
+                </div>
+            `;
+        });
+
+        // Carregar Histórico Curto (Simulação)
+        loadProfitHistory();
+
+    } catch (e) { console.error(e); }
+}
+
+async function loadProfitHistory() {
+    // Busca as últimas 10 transações do tipo 'profit'
+    const res = await fetch('/api/user/transactions?type=profit&limit=10');
+    const logs = await res.json();
+    const list = document.getElementById('profit-history-list');
+    
+    list.innerHTML = logs.map(log => `
+        <div class="history-item">
+            <div class="history-icon green">✓</div>
+            <div class="history-info">
+                <strong>MT ${log.amount}</strong>
+                <span>${new Date(log.created_at).toLocaleString()}</span>
+            </div>
+            <div class="history-status" style="color:var(--green)">Coletado</div>
+        </div>
+    `).join('');
+}
+
 // 5. Modais e Check-in
 window.showAlert = function(title, text, confirmCallback = null) {
     document.getElementById('modal-title').innerText = title;
