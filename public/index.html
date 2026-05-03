@@ -133,10 +133,52 @@
             <div id="plans_vip_list" class="plans-column-list"></div>
         </section>
 
-        <!-- LUCROS -->
+        <!--LUCROS-->
         <section id="page-profits" class="page">
-            <div class="header-main" style="padding: 20px;"><h3>Meus Rendimentos</h3></div>
-            <div id="profit-container"></div>
+    <div class="header-main">
+        <h3>Lucros Diários</h3>
+        <p class="plan-desc">Acompanhe e colete os seus rendimentos.</p>
+    </div>
+
+    <!-- Banner de Código Promocional (Igual à imagem) -->
+    <div class="promo-banner" onclick="showAlert('Código', 'Funcionalidade de bónus em breve!')">
+        <div class="promo-icon">🎁</div>
+        <div class="promo-text">
+            <strong>Resgatar Código</strong>
+            <span>Use o seu código promocional</span>
+        </div>
+        <div class="promo-arrow">→</div>
+    </div>
+
+    <!-- Mini Resumo Financeiro -->
+    <div class="profit-summary-grid">
+        <div class="summary-box">
+            <small>Total Investido</small>
+            <p>MT <span id="total-invested">0.00</span></p>
+        </div>
+        <div class="summary-box">
+            <small>Total Coletado</small>
+            <p style="color: var(--green);">MT <span id="total-collected">0.00</span></p>
+        </div>
+    </div>
+
+    <!-- Sessão de Planos Ativos -->
+    <div class="section-label">🚀 Planos Ativos</div>
+    <div id="active-plans-container">
+        <!-- Renderizado via JS -->
+    </div>
+
+    <!-- Sessão de Planos Expirados -->
+    <div class="section-label" style="opacity: 0.6;">⌛ Planos Expirados</div>
+    <div id="expired-plans-container" style="opacity: 0.6;">
+        <!-- Renderizado via JS -->
+    </div>
+
+    <!-- Histórico de Lucros -->
+    <div class="section-label">🧾 Histórico</div>
+    <div id="profit-history-list" class="history-list">
+        <!-- Últimas 10 colheitas -->
+    </div>
         </section>
 
         <!-- EQUIPE -->
