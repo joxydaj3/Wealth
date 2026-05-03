@@ -183,21 +183,87 @@
 
         <!-- EQUIPE -->
         <section id="page-team" class="page">
-            <div class="header-main" style="padding: 20px;"><h3>Minha Equipe</h3></div>
-            <div class="wealth-card">
-                <p>Comissões de 3 Níveis</p>
-                <div class="ref-stats">
-                    <div><b>6%</b><br>Nível 1</div>
-                    <div><b>3%</b><br>Nível 2</div>
-                    <div><b>1%</b><br>Nível 3</div>
-                </div>
+    <div class="header-main">
+        <h3>Minha Equipe</h3>
+        <p style="font-size: 12px; color: #8899ac;">Compartilhe e ganhe comissões</p>
+    </div>
+
+    <!-- Cards de Ganhos por Nível -->
+    <div class="team-stats-grid">
+        <div class="team-mini-card">
+            <small>$ Total</small>
+            <p>MT <span id="team-total-earned">0.00</span></p>
+        </div>
+        <div class="team-mini-card">
+            <small>👤 Nível 1</small>
+            <p>MT <span id="team-lv1-earned">0.00</span></p>
+        </div>
+        <div class="team-mini-card">
+            <small>👥 Nível 2</small>
+            <p>MT <span id="team-lv2-earned">0.00</span></p>
+        </div>
+    </div>
+
+    <!-- Card de Total de Membros -->
+    <div class="wealth-card team-total-card">
+        <div class="icon-circle">👥</div>
+        <small>Total de Convidados</small>
+        <h2 id="team-total-count">0</h2>
+        <span>0 diretos + 0 indiretos</span>
+    </div>
+
+    <!-- Seção do Link de Convite -->
+    <div class="wealth-card invite-section-card">
+        <div class="invite-header">
+            <span class="id-badge">🆔 SEU ID: <b id="display-ref-id">...</b></span>
+        </div>
+        <div class="link-box">
+            <input type="text" id="ref-link-input" readonly value="Carregando...">
+            <button class="btn-copy-icon" onclick="copyInvite()">📋</button>
+        </div>
+        
+        <!-- Botões de Redes Sociais -->
+        <div class="social-grid">
+            <button class="social-btn wa" onclick="shareSocial('wa')">WhatsApp</button>
+            <button class="social-btn tg" onclick="shareSocial('tg')">Telegram</button>
+            <button class="social-btn fb" onclick="shareSocial('fb')">Facebook</button>
+            <button class="social-btn tw" onclick="shareSocial('tw')">Twitter</button>
+        </div>
+    </div>
+
+    <!-- Como Funcionam as Comissões -->
+    <div class="info-section-team">
+        <div class="info-title">💡 Como Funcionam as Comissões</div>
+        
+        <div class="benefit-item">
+            <div class="benefit-icon">🎁</div>
+            <div class="benefit-text">
+                <strong>Nível 1 - 6% de Comissão</strong>
+                <span>Ganhe 6% do primeiro depósito de cada pessoa que você convidar diretamente.</span>
             </div>
-            <div class="wealth-card" style="margin-top:15px">
-                <small>Seu Link de Convite:</small>
-                <input type="text" id="ref-link" readonly class="input-tiny">
-                <button class="btn btn-blue" onclick="copyRef()">Copiar Link</button>
+        </div>
+
+        <div class="benefit-item">
+            <div class="benefit-icon">🎁</div>
+            <div class="benefit-text">
+                <strong>Nível 2 - 3% de Comissão</strong>
+                <span>Ganhe 3% do primeiro depósito das pessoas convidadas pelos seus indicados.</span>
             </div>
-        </section>
+        </div>
+
+        <!-- Exemplo Prático Exato da Imagem -->
+        <div class="example-box">
+            <div class="example-title">💰 Exemplo Prático:</div>
+            <p>📊 Seu amigo deposita MT 10000.00</p>
+            <p class="example-result">= Você ganha MT 600.00!</p>
+            <small>(MT 10000.00 × 6% = MT 600.00)</small>
+        </div>
+
+        <div class="sparkle-note">
+            ✨ Quanto mais pessoas convidar, mais você ganha! Comissões são creditadas automaticamente no seu saldo.
+        </div>
+    </div>
+            </section>
 
         <!-- CONTA -->
         <section id="page-account" class="page">
