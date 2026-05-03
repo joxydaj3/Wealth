@@ -158,29 +158,58 @@ window.showAlert = function(title, text, confirmCallback = null) {
 
 window.closeWealthModal = () => document.getElementById('wealth-modal').style.display = 'none';
 
-// Lógica de Compra Corrigida
+// --- FUNÇÃO DE CHECK-IN ATUALIZADA (SEM ALERTA DO NAVEGADOR) ---
+window.doCheckin = async function() {
+    try {
+        const res = await fetch('/api/user/checkin', { method: 'POST' });
+        const data = await res.json();
+        
+        if (res.ok) {
+            // Se ganhou o bônus
+            showAlert("Bónus Diário", `🎉 Parabéns! Foi creditado MT ${data.amount} na sua conta pelo check-in de hoje.`);
+            loadUserData(); // Atualiza o saldo na tela
+        } else {
+            // Se já fez o check-in ou erro (Usa o modal em vez do alert branco)
+            showAlert("Check-in", data.error || "Voce ja fez Chek-in de hoje Tente novamente mais tarde.");
+        }
+    } catch (e) { 
+        showAlert("Erro", "Não foi possível processar o bónus no momento."); 
+    }
+}
+
+// --- FUNÇÃO DE COMPRA ATUALIZADA (MENSAGEM PROFISSIONAL COM VALOR) ---
 window.handleBuyPlan = async function(planId, category) {
+    // Busca os detalhes do plano na lista que já carregamos
+    const plan = window.allPlans.find(p => p.id === planId);
+    if(!plan) return;
+
+    // Verificação de VIP
     if(category === 'VIP') {
         const res = await fetch('/api/user/data');
         const user = await res.json();
         if(!user.plans_count || user.plans_count === 0) {
-            return showAlert("Acesso Negado", "Você precisa de um Plano Normal ativo para comprar planos VIP.");
+            return showAlert("Acesso Negado", "Este plano é exclusivo para membros VIP. Ative um Plano Normal primeiro.");
         }
     }
     
-    showAlert("Confirmar", "Deseja investir neste plano?", async () => {
+    // Pergunta de confirmação profissional com o VALOR dinâmico
+    const confirmMessage = `Você deseja pagar MT ${parseFloat(plan.price).toFixed(2)} para activar o plano de investimento "${plan.name}" agora?`;
+
+    showAlert("Confirmar Investimento", confirmMessage, async () => {
         const res = await fetch('/api/user/buy-plan', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ planId })
         });
         const data = await res.json();
+        
         if(data.success) {
-            showAlert("Sucesso", "Plano ativado com sucesso!");
+            showAlert("Sucesso", "O seu plano foi activado com sucesso! Os seus lucros começarão a ser gerados.");
             loadUserData();
             goTo('page-home');
         } else {
-            showAlert("Erro", data.error || "Saldo insuficiente!");
+            // Erro de saldo insuficiente ou outro
+            showAlert("Saldo Insuficiente", data.error || "Infelizmente você não tem saldo suficiente para esta operação.");
         }
     });
 }
@@ -243,20 +272,6 @@ window.handleRegister = async function() {
     } else {
         alert("Erro ao registrar. Verifique os dados.");
     }
-}
-
-// 9. Check-in Diário
-window.doCheckin = async function() {
-    try {
-        const res = await fetch('/api/user/checkin', { method: 'POST' });
-        const data = await res.json();
-        if (res.ok) {
-            alert(`🎉 Ganhou MT ${data.amount} no check-in!`);
-            window.loadUserData();
-        } else {
-            alert(data.error);
-        }
-    } catch (e) { alert("Erro no check-in."); }
 }
 
 // 10. Suporte
