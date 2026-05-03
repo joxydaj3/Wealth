@@ -22,10 +22,14 @@
                     <input type="text" id="l_phone" placeholder="Número de Telefone" class="input-tiny">
                     <input type="password" id="l_pass" placeholder="Senha" class="input-tiny">
                     
+                    <!-- Procure a parte do captcha no LOGIN e deixe assim: -->
                     <div class="captcha-box">
-                        <div id="l_cap_val" class="captcha-display"></div>
-                        <input type="text" id="l_cap_in" placeholder="Código" class="input-captcha">
+    <div id="l_cap_val" class="captcha-display">----</div>
+    <input type="text" id="l_cap_in" placeholder="Código" class="input-captcha">
                     </div>
+
+
+
 
                     <button class="btn btn-blue" onclick="handleLogin()">Aceder Conta</button>
                     <p class="auth-link" onclick="goTo('page-register')">Novo por aqui? <span>Criar nova conta</span></p>
@@ -48,10 +52,12 @@
                     <input type="password" id="r_conf" placeholder="Confirmar Senha" class="input-tiny">
                     <input type="text" id="r_invite" placeholder="Código de Convite" class="input-tiny">
 
+                    <!-- Procure a parte do captcha no REGISTRO e deixe assim: -->
                     <div class="captcha-box">
-                        <div id="r_cap_val" class="captcha-display"></div>
-                        <input type="text" id="r_cap_in" placeholder="Código" class="input-captcha">
+    <div id="r_cap_val" class="captcha-display">----</div>
+    <input type="text" id="r_cap_in" placeholder="Código" class="input-captcha">
                     </div>
+
 
                     <button class="btn btn-green" onclick="handleRegister()">Criar Conta Agora</button>
                     <p class="auth-link" onclick="goTo('page-login')">Já tem conta? <span>Entrar</span></p>
