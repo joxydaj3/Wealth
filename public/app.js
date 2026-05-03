@@ -44,7 +44,25 @@ window.loadUserData = async function() {
         const res = await fetch('/api/user/data');
         if(!res.ok) return;
         const user = await res.json();
-        window.currentUser = user; // Guarda para verificações (como a trava VIP)
+        
+        // Elementos da Home
+        const update = (id, val) => {
+            const el = document.getElementById(id);
+            if(el) el.innerText = parseFloat(val).toFixed(2);
+        };
+
+        update('u-balance', user.balance);
+        update('stat-with', user.total_with);
+        update('stat-week', user.week_earned);
+        update('stat-month', user.month_earned);
+        update('stat-total', user.total_earned);
+        update('stat-ref', user.total_ref);
+
+        // Nome de exibição
+        if(document.getElementById('u-name')) document.getElementById('u-name').innerText = user.name;
+
+    } catch(e) { console.error("Erro ao atualizar interface:", e); }
+}
         
         // Nome e Saldo
         if(document.getElementById('u-name')) document.getElementById('u-name').innerText = user.name;
