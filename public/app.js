@@ -9,8 +9,10 @@ window.generateCaptcha = function() {
         code += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     currentCaptcha = code;
-    if(document.getElementById('l_cap_val')) document.getElementById('l_cap_val').innerText = code;
-    if(document.getElementById('r_cap_val')) document.getElementById('r_cap_val').innerText = code;
+    const lVal = document.getElementById('l_cap_val');
+    const rVal = document.getElementById('r_cap_val');
+    if(lVal) lVal.innerText = code;
+    if(rVal) rVal.innerText = code;
 }
 
 // 2. Troca de Páginas (SPA)
@@ -27,7 +29,6 @@ window.goTo = function(pageId, btn) {
         btn.classList.add('active');
     }
 
-    // Carregamento automático ao entrar nas telas
     if(pageId === 'page-home') {
         loadUserData();
         loadHomeData(); 
@@ -38,17 +39,17 @@ window.goTo = function(pageId, btn) {
     if(pageId === 'page-login' || pageId === 'page-register') window.generateCaptcha();
 }
 
-// 3. Carregar Dados do Usuário (NOME, SALDO E ESTATÍSTICAS)
+// 3. Carregar Dados do Usuário (SOMA TOTAL, SEMANA E MÊS)
 window.loadUserData = async function() {
     try {
         const res = await fetch('/api/user/data');
         if(!res.ok) return;
         const user = await res.json();
+        window.currentUser = user; 
         
-        // Elementos da Home
         const update = (id, val) => {
             const el = document.getElementById(id);
-            if(el) el.innerText = parseFloat(val).toFixed(2);
+            if(el) el.innerText = parseFloat(val || 0).toFixed(2);
         };
 
         update('u-balance', user.balance);
@@ -58,23 +59,7 @@ window.loadUserData = async function() {
         update('stat-total', user.total_earned);
         update('stat-ref', user.total_ref);
 
-        // Nome de exibição
         if(document.getElementById('u-name')) document.getElementById('u-name').innerText = user.name;
-
-    } catch(e) { console.error("Erro ao atualizar interface:", e); }
-}
-        
-        // Nome e Saldo
-        if(document.getElementById('u-name')) document.getElementById('u-name').innerText = user.name;
-        if(document.getElementById('u-balance')) document.getElementById('u-balance').innerText = user.balance.toFixed(2);
-        
-        // Estatísticas do Card Principal
-        if(document.getElementById('stat-with')) document.getElementById('stat-with').innerText = (user.total_with || "0.00");
-        if(document.getElementById('stat-week')) document.getElementById('stat-week').innerText = (user.week_earned || "0.00");
-        if(document.getElementById('stat-total')) document.getElementById('stat-total').innerText = (user.total_earned || "0.00");
-        if(document.getElementById('stat-ref')) document.getElementById('stat-ref').innerText = (user.total_earned_referral || "0.00");
-        
-        // Página de Conta
         if(document.getElementById('acc-name')) document.getElementById('acc-name').innerText = user.name;
         if(document.getElementById('acc-phone')) document.getElementById('acc-phone').innerText = user.phone;
         if(document.getElementById('ref-link')) document.getElementById('ref-link').value = window.location.origin + "/?ref=" + user.ref_code;
@@ -82,13 +67,12 @@ window.loadUserData = async function() {
     } catch(e) { console.error("Erro ao carregar dados:", e); }
 }
 
-// 4. Carregar Dados da Home (Planos Iniciais e Anúncios)
+// 4. Carregar Planos e Anúncios
 window.loadHomeData = async function() {
     try {
         const res = await fetch('/api/plans');
         window.allPlans = await res.json();
         
-        // Renderiza apenas 2 Normal e 2 VIP para a seção "Plano Iniciante" da Home
         const container = document.getElementById('beginner-plans');
         if(container) {
             let html = "";
@@ -100,71 +84,59 @@ window.loadHomeData = async function() {
             container.innerHTML = html;
         }
 
-        // Carregar Anúncio no topo se houver
         const adsRes = await fetch('/api/admin/list-ads');
         const ads = await adsRes.json();
-        const adsContainer = document.getElementById('mini-history'); // Pode por aqui ou criar um id p/ anuncios
+        const adsContainer = document.getElementById('mini-history'); 
         if(ads.length > 0 && adsContainer) {
-            const adHtml = `<div class="wealth-card" style="background:rgba(0,123,255,0.1); font-size:12px; border-left:4px solid var(--blue)">📢 <b>AVISO:</b> ${ads[0].message}</div>`;
-            adsContainer.innerHTML = adHtml + adsContainer.innerHTML;
+            adsContainer.innerHTML = `<div class="wealth-card" style="background:rgba(0,123,255,0.1); font-size:12px; border-left:4px solid var(--blue); padding:10px">📢 <b>AVISO:</b> ${ads[0].message}</div>`;
         }
-    } catch(e) { console.error("Erro na Home:", e); }
+    } catch(e) { console.error(e); }
 }
 
-// 5. Carregar TODOS os Planos (Página de Projetos)
 window.loadAllPlans = async function() {
     try {
         if(window.allPlans.length === 0) {
             const res = await fetch('/api/plans');
             window.allPlans = await res.json();
         }
-
         const normalList = document.getElementById('plans_normal_list');
         const vipList = document.getElementById('plans_vip_list');
-
         if(normalList) {
             let html = "";
             window.allPlans.filter(p => p.category === 'Normal').forEach(p => html += createPlanCard(p));
-            normalList.innerHTML = html || "<p style='text-align:center; color:grey'>Nenhum plano disponível.</p>";
+            normalList.innerHTML = html;
         }
-
         if(vipList) {
             let html = "";
             window.allPlans.filter(p => p.category === 'VIP').forEach(p => html += createPlanCard(p));
-            vipList.innerHTML = html || "<p style='text-align:center; color:grey'>Nenhum plano VIP disponível.</p>";
+            vipList.innerHTML = html;
         }
-    } catch(e) { console.error("Erro nos Projetos:", e); }
+    } catch(e) { console.error(e); }
 }
 
-// Função Auxiliar para Criar o HTML do Card (Imagem na Direita, Texto na Esquerda)
 function createPlanCard(p) {
     const totalProfit = (parseFloat(p.daily_profit) * parseInt(p.duration)).toFixed(2);
     const totalGain = (parseFloat(p.price) + parseFloat(totalProfit)).toFixed(2);
-    const isVip = p.category === 'VIP';
-
     return `
-    <div class="plan-mini-card ${isVip ? 'vip-card' : ''}">
+    <div class="plan-mini-card ${p.category === 'VIP' ? 'vip-card' : ''}">
         <div class="plan-info-left">
             <h5>${p.name}</h5>
             <p>Compra: <b>MT ${p.price}</b> | Dias: <b>${p.duration}</b></p>
-            <p>Diário: <b>MT ${p.daily_profit}</b> | Lucro: <b>MT ${totalProfit}</b></p>
-            <p>Total + Capital: <b>MT ${totalGain}</b></p>
+            <p>Diário: <b>MT ${p.daily_profit}</b> | Ganho: <b>MT ${totalProfit}</b></p>
             <button class="btn-buy-mini" onclick="handleBuyPlan(${p.id}, '${p.category}')">INVESTIR AGORA</button>
         </div>
         <img src="${p.image_url || 'https://via.placeholder.com/80'}" class="plan-img-right">
     </div>`;
 }
 
-// FUNÇÃO PARA ALERTAS BONITOS (Substitui window.alert e confirm)
+// 5. Modais e Check-in
 window.showAlert = function(title, text, confirmCallback = null) {
     document.getElementById('modal-title').innerText = title;
     document.getElementById('modal-text').innerText = text;
     const modal = document.getElementById('wealth-modal');
     const okBtn = document.getElementById('modal-ok');
     const cancelBtn = document.getElementById('modal-cancel');
-    
     modal.style.display = 'flex';
-    
     if (confirmCallback) {
         cancelBtn.style.display = 'block';
         okBtn.onclick = () => { closeWealthModal(); confirmCallback(); };
@@ -176,71 +148,28 @@ window.showAlert = function(title, text, confirmCallback = null) {
 
 window.closeWealthModal = () => document.getElementById('wealth-modal').style.display = 'none';
 
-// --- FUNÇÃO DE CHECK-IN ATUALIZADA (SEM ALERTA DO NAVEGADOR) ---
 window.doCheckin = async function() {
     try {
         const res = await fetch('/api/user/checkin', { method: 'POST' });
         const data = await res.json();
-        
         if (res.ok) {
-            // Se ganhou o bônus
-            showAlert("Bónus Diário", `🎉 Parabéns! Foi creditado MT ${data.amount} na sua conta pelo check-in de hoje.`);
-            loadUserData(); // Atualiza o saldo na tela
-        } else {
-            // Se já fez o check-in ou erro (Usa o modal em vez do alert branco)
-            showAlert("Check-in", data.error || "Voce ja fez Chek-in de hoje Tente novamente mais tarde.");
-        }
-    } catch (e) { 
-        showAlert("Erro", "Não foi possível processar o bónus no momento."); 
-    }
-}
-
-// --- FUNÇÃO DE COMPRA ATUALIZADA (MENSAGEM PROFISSIONAL COM VALOR) ---
-window.handleBuyPlan = async function(planId, category) {
-    // Busca os detalhes do plano na lista que já carregamos
-    const plan = window.allPlans.find(p => p.id === planId);
-    if(!plan) return;
-
-    // Verificação de VIP
-    if(category === 'VIP') {
-        const res = await fetch('/api/user/data');
-        const user = await res.json();
-        if(!user.plans_count || user.plans_count === 0) {
-            return showAlert("Acesso Negado", "Este plano é exclusivo para membros VIP. Ative um Plano Normal primeiro.");
-        }
-    }
-    
-    // Pergunta de confirmação profissional com o VALOR dinâmico
-    const confirmMessage = `Você deseja pagar MT ${parseFloat(plan.price).toFixed(2)} para activar o plano de investimento "${plan.name}" agora?`;
-
-    showAlert("Confirmar Investimento", confirmMessage, async () => {
-        const res = await fetch('/api/user/buy-plan', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ planId })
-        });
-        const data = await res.json();
-        
-        if(data.success) {
-            showAlert("Sucesso", "O seu plano foi activado com sucesso! Os seus lucros começarão a ser gerados.");
+            showAlert("Bónus Diário", `🎉 Parabéns! Recebeu MT ${data.amount} no seu check-in de hoje.`);
             loadUserData();
-            goTo('page-home');
         } else {
-            // Erro de saldo insuficiente ou outro
-            showAlert("Saldo Insuficiente", data.error || "Infelizmente você não tem saldo suficiente para esta operação.");
+            showAlert("Check-in", data.error || "Tente novamente amanhã.");
         }
-    });
+    } catch (e) { showAlert("Erro", "Erro ao processar."); }
 }
 
-// 7. Lógica de Login
+// 6. Login e Registro
 window.handleLogin = async function() {
     const phone = document.getElementById('l_phone').value;
     const pass = document.getElementById('l_pass').value;
     const capIn = document.getElementById('l_cap_in').value.toUpperCase();
 
-    if(!phone || !pass) return alert("Preencha os campos!");
+    if(!phone || !pass) return showAlert("Atenção", "Preencha todos os campos.");
     if(capIn !== currentCaptcha) {
-        alert("Captcha incorreto!");
+        showAlert("Segurança", "Captcha incorreto.");
         return window.generateCaptcha();
     }
 
@@ -249,21 +178,16 @@ window.handleLogin = async function() {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ phone, password: pass })
     });
-
     const data = await res.json();
     if(data.success) {
         if(data.role === 'admin') window.location.href = '/admin.html';
-        else {
-            await window.loadUserData();
-            window.goTo('page-home');
-        }
+        else { await loadUserData(); goTo('page-home'); }
     } else {
-        alert("Dados incorretos!");
+        showAlert("Erro", "Telefone ou senha inválidos.");
         window.generateCaptcha();
     }
 }
 
-// 8. Lógica de Registro
 window.handleRegister = async function() {
     const phone = document.getElementById('r_phone').value;
     const name = document.getElementById('r_name').value;
@@ -271,31 +195,38 @@ window.handleRegister = async function() {
     const conf = document.getElementById('r_conf').value;
     const capIn = document.getElementById('r_cap_in').value.toUpperCase();
 
-    if(!phone || !name || !pass) return alert("Preencha tudo!");
-    if(pass !== conf) return alert("As senhas não coincidem!");
-    if(capIn !== currentCaptcha) return alert("Captcha incorreto!");
+    if(pass !== conf) return showAlert("Erro", "Senhas não coincidem.");
+    if(capIn !== currentCaptcha) return showAlert("Erro", "Captcha incorreto.");
 
     const res = await fetch('/api/register', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ 
-            phone, name, password: pass, 
-            invite: document.getElementById('r_invite').value 
-        })
+        body: JSON.stringify({ phone, name, password: pass, invite: document.getElementById('r_invite').value })
     });
-
     if(res.ok) {
-        alert("Conta criada! Faça login.");
-        window.goTo('page-login');
-    } else {
-        alert("Erro ao registrar. Verifique os dados.");
-    }
+        showAlert("Sucesso", "Conta criada! Já pode entrar.");
+        goTo('page-login');
+    } else { showAlert("Erro", "Telefone já registrado."); }
 }
 
-// 10. Suporte
-window.toggleSupport = function() {
-    const modal = document.getElementById('support-modal');
-    if(modal) modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+window.handleBuyPlan = async function(planId, category) {
+    const plan = window.allPlans.find(p => p.id === planId);
+    if(category === 'VIP') {
+        if(!window.currentUser.plans_count || window.currentUser.plans_count == 0) {
+            return showAlert("Acesso Negado", "Você precisa de um Plano Normal ativo para comprar VIP.");
+        }
+    }
+    showAlert("Investimento", `Deseja pagar MT ${parseFloat(plan.price).toFixed(2)} para activar o plano "${plan.name}"?`, async () => {
+        const res = await fetch('/api/user/buy-plan', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({planId}) });
+        const data = await res.json();
+        if(data.success) { showAlert("Sucesso", "Plano activado!"); loadUserData(); goTo('page-home'); }
+        else { showAlert("Saldo Insuficiente", data.error || "Falha na compra."); }
+    });
+}
+
+window.toggleSupport = () => {
+    const m = document.getElementById('support-modal');
+    m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
 }
 
 // Inicialização
