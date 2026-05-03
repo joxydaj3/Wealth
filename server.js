@@ -208,30 +208,32 @@ app.post('/api/login', async (req, res) => {
 // --- ROTAS USUÁRIO ---
 app.get('/api/user/data', async (req, res) => {
     if (!req.session.userId) return res.status(401).send();
-    
     const userId = req.session.userId;
 
-    const user = (await pool.query("SELECT * FROM users WHERE id = $1", [userId])).rows[0];
+    try {
+        const user = (await pool.query("SELECT * FROM users WHERE id = $1", [userId])).rows[0];
 
-    // Soma ganhos Totais (Profit + Bonus/Checkin + Referral)
-    const gains = (await pool.query(`
-        SELECT 
-            SUM(CASE WHEN type IN ('profit', 'bonus', 'referral') THEN amount ELSE 0 END) as total_earned,
-            SUM(CASE WHEN type = 'withdraw' AND status = 'approved' THEN amount ELSE 0 END) as total_with,
-            SUM(CASE WHEN type = 'referral' THEN amount ELSE 0 END) as total_ref,
-            SUM(CASE WHEN type IN ('profit', 'bonus', 'referral') AND created_at > NOW() - INTERVAL '7 days' THEN amount ELSE 0 END) as week_earned,
-            SUM(CASE WHEN type IN ('profit', 'bonus', 'referral') AND created_at > NOW() - INTERVAL '30 days' THEN amount ELSE 0 END) as month_earned
-        FROM transactions WHERE user_id = $1
-    `, [userId])).rows[0];
+        const gains = (await pool.query(`
+            SELECT 
+                SUM(CASE WHEN type IN ('profit', 'bonus', 'referral') THEN amount ELSE 0 END) as total_earned,
+                SUM(CASE WHEN type = 'withdraw' AND status = 'approved' THEN amount ELSE 0 END) as total_with,
+                SUM(CASE WHEN type = 'referral' THEN amount ELSE 0 END) as total_ref,
+                -- Ganho da Semana (Últimos 7 dias)
+                SUM(CASE WHEN type IN ('profit', 'bonus', 'referral') AND created_at >= NOW() - INTERVAL '7 days' THEN amount ELSE 0 END) as week_earned,
+                -- Ganho do Mês (Desde o dia 1 do mês atual até hoje)
+                SUM(CASE WHEN type IN ('profit', 'bonus', 'referral') AND created_at >= DATE_TRUNC('month', NOW()) THEN amount ELSE 0 END) as month_earned
+            FROM transactions WHERE user_id = $1
+        `, [userId])).rows[0];
 
-    res.json({
-        ...user,
-        total_earned: gains.total_earned || 0,
-        total_with: gains.total_with || 0,
-        total_ref: gains.total_ref || 0,
-        week_earned: gains.week_earned || 0,
-        month_earned: gains.month_earned || 0
-    });
+        res.json({
+            ...user,
+            total_earned: gains.total_earned || 0,
+            total_with: gains.total_with || 0,
+            total_ref: gains.total_ref || 0,
+            week_earned: gains.week_earned || 0,
+            month_earned: gains.month_earned || 0
+        });
+    } catch (e) { res.status(500).send(); }
 });
 
 app.get('/api/plans', async (req, res) => {
