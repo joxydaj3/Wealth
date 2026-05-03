@@ -112,6 +112,56 @@ async function initDB() {
 }
 initDB();
 
+app.post('/api/user/buy-plan', async (req, res) => {
+    if (!req.session.userId) return res.status(401).send();
+    const { planId } = req.body;
+
+    try {
+        const user = (await pool.query("SELECT balance FROM users WHERE id = $1", [req.session.userId])).rows[0];
+        const plan = (await pool.query("SELECT * FROM plans WHERE id = $1", [planId])).rows[0];
+
+        if (user.balance < plan.price) {
+            return res.status(400).json({ error: "Saldo insuficiente! Faça um depósito." });
+        }
+
+        // 1. Tira o dinheiro
+        await pool.query("UPDATE users SET balance = balance - $1 WHERE id = $2", [plan.price, req.session.userId]);
+
+        // 2. Calcula data de expiração
+        const expires = new Date();
+        expires.setDate(expires.getDate() + plan.duration);
+
+        // 3. Ativa o plano
+        await pool.query(`
+            INSERT INTO user_plans (user_id, plan_id, buy_date, expires_at, status) 
+            VALUES ($1, $2, CURRENT_DATE, $3, 'active')`, 
+            [req.session.userId, planId, expires.toISOString().split('T')[0]]);
+
+        // 4. Registra no histórico
+        await pool.query("INSERT INTO transactions (user_id, type, amount, status) VALUES ($1, 'plan_buy', $2, 'approved')", [req.session.userId, plan.price]);
+
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ error: "Erro interno" }); }
+});
+
+// AJUSTE NA ROTA DE LUCROS (Para a regra VIP)
+app.get('/api/user/available-profits', async (req, res) => {
+    // Normal: Dá lucro todo dia
+    // VIP: Só dá o total no dia que expirar (conforme você pediu)
+    const profits = await pool.query(`
+        SELECT up.id, p.name, p.daily_profit, p.category, up.expires_at
+        FROM user_plans up 
+        JOIN plans p ON up.plan_id = p.id 
+        WHERE up.user_id = $1 AND up.status = 'active'
+        AND (
+            (p.category = 'Normal' AND (up.last_claim IS NULL OR up.last_claim < CURRENT_DATE))
+            OR
+            (p.category = 'VIP' AND CURRENT_DATE >= up.expires_at AND up.last_claim IS NULL)
+        )
+    `, [req.session.userId]);
+    res.json(profits.rows);
+});
+
 // --- LÓGICA DE COMISSÃO ---
 async function payCommissions(userId, amount) {
     const user = (await pool.query("SELECT invited_by FROM users WHERE id = $1", [userId])).rows[0];
