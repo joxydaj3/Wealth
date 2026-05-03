@@ -10,27 +10,20 @@
 <body>
     <div id="app">
         
-        <!-- TELA: LOGIN (Apenas esta começa com 'active') -->
+        <!-- TELA: LOGIN -->
         <section id="page-login" class="page active">
             <div class="auth-container">
                 <div class="auth-header">
                     <h1>WEALTH</h1>
                     <p class="auth-subtitle">Bem-vindo de volta! Faça login para gerir os seus ativos e lucros diários.</p>
                 </div>
-                
                 <div class="form-box">
                     <input type="text" id="l_phone" placeholder="Número de Telefone" class="input-tiny">
                     <input type="password" id="l_pass" placeholder="Senha" class="input-tiny">
-                    
-                    <!-- Procure a parte do captcha no LOGIN e deixe assim: -->
                     <div class="captcha-box">
-    <div id="l_cap_val" class="captcha-display">----</div>
-    <input type="text" id="l_cap_in" placeholder="Código" class="input-captcha">
+                        <div id="l_cap_val" class="captcha-display">----</div>
+                        <input type="text" id="l_cap_in" placeholder="Código" class="input-captcha">
                     </div>
-
-
-
-
                     <button class="btn btn-blue" onclick="handleLogin()">Aceder Conta</button>
                     <p class="auth-link" onclick="goTo('page-register')">Novo por aqui? <span>Criar nova conta</span></p>
                 </div>
@@ -41,67 +34,61 @@
         <section id="page-register" class="page">
             <div class="auth-container">
                 <div class="auth-header">
-                    <h2>Bem-vindo à Wealth</h2>
+                    <h2>Criar Conta</h2>
                     <p class="auth-subtitle">Crie sua conta profissional e comece a rentabilizar o seu capital com segurança.</p>
                 </div>
-
                 <div class="form-box">
                     <input type="text" id="r_phone" placeholder="Número de Telefone" class="input-tiny">
                     <input type="text" id="r_name" placeholder="Nome Completo" class="input-tiny">
                     <input type="password" id="r_pass" placeholder="Senha" class="input-tiny">
                     <input type="password" id="r_conf" placeholder="Confirmar Senha" class="input-tiny">
                     <input type="text" id="r_invite" placeholder="Código de Convite" class="input-tiny">
-
-                    <!-- Procure a parte do captcha no REGISTRO e deixe assim: -->
                     <div class="captcha-box">
-    <div id="r_cap_val" class="captcha-display">----</div>
-    <input type="text" id="r_cap_in" placeholder="Código" class="input-captcha">
+                        <div id="r_cap_val" class="captcha-display">----</div>
+                        <input type="text" id="r_cap_in" placeholder="Código" class="input-captcha">
                     </div>
-
-
                     <button class="btn btn-green" onclick="handleRegister()">Criar Conta Agora</button>
                     <p class="auth-link" onclick="goTo('page-login')">Já tem conta? <span>Entrar</span></p>
                 </div>
             </div>
         </section>
 
-        <!-- DASHBOARD (PÁGINA INICIAL) -->
+        <!-- DASHBOARD (HOME) -->
         <section id="page-home" class="page">
             <div class="user-greeting">
                 Olá, <span id="u-name">Usuário</span> 👋<br>
                 <small id="cur-date"></small>
             </div>
 
-            <!-- Procure por <div class="wealth-card main-balance-card"> e substitua por isto -->
-<div class="wealth-card main-balance-card">
-    <div class="balance-grid">
-        <div class="balance-item main">
-            <small>SALDO DISPONÍVEL</small>
-            <h3>MT <span id="u-balance">0.00</span></h3>
-        </div>
-        <div class="balance-item">
-            <small>TOTAL SACADO</small>
-            <p>MT <span id="stat-with">0.00</span></p>
-        </div>
-        <div class="balance-item">
-            <small>GANHO SEMANAL</small>
-            <p>MT <span id="stat-week">0.00</span></p>
-        </div>
-        <div class="balance-item">
-            <small>GANHO MENSAL</small>
-            <p>MT <span id="stat-month">0.00</span></p>
-        </div>
-        <div class="balance-item">
-            <small>GANHO TOTAL</small>
-            <p style="color: var(--green);">MT <span id="stat-total">0.00</span></p>
-        </div>
-        <div class="balance-item">
-            <small>GANHO CONVITE</small>
-            <p>MT <span id="stat-ref">0.00</span></p>
-        </div>
-    </div>
-    <div class="tag-mzn">MZN 🇲🇿</div>
-</div>
+            <div class="wealth-card main-balance-card">
+                <div class="balance-grid">
+                    <div class="balance-item main">
+                        <small>SALDO DISPONÍVEL</small>
+                        <h3>MT <span id="u-balance">0.00</span></h3>
+                    </div>
+                    <div class="balance-item">
+                        <small>TOTAL SACADO</small>
+                        <p>MT <span id="stat-with">0.00</span></p>
+                    </div>
+                    <div class="balance-item">
+                        <small>GANHO SEMANAL</small>
+                        <p>MT <span id="stat-week">0.00</span></p>
+                    </div>
+                    <div class="balance-item">
+                        <small>GANHO MENSAL</small>
+                        <p>MT <span id="stat-month">0.00</span></p>
+                    </div>
+                    <div class="balance-item">
+                        <small>GANHO TOTAL</small>
+                        <p style="color: var(--green);">MT <span id="stat-total">0.00</span></p>
+                    </div>
+                    <div class="balance-item">
+                        <small>GANHO CONVITE</small>
+                        <p>MT <span id="stat-ref">0.00</span></p>
+                    </div>
+                </div>
+                <div class="tag-mzn">MZN 🇲🇿</div>
+            </div>
 
             <div class="action-buttons">
                 <button class="btn-action-sm btn-dep" onclick="goTo('page-deposit')">📥 Depositar</button>
@@ -113,9 +100,7 @@
                 <h4>Plano Iniciante</h4>
                 <span class="view-all" onclick="goTo('page-projects')">Ver todos ></span>
             </div>
-            <div id="beginner-plans" class="plans-horizontal">
-                <!-- 2 Normais e 2 VIPs renderizados via JS -->
-            </div>
+            <div id="beginner-plans" class="plans-horizontal"></div>
 
             <div class="section-header" style="margin-top:25px">
                 <h4>Últimas Transações</h4>
@@ -128,40 +113,35 @@
             </div>
         </section>
 
-        <!-- TELA PROJETOS (PLANOS NORMAIS) -->
-<section id="page-projects" class="page">
-    <div class="header-main" style="position: relative;">
-        <h3>Planos de Investimento</h3>
-        <p class="plan-desc">Rentabilize o seu capital com fundos de alta performance.</p>
-        <!-- Botão VIP no Topo Direito -->
-        <button class="btn-vip-toggle" onclick="goTo('page-vip-list')">👑 VIP</button>
-    </div>
+        <!-- TELA PROJETOS -->
+        <section id="page-projects" class="page">
+            <div class="header-main" style="position: relative; padding: 20px;">
+                <h3>Planos de Investimento</h3>
+                <p class="plan-desc">Rentabilize o seu capital com fundos de alta performance.</p>
+                <button class="btn-vip-toggle" onclick="goTo('page-vip-list')">👑 VIP</button>
+            </div>
+            <div id="plans_normal_list" class="plans-column-list"></div>
+        </section>
 
-    <div id="plans_normal_list" class="plans-column-list">
-        <!-- Planos Normais aparecerão aqui -->
-    </div>
-</section>
+        <!-- TELA VIP -->
+        <section id="page-vip-list" class="page">
+            <div class="header-main" style="padding: 20px;">
+                <button class="btn-back" onclick="goTo('page-projects')">⬅ Voltar</button>
+                <h3>Planos VIP 👑</h3>
+                <p class="plan-desc">Lucros explosivos para membros exclusivos.</p>
+            </div>
+            <div id="plans_vip_list" class="plans-column-list"></div>
+        </section>
 
-<!-- TELA NOVA: LISTA VIP (Abre ao clicar no botão VIP) -->
-<section id="page-vip-list" class="page">
-    <div class="header-main">
-        <button class="btn-back" onclick="goTo('page-projects')">⬅ Voltar</button>
-        <h3>Planos VIP 👑</h3>
-        <p class="plan-desc">Lucros explosivos em curto prazo para membros exclusivos.</p>
-    </div>
-
-    <div id="plans_vip_list" class="plans-column-list">
-        <!-- Planos VIP aparecerão aqui -->
-    </div>
-</section>
-
+        <!-- LUCROS -->
         <section id="page-profits" class="page">
-            <div class="header-main"><h3>Meus Lucros Diários</h3></div>
+            <div class="header-main" style="padding: 20px;"><h3>Meus Rendimentos</h3></div>
             <div id="profit-container"></div>
         </section>
 
+        <!-- EQUIPE -->
         <section id="page-team" class="page">
-            <div class="header-main"><h3>Minha Equipe</h3></div>
+            <div class="header-main" style="padding: 20px;"><h3>Minha Equipe</h3></div>
             <div class="wealth-card">
                 <p>Comissões de 3 Níveis</p>
                 <div class="ref-stats">
@@ -177,34 +157,46 @@
             </div>
         </section>
 
+        <!-- CONTA -->
         <section id="page-account" class="page">
             <div class="profile-header">
                 <div class="avatar">👤</div>
-                <h3 id="acc-name">Nome do Usuário</h3>
+                <h3 id="acc-name">Usuário</h3>
                 <small id="acc-phone">860000000</small>
             </div>
             <div class="menu-list">
-                <div class="menu-item" onclick="alert('Wealth Pro - Moçambique 2026')">📄 Sobre Nós</div>
-                <div class="menu-item" onclick="alert('Link: https://wealth.app/download')">📲 Baixar Aplicativo</div>
-                <div class="menu-item" onclick="goTo('page-history')">🧾 Histórico Completo</div>
+                <div class="menu-item" onclick="showAlert('Sobre Nós', 'Wealth Pro - Plataforma de Investimentos Líder em Moçambique.')">📄 Sobre Nós</div>
+                <div class="menu-item" onclick="showAlert('App', 'Link para download: https://wealth.app/download')">📲 Baixar Aplicativo</div>
                 <div class="menu-item logout" onclick="location.reload()">Sair da Conta</div>
             </div>
         </section>
 
-        <!-- MODAL DE SUPORTE -->
+        <!-- MODAIS -->
         <div id="support-modal" class="modal-overlay">
             <div class="modal-content">
                 <h3>Suporte Wealth Pro</h3>
                 <p>🕒 Horário: 09:00 - 20:00</p>
                 <div class="support-links">
-                    <a href="https://wa.me/seunumerowha" class="support-btn wa">WhatsApp Oficial</a>
-                    <a href="https://t.me/seuchan" class="support-btn tg">Canal Telegram</a>
+                    <a href="https://wa.me/seunumero" class="support-btn wa">WhatsApp Oficial</a>
+                    <a href="https://t.me/seucanal" class="support-btn tg">Canal Telegram</a>
                 </div>
                 <button class="btn btn-red" onclick="toggleSupport()" style="margin-top:15px">Fechar</button>
             </div>
         </div>
 
-        <!-- MENU INFERIOR -->
+        <div id="wealth-modal" class="modal-overlay">
+            <div class="modal-box">
+                <div id="modal-icon" class="modal-icon">!</div>
+                <h3 id="modal-title">Título</h3>
+                <p id="modal-text">Mensagem...</p>
+                <div class="modal-buttons">
+                    <button id="modal-cancel" class="btn-modal-sec" onclick="closeWealthModal()">Cancelar</button>
+                    <button id="modal-ok" class="btn-modal-prim">Confirmar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- NAVEGAÇÃO -->
         <nav class="bottom-nav" id="main-nav" style="display: none;">
             <div class="nav-item active" onclick="goTo('page-home', this)">🏠<br>Início</div>
             <div class="nav-item" onclick="goTo('page-projects', this)">📂<br>Projetos</div>
@@ -214,17 +206,5 @@
         </nav>
     </div>
     <script src="app.js"></script>
-    <!-- SISTEMA DE NOTIFICAÇÃO PROFISSIONAL -->
-<div id="wealth-modal" class="modal-overlay">
-    <div class="modal-box">
-        <div id="modal-icon" class="modal-icon">!</div>
-        <h3 id="modal-title">Título</h3>
-        <p id="modal-text">Mensagem aqui...</p>
-        <div class="modal-buttons">
-            <button id="modal-cancel" class="btn-modal-sec" onclick="closeWealthModal()">Cancelar</button>
-            <button id="modal-ok" class="btn-modal-prim">Confirmar</button>
-        </div>
-    </div>
-</div>
 </body>
-                    </html>
+    </html>
