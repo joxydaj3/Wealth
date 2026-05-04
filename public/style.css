@@ -328,50 +328,34 @@ body {
     cursor: pointer;
     }
 
-/* Equipe Grid e Cards */
-.team-stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px; }
-.team-mini-card { background: var(--card); padding: 10px; border-radius: 12px; border: 1px solid rgba(0,123,255,0.2); }
-.team-mini-card small { font-size: 9px; color: var(--blue); font-weight: bold; }
-.team-mini-card p { margin: 5px 0 0; font-size: 13px; font-weight: 800; }
+/* Grid de 4 colunas compactas */
+.team-stats-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 12px; }
+.team-mini-card { background: var(--card); padding: 8px 4px; border-radius: 10px; border: 1px solid rgba(0,123,255,0.15); text-align: center; }
+.team-mini-card small { font-size: 8px; color: #6e84ab; text-transform: uppercase; font-weight: bold; }
+.team-mini-card p { margin: 3px 0 0; font-size: 10px; font-weight: 800; color: white; }
 
-.team-total-card { text-align: center; padding: 20px; }
-.team-total-card h2 { font-size: 32px; margin: 5px 0; }
-.team-total-card span { font-size: 10px; color: #8899ac; }
+/* Bloco Sumário e Link Compactos */
+.team-summary-sm { padding: 10px !important; text-align: center; margin-bottom: 12px !important; }
+.sub-stats { font-size: 9px; color: #6e84ab; margin-top: 5px; }
 
-/* Equipe Grid e Cards */
-.team-stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px; }
-.team-mini-card { background: var(--card); padding: 10px; border-radius: 12px; border: 1px solid rgba(0,123,255,0.2); }
-.team-mini-card small { font-size: 9px; color: var(--blue); font-weight: bold; }
-.team-mini-card p { margin: 5px 0 0; font-size: 13px; font-weight: 800; }
+.invite-card-sm { padding: 12px !important; margin-bottom: 12px !important; }
+.id-badge-sm { font-size: 10px; background: var(--blue); padding: 3px 8px; border-radius: 5px; display: inline-block; margin-bottom: 8px; }
 
-.team-total-card { text-align: center; padding: 20px; }
-.team-total-card h2 { font-size: 32px; margin: 5px 0; }
-.team-total-card span { font-size: 10px; color: #8899ac; }
+/* Link visível com fundo bem escuro */
+.link-box-dark { display: flex; background: #050a30; border-radius: 8px; padding: 4px; border: 1px solid #1e3a8a; align-items: center; }
+.link-box-dark input { background: transparent; border: none; color: #00d084; font-size: 10px; flex: 1; padding: 5px; }
+.btn-copy-sm { background: var(--blue); border: none; border-radius: 6px; width: 30px; height: 30px; cursor: pointer; color: white; }
 
-/* Link de Convite */
-.id-badge { background: var(--blue); padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: bold; }
-.link-box { display: flex; background: rgba(0,0,0,0.2); border-radius: 10px; margin: 15px 0; padding: 5px; border: 1px solid rgba(255,255,255,0.05); }
-.link-box input { border: none; background: transparent; padding: 8px; font-size: 11px; flex: 1; margin: 0; }
-.btn-copy-icon { background: var(--blue); border: none; border-radius: 8px; width: 35px; color: white; cursor: pointer; }
+.social-grid-sm { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.social-btn-sm { padding: 8px; border: none; border-radius: 8px; color: white; font-weight: bold; font-size: 10px; cursor: pointer; }
 
-/* Social Buttons */
-.social-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.social-btn { padding: 10px; border: none; border-radius: 8px; color: white; font-weight: bold; font-size: 11px; cursor: pointer; }
-.social-btn.wa { background: #25d366; }
-.social-btn.tg { background: #0088cc; }
-.social-btn.fb { background: #3b5998; }
-.social-btn.tw { background: #1da1f2; }
-
-/* Explicação */
-.benefit-item { display: flex; gap: 12px; margin-bottom: 15px; background: rgba(255,255,255,0.02); padding: 10px; border-radius: 10px; }
-.benefit-icon { font-size: 20px; }
-.benefit-text strong { display: block; font-size: 13px; color: var(--green); }
-.benefit-text span { font-size: 11px; color: #8899ac; }
-
-.example-box { background: rgba(255, 152, 0, 0.05); border: 1px solid rgba(255, 152, 0, 0.2); border-radius: 12px; padding: 15px; margin-top: 20px; }
-.example-title { color: #ffa726; font-weight: bold; margin-bottom: 8px; }
-.example-result { color: var(--green); font-weight: 800; font-size: 16px; margin: 5px 0; }
-.sparkle-note { font-size: 11px; color: #8899ac; font-style: italic; margin-top: 15px; text-align: center; }
+/* Textos informativos pequenos */
+.team-info-box { padding: 0 5px; }
+.info-title-sm { font-size: 11px; font-weight: bold; color: #8899ac; margin-bottom: 5px; }
+.commission-list { display: flex; flex-direction: column; gap: 3px; font-size: 10px; color: #8899ac; margin-bottom: 10px; }
+.commission-list b { color: var(--green); }
+.example-box-sm { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; font-size: 10px; line-height: 1.4; color: #8899ac; }
+.footer-note-sm { font-size: 9px; color: #6e84ab; text-align: center; margin-top: 10px; font-style: italic; }
 
 /* Estilo do Modal Customizado */
 .modal-overlay { 
