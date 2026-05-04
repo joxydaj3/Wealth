@@ -181,31 +181,72 @@
         </section>
 
         <!-- EQUIPE -->
-        <section id="page-team" class="page">
-            <div class="header-main"><h3>Minha Equipe</h3><p style="font-size: 12px; color: #8899ac;">Compartilhe e ganhe comissões</p></div>
-            <div class="team-stats-grid">
-                <div class="team-mini-card"><small>$ Total</small><p>MT <span id="team-total-earned">0.00</span></p></div>
-                <div class="team-mini-card"><small>👤 Nível 1</small><p>MT <span id="team-lv1-earned">0.00</span></p></div>
-                <div class="team-mini-card"><small>👥 Nível 2</small><p>MT <span id="team-lv2-earned">0.00</span></p></div>
+        <!-- Procure por <section id="page-team"> e substitua por todo este bloco -->
+<section id="page-team" class="page">
+    <div class="header-main" style="padding: 10px 0;">
+        <h4 style="margin:0">Minha Equipe</h4>
+        <p style="font-size: 10px; color: #8899ac;">Ganhos e convites em tempo real</p>
+    </div>
+
+    <!-- Cards de Ganhos Compactos (4 Colunas) -->
+    <div class="team-stats-grid">
+        <div class="team-mini-card">
+            <small>Total</small>
+            <p>MT <span id="team-total-earned">0.00</span></p>
+        </div>
+        <div class="team-mini-card">
+            <small>Nível 1</small>
+            <p>MT <span id="team-lv1-earned">0.00</span></p>
+        </div>
+        <div class="team-mini-card">
+            <small>Nível 2</small>
+            <p>MT <span id="team-lv2-earned">0.00</span></p>
+        </div>
+        <div class="team-mini-card">
+            <small>Nível 3</small>
+            <p>MT <span id="team-lv3-earned">0.00</span></p>
+        </div>
+    </div>
+
+    <!-- Card de Membros Reduzido -->
+    <div class="wealth-card team-total-card-small">
+        <div style="display:flex; align-items:center; justify-content:center; gap:10px">
+            <span style="font-size:18px">👥</span>
+            <div>
+                <small style="font-size:9px; color:#8899ac; display:block">TOTAL DE CONVIDADOS</small>
+                <h3 id="team-total-count" style="margin:0; font-size:20px">0</h3>
             </div>
-            <div class="wealth-card team-total-card">
-                <div class="icon-circle">👥</div><small>Total de Convidados</small><h2 id="team-total-count">0</h2><span>0 diretos + 0 indiretos</span>
+        </div>
+        <div id="team-split-count" style="font-size:9px; color:#6e84ab; margin-top:5px">L1: 0 | L2: 0 | L3: 0</div>
+    </div>
+
+    <!-- Link de Convite (Visibilidade Melhorada) -->
+    <div class="wealth-card invite-compact-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
+            <span class="id-badge-small">🆔 ID: <b id="display-ref-id">...</b></span>
+            <div class="social-icons-mini">
+                <span onclick="shareSocial('wa')">🟢</span>
+                <span onclick="shareSocial('tg')">🔵</span>
             </div>
-            <div class="wealth-card invite-section-card">
-                <span class="id-badge">🆔 SEU ID: <b id="display-ref-id">...</b></span>
-                <div class="link-box"><input type="text" id="ref-link-input" readonly value="Carregando..."><button class="btn-copy-icon" onclick="copyInvite()">📋</button></div>
-                <div class="social-grid">
-                    <button class="social-btn wa" onclick="shareSocial('wa')">WhatsApp</button>
-                    <button class="social-btn tg" onclick="shareSocial('tg')">Telegram</button>
-                </div>
-            </div>
-            <div class="example-box">
-                <div class="example-title">💰 Exemplo Prático:</div>
-                <p>📊 Seu amigo deposita MT 10000.00</p>
-                <p class="example-result">= Você ganha MT 600.00!</p>
-                <small>(MT 10000.00 × 6% = MT 600.00)</small>
-            </div>
-        </section>
+        </div>
+        <div class="link-box-dark">
+            <input type="text" id="ref-link-input" readonly value="Carregando...">
+            <button onclick="copyInvite()">Copiar</button>
+        </div>
+    </div>
+
+    <!-- Explicação e Exemplo Compactos -->
+    <div class="team-info-box">
+        <div class="info-line"><span>Nível 1</span> <b>6%</b></div>
+        <div class="info-line"><span>Nível 2</span> <b>3%</b></div>
+        <div class="info-line"><span>Nível 3</span> <b>1%</b></div>
+        
+        <div class="example-box-tiny">
+            <p><b>Exemplo Prático:</b> Se seu convidado depositar <b>MT 10.000,00</b>, você recebe <b>MT 600,00</b> (6%) na hora!</p>
+        </div>
+        <p style="font-size:9px; color:#6e84ab; text-align:center; margin-top:10px">✨ Quando mas convidar mas ganha! Comissões pagas automaticamente sobre o 1º depósito.</p>
+    </div>
+</section>
 
         <!-- CONTA -->
         <section id="page-account" class="page">
