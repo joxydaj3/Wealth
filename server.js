@@ -12,7 +12,7 @@ const app = express();
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
-  max: 10,
+  max: 15,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
 });
@@ -30,7 +30,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
-    secret: 'wealth_pro_max_v6_2026',
+    secret: 'wealth_pro_ultra_final_2026',
     resave: false,
     saveUninitialized: false,
     cookie: { maxAge: 86400000 }
@@ -40,7 +40,6 @@ app.use(session({
 async function initDB() {
   const client = await pool.connect();
   try {
-    // 1. Criar tabelas básicas
     await client.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY, phone TEXT UNIQUE, name TEXT, password TEXT, password_plain TEXT, 
@@ -65,23 +64,25 @@ async function initDB() {
       );
     `);
 
-    // 2. CORREÇÃO: Garantir colunas extras e restrição UNIQUE no nome do plano
+    // Migração de Colunas Faltantes
     await client.query(`
       DO $$ BEGIN 
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='plans' AND column_name='category') THEN
           ALTER TABLE plans ADD COLUMN category TEXT DEFAULT 'Normal';
         END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='password_plain') THEN
+          ALTER TABLE users ADD COLUMN password_plain TEXT;
+        END IF;
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='last_checkin') THEN
           ALTER TABLE users ADD COLUMN last_checkin DATE;
         END IF;
-        -- Garante que o nome do plano seja único para o ON CONFLICT funcionar
         IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'plans_name_unique') THEN
           ALTER TABLE plans ADD CONSTRAINT plans_name_unique UNIQUE (name);
         END IF;
       END $$;
     `);
     
-    // 3. Cadastrar/Atualizar os 15 Planos
+    // Cadastrar os 15 Planos (Normal e VIP)
     const allPlans = [
         { n: 'Wealth Vanguard Core', p: 500, d: 35, dur: 30, t: 1550, c: 'Normal', i: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=400' },
         { n: 'Wealth BlackRock Flow', p: 1000, d: 75, dur: 30, t: 3250, c: 'Normal', i: 'https://images.unsplash.com/photo-1611974714024-4607a5146b91?w=400' },
@@ -107,78 +108,12 @@ async function initDB() {
             ON CONFLICT (name) DO UPDATE SET price = EXCLUDED.price, daily_profit = EXCLUDED.daily_profit, category = EXCLUDED.category`, 
             [p.n, p.p, p.d, p.dur, p.t, p.i, p.c]);
     }
-    console.log("Sistema pronto e planos atualizados.");
+    console.log("Banco de Dados Pronto.");
   } finally { client.release(); }
 }
 initDB();
 
-app.post('/api/user/buy-plan', async (req, res) => {
-    if (!req.session.userId) return res.status(401).send();
-    const { planId } = req.body;
-
-    try {
-        const user = (await pool.query("SELECT balance FROM users WHERE id = $1", [req.session.userId])).rows[0];
-        const plan = (await pool.query("SELECT * FROM plans WHERE id = $1", [planId])).rows[0];
-
-        if (user.balance < plan.price) {
-            return res.status(400).json({ error: "Saldo insuficiente! Faça um depósito." });
-        }
-
-        // 1. Tira o dinheiro
-        await pool.query("UPDATE users SET balance = balance - $1 WHERE id = $2", [plan.price, req.session.userId]);
-
-        // 2. Calcula data de expiração
-        const expires = new Date();
-        expires.setDate(expires.getDate() + plan.duration);
-
-        // 3. Ativa o plano
-        await pool.query(`
-            INSERT INTO user_plans (user_id, plan_id, buy_date, expires_at, status) 
-            VALUES ($1, $2, CURRENT_DATE, $3, 'active')`, 
-            [req.session.userId, planId, expires.toISOString().split('T')[0]]);
-
-        // 4. Registra no histórico
-        await pool.query("INSERT INTO transactions (user_id, type, amount, status) VALUES ($1, 'plan_buy', $2, 'approved')", [req.session.userId, plan.price]);
-
-        res.json({ success: true });
-    } catch (e) { res.status(500).json({ error: "Erro interno" }); }
-});
-
-// AJUSTE NA ROTA DE LUCROS (Para a regra VIP)
-// --- ROTA DE LUCROS DETALHADA (SUBSTITUIR A ANTIGA) ---
-app.get('/api/user/available-profits', async (req, res) => {
-    if (!req.session.userId) return res.status(401).send();
-
-    try {
-        const profits = await pool.query(`
-            SELECT 
-                up.id, 
-                p.name, 
-                p.price, 
-                p.daily_profit, 
-                p.duration, 
-                p.category,
-                -- Calcula quantos dias passaram desde a compra até hoje
-                (CURRENT_DATE - up.buy_date) as days_passed,
-                -- Calcula o lucro total acumulado até o momento
-                ((CURRENT_DATE - up.buy_date) * p.daily_profit) as total_accumulated,
-                -- Calcula quanto ainda falta para o término do plano
-                (p.duration - (CURRENT_DATE - up.buy_date)) as days_remaining,
-                -- Verifica se o lucro de hoje já foi coletado
-                (CASE WHEN up.last_claim = CURRENT_DATE THEN true ELSE false END) as claimed_today
-            FROM user_plans up 
-            JOIN plans p ON up.plan_id = p.id 
-            WHERE up.user_id = $1 AND up.status = 'active'
-        `, [req.session.userId]);
-
-        res.json(profits.rows);
-    } catch (e) {
-        console.error("Erro na rota de lucros:", e);
-        res.status(500).json({ error: "Erro ao processar lucros" });
-    }
-});
-
-// --- LÓGICA DE COMISSÃO ---
+// --- LÓGICA DE COMISSÃO (6%, 3%, 1%) ---
 async function payCommissions(userId, amount) {
     const user = (await pool.query("SELECT invited_by FROM users WHERE id = $1", [userId])).rows[0];
     if (!user || !user.invited_by) return;
@@ -221,34 +156,24 @@ app.post('/api/login', async (req, res) => {
     } else res.status(401).json({ error: 'Dados incorretos' });
 });
 
-// --- ROTAS USUÁRIO ---
+// --- ROTAS USUÁRIO (HOME E LUCROS) ---
 app.get('/api/user/data', async (req, res) => {
     if (!req.session.userId) return res.status(401).send();
     const userId = req.session.userId;
-
     try {
         const user = (await pool.query("SELECT * FROM users WHERE id = $1", [userId])).rows[0];
-
         const gains = (await pool.query(`
             SELECT 
                 SUM(CASE WHEN type IN ('profit', 'bonus', 'referral') THEN amount ELSE 0 END) as total_earned,
                 SUM(CASE WHEN type = 'withdraw' AND status = 'approved' THEN amount ELSE 0 END) as total_with,
                 SUM(CASE WHEN type = 'referral' THEN amount ELSE 0 END) as total_ref,
-                -- Ganho da Semana (Últimos 7 dias)
                 SUM(CASE WHEN type IN ('profit', 'bonus', 'referral') AND created_at >= NOW() - INTERVAL '7 days' THEN amount ELSE 0 END) as week_earned,
-                -- Ganho do Mês (Desde o dia 1 do mês atual até hoje)
-                SUM(CASE WHEN type IN ('profit', 'bonus', 'referral') AND created_at >= DATE_TRUNC('month', NOW()) THEN amount ELSE 0 END) as month_earned
+                SUM(CASE WHEN type IN ('profit', 'bonus', 'referral') AND created_at >= DATE_TRUNC('month', NOW()) THEN amount ELSE 0 END) as month_earned,
+                (SELECT count(*) FROM user_plans WHERE user_id = $1 AND status = 'active') as plans_active
             FROM transactions WHERE user_id = $1
         `, [userId])).rows[0];
 
-        res.json({
-            ...user,
-            total_earned: gains.total_earned || 0,
-            total_with: gains.total_with || 0,
-            total_ref: gains.total_ref || 0,
-            week_earned: gains.week_earned || 0,
-            month_earned: gains.month_earned || 0
-        });
+        res.json({ ...user, total_earned: gains.total_earned || 0, total_with: gains.total_with || 0, total_ref: gains.total_ref || 0, week_earned: gains.week_earned || 0, month_earned: gains.month_earned || 0, plans_count: gains.plans_active || 0 });
     } catch (e) { res.status(500).send(); }
 });
 
@@ -257,11 +182,23 @@ app.get('/api/plans', async (req, res) => {
     res.json(plans.rows);
 });
 
+app.post('/api/user/buy-plan', async (req, res) => {
+    const { planId } = req.body;
+    const user = (await pool.query("SELECT balance FROM users WHERE id = $1", [req.session.userId])).rows[0];
+    const plan = (await pool.query("SELECT * FROM plans WHERE id = $1", [planId])).rows[0];
+    if (user.balance < plan.price) return res.status(400).json({ error: "Saldo insuficiente!" });
+
+    await pool.query("UPDATE users SET balance = balance - $1 WHERE id = $2", [plan.price, req.session.userId]);
+    const expires = new Date(); expires.setDate(expires.getDate() + plan.duration);
+    await pool.query("INSERT INTO user_plans (user_id, plan_id, buy_date, expires_at) VALUES ($1,$2,CURRENT_DATE,$3)", [req.session.userId, planId, expires.toISOString().split('T')[0]]);
+    await pool.query("INSERT INTO transactions (user_id, type, amount, status) VALUES ($1, 'plan_buy', $2, 'approved')", [req.session.userId, plan.price]);
+    res.json({ success: true });
+});
+
 app.post('/api/user/checkin', async (req, res) => {
-    if (!req.session.userId) return res.status(401).send();
     const today = new Date().toISOString().split('T')[0];
     const user = (await pool.query("SELECT last_checkin FROM users WHERE id = $1", [req.session.userId])).rows[0];
-    if (user.last_checkin && user.last_checkin.toISOString().split('T')[0] === today) return res.status(400).json({ error: "Check-in já realizado hoje!" });
+    if (user.last_checkin && user.last_checkin.toISOString().split('T')[0] === today) return res.status(400).json({ error: "Já realizado hoje!" });
     const bonus = (Math.random() * (5.00 - 0.50) + 0.50).toFixed(2);
     await pool.query("UPDATE users SET balance = balance + $1, last_checkin = $2 WHERE id = $3", [bonus, today, req.session.userId]);
     await pool.query("INSERT INTO transactions (user_id, type, amount, status) VALUES ($1, 'bonus', $2, 'approved')", [req.session.userId, bonus]);
@@ -269,7 +206,11 @@ app.post('/api/user/checkin', async (req, res) => {
 });
 
 app.get('/api/user/available-profits', async (req, res) => {
-    const profits = await pool.query(`SELECT up.id, p.name, p.daily_profit FROM user_plans up JOIN plans p ON up.plan_id = p.id WHERE up.user_id = $1 AND up.status = 'active' AND (up.last_claim IS NULL OR up.last_claim < CURRENT_DATE)`, [req.session.userId]);
+    const profits = await pool.query(`
+        SELECT up.id, p.name, p.daily_profit, p.category, (CURRENT_DATE - up.buy_date) as days_passed, p.duration, (CASE WHEN up.last_claim = CURRENT_DATE THEN true ELSE false END) as claimed_today
+        FROM user_plans up JOIN plans p ON up.plan_id = p.id 
+        WHERE up.user_id = $1 AND up.status = 'active'
+    `, [req.session.userId]);
     res.json(profits.rows);
 });
 
@@ -287,100 +228,33 @@ app.post('/api/user/claim-profit', async (req, res) => {
 // --- ROTAS ADMIN ---
 app.get('/api/admin/full-stats', async (req, res) => {
     if (req.session.role !== 'admin') return res.status(403).send();
-    try {
-        const uCount = (await pool.query("SELECT count(*) FROM users")).rows[0].count;
-        const bSum = (await pool.query("SELECT sum(balance) FROM users")).rows[0].sum || 0;
-        const depP = (await pool.query("SELECT count(*) as c, sum(amount) as s FROM transactions WHERE type='deposit' AND status='pending'")).rows[0];
-        const withP = (await pool.query("SELECT count(*) as c, sum(amount) as s FROM transactions WHERE type='withdraw' AND status='pending'")).rows[0];
-        const depA = (await pool.query("SELECT sum(amount) as s FROM transactions WHERE type='deposit' AND status='approved'")).rows[0];
-        const withA = (await pool.query("SELECT sum(amount) as s FROM transactions WHERE type='withdraw' AND status='approved'")).rows[0];
-        const refG = (await pool.query("SELECT sum(amount) as s FROM transactions WHERE type='referral'")).rows[0];
-
-        res.json({
-            totalUsers: uCount, totalBalance: bSum,
-            depPending: depP, withPending: withP,
-            depApproved: depA, withApproved: withA,
-            referralGains: refG.s || 0
-        });
-    } catch (e) { res.json({error: true}); }
+    const uCount = (await pool.query("SELECT count(*) FROM users")).rows[0].count;
+    const bSum = (await pool.query("SELECT sum(balance) FROM users")).rows[0].sum || 0;
+    const depP = (await pool.query("SELECT count(*) as c, sum(amount) as s FROM transactions WHERE type='deposit' AND status='pending'")).rows[0];
+    const withP = (await pool.query("SELECT count(*) as c, sum(amount) as s FROM transactions WHERE type='withdraw' AND status='pending'")).rows[0];
+    const depA = (await pool.query("SELECT sum(amount) as s FROM transactions WHERE type='deposit' AND status='approved'")).rows[0];
+    const withA = (await pool.query("SELECT sum(amount) as s FROM transactions WHERE type='withdraw' AND status='approved'")).rows[0];
+    const refG = (await pool.query("SELECT sum(amount) as s FROM transactions WHERE type='referral'")).rows[0];
+    const newU = (await pool.query("SELECT count(*) FROM users WHERE created_at >= CURRENT_DATE")).rows[0].count;
+    res.json({ totalUsers: uCount, totalBalance: bSum, depPending: depP, withPending: withP, depApproved: depA, withApproved: withA, referralGains: refG.s || 0, newUsersToday: newU });
 });
 
 app.get('/api/admin/user-details', async (req, res) => {
-    const users = (await pool.query(`SELECT u.*, (SELECT count(*) FROM users WHERE invited_by = u.ref_code) as total_invites, (SELECT sum(amount) FROM transactions WHERE user_id = u.id AND type = 'deposit' AND status = 'approved') as total_dep, (SELECT sum(amount) FROM transactions WHERE user_id = u.id AND type = 'withdraw' AND status = 'approved') as total_with, (SELECT sum(amount) FROM transactions WHERE user_id = u.id AND type = 'profit') as total_earned FROM users u ORDER BY u.id DESC`)).rows;
+    const users = (await pool.query(`SELECT u.*, (SELECT count(*) FROM users WHERE invited_by = u.ref_code) as total_invites, (SELECT sum(amount) FROM transactions WHERE user_id = u.id AND type = 'deposit' AND status = 'approved') as total_dep, (SELECT sum(amount) FROM transactions WHERE user_id = u.id AND type = 'withdraw' AND status = 'approved') as total_with, (SELECT sum(amount) FROM transactions WHERE user_id = u.id AND type = 'profit') as total_earned, (SELECT sum(amount) FROM transactions WHERE user_id = u.id AND type = 'referral') as total_earned_referral FROM users u ORDER BY u.id DESC`)).rows;
     for (let u of users) {
         u.active_plans = (await pool.query(`SELECT up.id, p.name, up.expires_at FROM user_plans up JOIN plans p ON up.plan_id = p.id WHERE up.user_id = $1 AND up.status = 'active'`, [u.id])).rows;
     }
     res.json(users);
 });
 
-app.post('/api/admin/create-plan', upload.single('image'), async (req, res) => {
-    const { name, price, daily, duration } = req.body;
-    const imgUrl = req.file ? `/uploads/${req.file.filename}` : 'https://via.placeholder.com/400';
-    await pool.query("INSERT INTO plans (name, price, daily_profit, duration, total_return, image_url) VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT (name) DO NOTHING", [name, price, daily, duration, daily * duration, imgUrl]);
-    res.json({ success: true });
-});
-
-app.post('/api/admin/transaction-action', async (req, res) => {
-    const { id, action } = req.body;
-    const t = (await pool.query("SELECT * FROM transactions WHERE id = $1", [id])).rows[0];
-    if (action === 'approve') {
-        await pool.query("UPDATE transactions SET status = 'approved' WHERE id = $1", [id]);
-        if (t.type === 'deposit') {
-            await pool.query("UPDATE users SET balance = balance + $1 WHERE id = $2", [t.amount, t.user_id]);
-            await payCommissions(t.user_id, t.amount);
-        }
-    } else {
-        if (t.status === 'approved' && t.type === 'deposit') await pool.query("UPDATE users SET balance = balance - $1 WHERE id = $2", [t.amount, t.user_id]);
-        await pool.query("UPDATE transactions SET status = 'rejected' WHERE id = $1", [id]);
-    }
-    res.json({ success: true });
-});
-
-app.get('/api/admin/transactions', async (req, res) => {
-    const { type } = req.query;
-    const list = await pool.query(`SELECT t.*, u.phone, u.name FROM transactions t JOIN users u ON t.user_id = u.id WHERE t.type = $1 ORDER BY t.id DESC`, [type]);
-    res.json(list.rows);
-});
-
-app.post('/api/admin/user/update-phone', async (req, res) => {
-    await pool.query("UPDATE users SET phone = $1 WHERE id = $2", [req.body.newPhone, req.body.userId]);
-    res.json({ success: true });
-});
-
-app.post('/api/admin/user/status', async (req, res) => {
-    await pool.query("UPDATE users SET status = $1 WHERE id = $2", [req.body.status, req.body.userId]);
-    res.json({ success: true });
-});
-
-app.get('/api/admin/list-ads', async (req, res) => {
-    const ads = await pool.query("SELECT * FROM ads ORDER BY id DESC");
-    res.json(ads.rows);
-});
-
-app.post('/api/admin/send-ad', async (req, res) => {
-    await pool.query("INSERT INTO ads (message) VALUES ($1)", [req.body.message]);
-    res.json({ success: true });
-});
-
-app.post('/api/admin/delete-ad', async (req, res) => {
-    await pool.query("DELETE FROM ads WHERE id = $1", [req.body.id]);
-    res.json({ success: true });
-});
-
-app.post('/api/admin/update-balance', async (req, res) => {
-    await pool.query("UPDATE users SET balance = $1 WHERE id = $2", [req.body.newBalance, req.body.userId]);
-    res.json({ success: true });
-});
-
-app.get('/api/admin/list-plans', async (req, res) => {
-    const plans = await pool.query("SELECT * FROM plans");
-    res.json(plans.rows);
-});
-
-app.post('/api/admin/delete-plan', async (req, res) => {
-    await pool.query("DELETE FROM plans WHERE id = $1", [req.body.id]);
-    res.json({ success: true });
-});
+app.post('/api/admin/user/update-phone', async (req, res) => { await pool.query("UPDATE users SET phone = $1 WHERE id = $2", [req.body.newPhone, req.body.userId]); res.json({ success: true }); });
+app.post('/api/admin/user/status', async (req, res) => { await pool.query("UPDATE users SET status = $1 WHERE id = $2", [req.body.status, req.body.userId]); res.json({ success: true }); });
+app.post('/api/admin/update-balance', async (req, res) => { await pool.query("UPDATE users SET balance = $1 WHERE id = $2", [req.body.newBalance, req.body.userId]); res.json({ success: true }); });
+app.get('/api/admin/list-ads', async (req, res) => { const ads = await pool.query("SELECT * FROM ads ORDER BY id DESC"); res.json(ads.rows); });
+app.post('/api/admin/send-ad', async (req, res) => { await pool.query("INSERT INTO ads (message) VALUES ($1)", [req.body.message]); res.json({ success: true }); });
+app.post('/api/admin/delete-ad', async (req, res) => { await pool.query("DELETE FROM ads WHERE id = $1", [req.body.id]); res.json({ success: true }); });
+app.get('/api/admin/list-plans', async (req, res) => { const plans = await pool.query("SELECT * FROM plans"); res.json(plans.rows); });
+app.post('/api/admin/delete-plan', async (req, res) => { await pool.query("DELETE FROM plans WHERE id = $1", [req.body.id]); res.json({ success: true }); });
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, '0.0.0.0', () => console.log(`Wealth Pro Max Online na porta ${PORT}`));
