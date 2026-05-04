@@ -338,6 +338,16 @@ body {
 .team-total-card h2 { font-size: 32px; margin: 5px 0; }
 .team-total-card span { font-size: 10px; color: #8899ac; }
 
+/* Equipe Grid e Cards */
+.team-stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+.team-mini-card { background: var(--card); padding: 10px; border-radius: 12px; border: 1px solid rgba(0,123,255,0.2); }
+.team-mini-card small { font-size: 9px; color: var(--blue); font-weight: bold; }
+.team-mini-card p { margin: 5px 0 0; font-size: 13px; font-weight: 800; }
+
+.team-total-card { text-align: center; padding: 20px; }
+.team-total-card h2 { font-size: 32px; margin: 5px 0; }
+.team-total-card span { font-size: 10px; color: #8899ac; }
+
 /* Link de Convite */
 .id-badge { background: var(--blue); padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: bold; }
 .link-box { display: flex; background: rgba(0,0,0,0.2); border-radius: 10px; margin: 15px 0; padding: 5px; border: 1px solid rgba(255,255,255,0.05); }
