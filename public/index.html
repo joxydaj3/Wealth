@@ -181,15 +181,13 @@
         </section>
 
         <!-- EQUIPE -->
-        <!-- Procure por <section id="page-team"> e substitua por todo este bloco -->
-<section id="page-team" class="page">
-    <div class="header-main" style="padding: 10px 0;">
-        <h4 style="margin:0">Minha Equipe</h4>
-        <p style="font-size: 10px; color: #8899ac;">Ganhos e convites em tempo real</p>
+        <section id="page-team" class="page">
+    <div class="header-main">
+        <h3>Minha Equipe</h3>
     </div>
 
-    <!-- Cards de Ganhos Compactos (4 Colunas) -->
-    <div class="team-stats-grid">
+    <!-- 4 Blocos de Ganhos no Topo (Compactos) -->
+    <div class="team-stats-grid-4">
         <div class="team-mini-card">
             <small>Total</small>
             <p>MT <span id="team-total-earned">0.00</span></p>
@@ -208,45 +206,49 @@
         </div>
     </div>
 
-    <!-- Card de Membros Reduzido -->
-    <div class="wealth-card team-total-card-small">
-        <div style="display:flex; align-items:center; justify-content:center; gap:10px">
-            <span style="font-size:18px">👥</span>
+    <!-- Bloco Total de Convidados (Compacto) -->
+    <div class="wealth-card team-summary-sm">
+        <div style="display:flex; align-items:center; gap:10px; justify-content:center;">
+            <span>👥</span>
             <div>
-                <small style="font-size:9px; color:#8899ac; display:block">TOTAL DE CONVIDADOS</small>
-                <h3 id="team-total-count" style="margin:0; font-size:20px">0</h3>
+                <small>Total de Convidados</small>
+                <h4 id="team-total-count" style="margin:0">0</h4>
             </div>
         </div>
-        <div id="team-split-count" style="font-size:9px; color:#6e84ab; margin-top:5px">L1: 0 | L2: 0 | L3: 0</div>
+        <div class="sub-stats">
+            <span id="lv1-count">0</span> L1 • <span id="lv2-count">0</span> L2 • <span id="lv3-count">0</span> L3
+        </div>
     </div>
 
-    <!-- Link de Convite (Visibilidade Melhorada) -->
-    <div class="wealth-card invite-compact-card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
-            <span class="id-badge-small">🆔 ID: <b id="display-ref-id">...</b></span>
-            <div class="social-icons-mini">
-                <span onclick="shareSocial('wa')">🟢</span>
-                <span onclick="shareSocial('tg')">🔵</span>
-            </div>
-        </div>
+    <!-- Bloco de Link (Visível e Compacto) -->
+    <div class="wealth-card invite-card-sm">
+        <div class="id-badge-sm">🆔 ID: <b id="display-ref-id">...</b></div>
         <div class="link-box-dark">
             <input type="text" id="ref-link-input" readonly value="Carregando...">
-            <button onclick="copyInvite()">Copiar</button>
+            <button class="btn-copy-sm" onclick="copyInvite()">📋</button>
+        </div>
+        <div class="social-grid-sm">
+            <button class="social-btn-sm wa" onclick="shareSocial('wa')">Wa 💬</button>
+            <button class="social-btn-sm tg" onclick="shareSocial('tg')">Tg ✈️</button>
         </div>
     </div>
 
-    <!-- Explicação e Exemplo Compactos -->
+    <!-- Como funciona e Exemplo (Letras Pequenas) -->
     <div class="team-info-box">
-        <div class="info-line"><span>Nível 1</span> <b>6%</b></div>
-        <div class="info-line"><span>Nível 2</span> <b>3%</b></div>
-        <div class="info-line"><span>Nível 3</span> <b>1%</b></div>
-        
-        <div class="example-box-tiny">
-            <p><b>Exemplo Prático:</b> Se seu convidado depositar <b>MT 10.000,00</b>, você recebe <b>MT 600,00</b> (6%) na hora!</p>
+        <p class="info-title-sm">💡 Como funcionam as comissões:</p>
+        <div class="commission-list">
+            <span>Nível 1 (Diretos): <b>6%</b></span>
+            <span>Nível 2 (Indiretos): <b>3%</b></span>
+            <span>Nível 3 (Indiretos): <b>1%</b></span>
         </div>
-        <p style="font-size:9px; color:#6e84ab; text-align:center; margin-top:10px">✨ Quando mas convidar mas ganha! Comissões pagas automaticamente sobre o 1º depósito.</p>
+
+        <div class="example-box-sm">
+            <p>💰 <b>Exemplo Prático:</b></p>
+            <p>Se um convidado (Nível 1) depositar <b>MT 10.000,00</b>, você ganha imediatamente <b>MT 600,00</b> (6%) no seu saldo.</p>
+        </div>
+        <p class="footer-note-sm">✨ Quanto mais convidar, maior será o seu rendimento passivo.</p>
     </div>
-</section>
+        </section>
 
         <!-- CONTA -->
         <section id="page-account" class="page">
