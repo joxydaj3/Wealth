@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wealth Pro - Investimentos</title>
+    <title>Wealth</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
@@ -252,16 +252,74 @@
 
         <!-- CONTA -->
         <section id="page-account" class="page">
-            <div class="profile-header">
-                <div class="avatar">👤</div>
-                <h3 id="acc-name">Usuário</h3>
-                <small id="acc-phone">860000000</small>
+    <!-- 1. Banner Rotativo (Slider de 4 Imagens) -->
+    <div class="account-slider">
+        <div class="slider-wrapper" id="account-slider-wrapper">
+            <div class="slide"><img src="https://images.unsplash.com/photo-1611974714024-4607a5146b91?w=500" alt="Slide 1"></div>
+            <div class="slide"><img src="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=500" alt="Slide 2"></div>
+            <div class="slide"><img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=500" alt="Slide 3"></div>
+            <div class="slide"><img src="https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=500" alt="Slide 4"></div>
+        </div>
+    </div>
+
+    <!-- 2. Card de Perfil Estilo Fintech -->
+    <div class="wealth-card profile-card-main">
+        <div class="profile-info-top">
+            <div class="avatar-box">W</div>
+            <div class="user-text">
+                <h3 id="acc-name-label">Carregando...</h3>
+                <p id="acc-phone-label">+258 ...</p>
             </div>
-            <div class="menu-list">
-                <div class="menu-item" onclick="showAlert('Sobre Nós', 'Wealth Pro - Moçambique 2026')">📄 Sobre Nós</div>
-                <div class="menu-item" onclick="showAlert('App', 'Link para download disponível em breve.')">📲 Baixar Aplicativo</div>
-                <div class="menu-item logout" onclick="location.reload()">Sair da Conta</div>
-            </div>
+        </div>
+        <div class="profile-balance-box">
+            <h2>MZN <span id="acc-balance-total">0.00</span></h2>
+            <small>Ativos totais</small>
+        </div>
+        <div class="profile-decoration">⭐</div>
+    </div>
+
+    <!-- 3. Botões de Ação Rápida -->
+    <div class="account-quick-actions">
+        <div class="q-item" onclick="goTo('page-deposit')">
+            <div class="q-icon yellow">💳</div>
+            <span>Recarregar</span>
+        </div>
+        <div class="q-item" onclick="goTo('page-withdraw')">
+            <div class="q-icon gold">📤</div>
+            <span>Saque</span>
+        </div>
+        <div class="q-item" onclick="showAlert('Banco', 'Funcionalidade de conta bancária em breve.')">
+            <div class="q-icon orange">🏛️</div>
+            <span>Conta Bancária</span>
+        </div>
+    </div>
+
+    <!-- 4. Lista de Menus (Igual às imagens) -->
+    <div class="account-menu-list">
+        <div class="menu-row" onclick="showAlert('Sobre Nós', 'Wealth Pro: A plataforma nº 1 em investimentos em Moçambique.')">
+            <div class="menu-left">📊 <span>Sobre Nós</span></div>
+            <div class="menu-right">▶</div>
+        </div>
+        <div class="menu-row" onclick="goTo('page-history')">
+            <div class="menu-left">📋 <span>Registros / Faturas</span></div>
+            <div class="menu-right">▶</div>
+        </div>
+        <div class="menu-row" onclick="toggleSupport()">
+            <div class="menu-left">🎧 <span>Atendimento ao Cliente</span></div>
+            <div class="menu-right">▶</div>
+        </div>
+        <div class="menu-row" onclick="showAlert('Segurança', 'Para alterar sua senha, entre em contato com o suporte.')">
+            <div class="menu-left">🔒 <span>Alterar Senha</span></div>
+            <div class="menu-right">▶</div>
+        </div>
+        <div class="menu-row" onclick="window.open('#', '_blank')">
+            <div class="menu-left">☁️ <span>Baixar APP (APK)</span></div>
+            <div class="menu-right">▶</div>
+        </div>
+    </div>
+
+    <!-- 5. Botão Sair Estilizado -->
+    <button class="btn-logout-yellow" onclick="location.reload()">Sair da Conta</button>
         </section>
 
         <!-- MODAL SUPORTE -->
