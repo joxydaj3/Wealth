@@ -475,6 +475,54 @@ body {
     background: #0d1b3e; border: 1px solid #1e3a8a; border-radius: 20px; 
     width: 85%; max-width: 350px; padding: 25px; text-align: center; animation: zoomIn 0.3s;
 }
+
+/* Slider 4 imagens */
+.slider-wrapper { width: 400% !important; }
+.slide { width: 25% !important; }
+
+/* Card Compacto */
+.profile-info-card-sm {
+    background: #ffffff !important;
+    color: #050a30 !important;
+    padding: 15px !important;
+    margin: 10px 20px !important;
+    border-radius: 15px !important;
+    border: none !important;
+}
+.profile-top-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.avatar-circle-sm { 
+    width: 40px; height: 40px; background: #050a30; color: gold; 
+    border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px;
+}
+.user-id-box h4 { margin: 0; font-size: 16px; }
+.user-id-box p { margin: 0; font-size: 12px; opacity: 0.7; }
+.profile-balance-row h3 { margin: 0; font-size: 24px; font-weight: 900; }
+
+/* Botões na Mesma Linha (Grid de 3 colunas) */
+.account-action-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    padding: 0 20px;
+    margin-bottom: 20px;
+}
+.q-btn-sm {
+    background: #0d1b3e;
+    padding: 12px 5px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: bold;
+    color: #8899ac;
+}
+
+/* Container do Botão Sair para não sumir */
+.logout-container {
+    padding: 20px;
+    margin-bottom: 30px; /* Garante que fique acima da nav bar */
+    text-align: center;
+    }
+
 @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 .modal-icon { font-size: 30px; margin-bottom: 10px; color: var(--blue); }
 .modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
