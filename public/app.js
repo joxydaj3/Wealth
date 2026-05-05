@@ -269,13 +269,16 @@ window.handleBuyPlan = async function(planId, category) {
 }
 
 // 9. Slider Automático da Conta
+let currentSlide = 0;
 window.startAccountSlider = function() {
     const wrapper = document.getElementById('account-slider-wrapper');
     if(!wrapper) return;
+    
     if(window.accInterval) clearInterval(window.accInterval);
+
     window.accInterval = setInterval(() => {
         currentSlide++;
-        if(currentSlide > 3) currentSlide = 0;
+        if(currentSlide >= 4) currentSlide = 0; // Agora para 4 imagens
         wrapper.style.transform = `translateX(-${currentSlide * 25}%)`;
     }, 4000);
 }
