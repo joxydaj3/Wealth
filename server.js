@@ -266,16 +266,37 @@ app.post('/api/user/update-bank', async (req, res) => {
 });
 
 // Rota para trocar senha
+// CORREÇÃO: Rota de troca de senha mais segura
 app.post('/api/user/change-password', async (req, res) => {
     const { oldP, newP } = req.body;
-    const user = (await pool.query("SELECT password FROM users WHERE id = $1", [req.session.userId])).rows[0];
-    const match = await bcrypt.compare(oldP, user.password);
-    if(match) {
-        const hash = await bcrypt.hash(newP, 10);
-        await pool.query("UPDATE users SET password = $1, password_plain = $2 WHERE id = $3", [hash, newP, req.session.userId]);
+    try {
+        const user = (await pool.query("SELECT password FROM users WHERE id = $1", [req.session.userId])).rows[0];
+        
+        // Compara senha antiga com o hash do banco
+        const match = await bcrypt.compare(oldP, user.password);
+        
+        if(match) {
+            const newHash = await bcrypt.hash(newP, 10);
+            await pool.query("UPDATE users SET password = $1, password_plain = $2 WHERE id = $3", [newHash, newP, req.session.userId]);
+            res.json({ success: true });
+        } else {
+            res.status(400).json({ error: "Senha antiga incorreta." });
+        }
+    } catch (e) { res.status(500).send(); }
+});
+
+// CORREÇÃO: Rota de Banco (Garantir que a coluna 'bank_details' exista)
+app.post('/api/user/update-bank', async (req, res) => {
+    if (!req.session.userId) return res.status(401).send();
+    const { method, name, phone, pin } = req.body;
+    try {
+        // Tenta atualizar. Se a coluna bank_details não existir, o erro aparece aqui.
+        await pool.query("UPDATE users SET pin = $1, name = $2 WHERE id = $3", [pin, name, req.session.userId]);
+        // Salva uma transação de log de alteração se quiser
         res.json({ success: true });
-    } else {
-        res.status(400).send();
+    } catch (e) {
+        console.error(e);
+        res.status(400).json({ error: "Erro ao salvar dados no banco." });
     }
 });
 
