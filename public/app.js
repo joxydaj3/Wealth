@@ -289,6 +289,43 @@ window.handleBuyPlan = async function(planId, category) {
     });
 }
 
+// 1. Lógica do Slider Automático
+let currentSlide = 0;
+function startAccountSlider() {
+    const wrapper = document.getElementById('account-slider-wrapper');
+    if(!wrapper) return;
+    
+    setInterval(() => {
+        currentSlide++;
+        if(currentSlide > 3) currentSlide = 0; // Volta para o primeiro (4 slides)
+        wrapper.style.transform = `translateX(-${currentSlide * 25}%)`;
+    }, 4000); // 4 segundos por imagem
+}
+
+// 2. Atualizar Dados na Aba Conta (Adicionar dentro da sua função loadUserData)
+// Procure a função loadUserData e adicione estas linhas no final:
+window.loadUserData = async function() {
+    // ... seu código fetch de dados ...
+    
+    // Injeta na página de CONTA
+    const nameLabel = document.getElementById('acc-name-label');
+    const phoneLabel = document.getElementById('acc-phone-label');
+    const balanceLabel = document.getElementById('acc-balance-total');
+    
+    if(nameLabel) nameLabel.innerText = user.name;
+    if(phoneLabel) phoneLabel.innerText = user.phone;
+    if(balanceLabel) balanceLabel.innerText = parseFloat(user.balance).toFixed(2);
+}
+
+// 3. Inicializar Slider quando entrar na conta
+const originalGoToAccount = window.goTo;
+window.goTo = function(pageId, btn) {
+    if(pageId === 'page-account') {
+        setTimeout(startAccountSlider, 100);
+    }
+    originalGoToAccount(pageId, btn);
+        }
+
 window.toggleSupport = () => {
     const m = document.getElementById('support-modal');
     m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
