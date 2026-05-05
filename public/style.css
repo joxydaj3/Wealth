@@ -1,6 +1,3 @@
-/* =========================================
-   1. CONFIGURAÇÕES GERAIS E CORES
-   ========================================= */
 :root {
     --bg: #050a30;
     --card: #0d1b3e;
@@ -12,223 +9,63 @@
     --text-dim: #8899ac;
 }
 
-* { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+* { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
 
-html, body { 
-    background-color: var(--bg) !important; 
-    color: var(--text); 
-    margin: 0; padding: 0; 
-    min-height: 100vh;
-}
+body { background: var(--bg) !important; color: var(--text); margin: 0; min-height: 100vh; overflow-x: hidden; }
 
-/* Sistema de Páginas */
-.page { 
-    display: none !important; 
-    padding: 20px; 
-    animation: fadeIn 0.3s ease; 
-}
-.page.active { 
-    display: block !important; 
-}
+/* Navegação e Páginas */
+.page { display: none !important; padding: 20px; animation: fadeIn 0.3s ease; background: var(--bg); min-height: 100vh; }
+.page.active { display: block !important; }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-/* =========================================
-   2. FORMULÁRIOS E AUTENTICAÇÃO (LOGIN/REG)
-   ========================================= */
+/* Captcha Profissional (Estilo Imagem) */
+.captcha-box { display: flex; gap: 10px; margin: 15px 0; align-items: center; }
+.captcha-display-img {
+    flex: 1; height: 45px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2);
+    background: #f8f9fa; /* Fundo claro como na imagem */
+    background-image: linear-gradient(45deg, #e9ecef 25%, transparent 25%, transparent 75%, #e9ecef 75%, #e9ecef), 
+                      linear-gradient(45deg, #e9ecef 25%, transparent 25%, transparent 75%, #e9ecef 75%, #e9ecef);
+    background-size: 10px 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; letter-spacing: 6px; color: #2d3436; font-size: 20px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2); font-style: italic;
+    overflow: hidden; position: relative; user-select: none;
+}
+.captcha-display-img::after { 
+    content: ""; position: absolute; width: 100%; height: 100%; 
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.05) 3px); 
+}
+
+/* Resto dos Estilos Consolidados */
 .auth-container { text-align: center; padding: 30px 10px; }
-.auth-header h1 { font-size: 42px; font-weight: 900; margin: 0; letter-spacing: 2px; }
-.auth-subtitle { font-size: 13px; color: var(--text-dim); margin: 15px 0 25px; line-height: 1.5; }
+.auth-header h1 { font-size: 42px; font-weight: 900; margin: 0; }
+.input-tiny { width: 100%; height: 45px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: white; padding: 0 15px; margin-bottom: 12px; font-size: 14px; }
+.input-captcha { width: 110px; height: 45px; background: rgba(255,255,255,0.1); border-radius: 10px; border: 1px solid var(--blue); color: white; text-align: center; font-weight: bold; }
 
-.input-tiny {
-    width: 100%; height: 45px; background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
-    color: white; padding: 0 15px; margin-bottom: 12px; font-size: 14px;
-}
-
-.captcha-box { display: flex; gap: 10px; margin-bottom: 15px; }
-.captcha-display {
-    flex: 1; height: 45px; background: #0b1437; border: 1px dashed var(--blue);
-    border-radius: 10px; display: flex; align-items: center; justify-content: center;
-    font-weight: bold; letter-spacing: 5px; color: var(--green); font-size: 18px;
-}
-.input-captcha { width: 100px; height: 45px; background: rgba(255,255,255,0.05); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); color: white; text-align: center; }
-
-.auth-link { margin-top: 20px; font-size: 13px; text-align: center; }
-.auth-link span { color: var(--blue); font-weight: bold; cursor: pointer; }
-
-/* =========================================
-   3. DASHBOARD E CARDS DE SALDO
-   ========================================= */
-.wealth-card {
-    background: linear-gradient(135deg, #122558 0%, #0d1b3e 100%);
-    padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    margin-bottom: 20px;
-}
-
-.main-balance-card { padding: 15px 20px !important; margin-bottom: 15px !important; }
-
+.wealth-card { background: linear-gradient(135deg, #122558 0%, #0d1b3e 100%); padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 15px; }
+.main-balance-card { padding: 15px 20px !important; }
 .balance-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.balance-item.main { grid-column: span 3; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; }
 
-.balance-item.main {
-    grid-column: span 3; border-bottom: 1px solid rgba(255,255,255,0.05);
-    padding-bottom: 5px; margin-bottom: 5px;
-}
+.action-buttons { display: flex; justify-content: space-between; gap: 8px; margin: 15px 0; }
+.btn-action-sm { flex: 1; height: 38px; font-size: 10px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; }
+.btn-dep { background: var(--green); } .btn-saq { background: var(--blue); } .btn-check { background: #ffa000; }
 
-.balance-item h3 { font-size: 28px; margin: 2px 0; }
-.balance-item p { font-size: 12px; margin: 2px 0; font-weight: 700; }
-.balance-item small { font-size: 8px; letter-spacing: 0.5px; opacity: 0.7; text-transform: uppercase; }
+.btn { width: 100%; height: 50px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; color: white; }
+.btn-blue { background: var(--blue); } .btn-green { background: var(--green); } .btn-red { background: var(--red); }
 
-.tag-mzn, .currency-badge { 
-    background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 8px; 
-    display: inline-block; font-size: 12px; margin-top: 10px;
-}
-
-/* Botões de Ação Dashboard */
-.action-buttons, .action-grid { display: flex; justify-content: space-between; gap: 8px; margin: 15px 0; }
-
-.btn-action-sm, .btn-sm {
-    flex: 1; height: 38px; font-size: 11px; border: none; border-radius: 10px; 
-    color: white; font-weight: bold; cursor: pointer; display: flex;
-    align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-
-.btn-dep { background: var(--green); }
-.btn-saq { background: var(--blue); }
-.btn-check { background: #ffa000; }
-
-/* =========================================
-   4. PLANOS E INVESTIMENTOS
-   ========================================= */
-.plan-desc { font-size: 12px; color: var(--text-dim); line-height: 1.4; margin-top: 5px; }
-.plans-column-list { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
-
-.plan-mini-card {
-    background: linear-gradient(145deg, #122558 0%, #0d1b3e 100%);
-    border-radius: 16px; padding: 12px; display: flex; justify-content: space-between;
-    align-items: center; border: 1px solid rgba(255,255,255,0.05); height: 115px;
-}
-
-.plan-info-left { flex: 1; display: flex; flex-direction: column; justify-content: center; }
-.plan-info-left h5 { margin: 0; font-size: 14px; color: white; }
-.plan-info-left p { margin: 2px 0; font-size: 10px; color: var(--text-dim); }
-.plan-info-left b { color: var(--green); font-size: 11px; }
-
-.plan-img-right { width: 80px; height: 80px; border-radius: 12px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); }
-
-.btn-buy-mini {
-    background: var(--blue); border: none; border-radius: 6px; color: white;
-    font-size: 9px; font-weight: bold; padding: 6px 12px; margin-top: 6px; width: fit-content;
-}
-
-.btn-vip-toggle {
-    position: absolute; top: 0; right: 0; background: linear-gradient(to right, #ffd700, #ffa500);
-    border: none; padding: 8px 15px; border-radius: 10px; color: #050a30;
-    font-weight: 800; font-size: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3);
-}
-
-.vip-card, .vip-border { border: 1px solid #ffd700 !important; }
-
-/* =========================================
-   5. EQUIPE E INDICAÇÕES
-   ========================================= */
-.team-stats-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 12px; }
-.team-mini-card { background: var(--card); padding: 8px 4px; border-radius: 10px; border: 1px solid rgba(0,123,255,0.15); text-align: center; }
-.team-mini-card small { font-size: 8px; color: var(--blue); font-weight: bold; }
-.team-mini-card p { margin: 3px 0 0; font-size: 10px; font-weight: 800; }
-
-.team-summary-sm { padding: 10px !important; text-align: center; margin-bottom: 12px !important; }
-.sub-stats { font-size: 9px; color: var(--text-dim); margin-top: 5px; }
-
-.invite-card-sm { padding: 12px !important; margin-bottom: 12px !important; }
-.id-badge-sm { font-size: 10px; background: var(--blue); padding: 3px 8px; border-radius: 5px; display: inline-block; margin-bottom: 8px; }
-
-.link-box-dark { display: flex; background: #050a30; border-radius: 8px; padding: 4px; border: 1px solid #1e3a8a; align-items: center; }
-.link-box-dark input { background: transparent; border: none; color: var(--green); font-size: 10px; flex: 1; padding: 5px; }
-.btn-copy-sm { background: var(--blue); border: none; border-radius: 6px; width: 30px; height: 30px; color: white; }
-
-.social-grid-sm { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
-.social-btn-sm { padding: 8px; border: none; border-radius: 8px; color: white; font-weight: bold; font-size: 10px; }
-.wa { background: #25d366; } .tg { background: #0088cc; } .gr { background: #673ab7; }
-
-.example-box-sm { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; font-size: 10px; line-height: 1.4; color: var(--text-dim); }
-
-/* =========================================
-   6. CONTA, PERFIL E SLIDER
-   ========================================= */
-.account-slider-fixed { width: 100%; height: 180px; overflow: hidden; border-radius: 0 0 20px 20px; }
-.slider-wrapper { display: flex; height: 100%; transition: transform 0.8s ease-in-out; }
-.slide { width: 100%; height: 100%; }
-.slide img { width: 100%; height: 100%; object-fit: cover; }
-
-.profile-info-card-sm {
-    background: #ffffff !important; color: #050a30 !important;
-    padding: 15px !important; margin: 10px 20px !important; border-radius: 15px !important;
-}
-.profile-top-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-.avatar-circle-sm { 
-    width: 40px; height: 40px; background: #050a30; color: var(--yellow); 
-    border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800;
-}
-.profile-balance-row h3 { margin: 0; font-size: 24px; font-weight: 900; }
-
-.account-action-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 20px; margin-bottom: 20px; }
-.q-btn-sm { background: var(--card); padding: 12px 5px; border-radius: 12px; text-align: center; font-size: 11px; color: var(--text-dim); }
-
-.menu-vertical { padding: 0 20px; }
-.menu-item-row { 
-    padding: 18px; background: var(--card); margin-bottom: 5px; 
-    border-radius: 12px; display: flex; justify-content: space-between; font-size: 14px; 
-}
-.arrow { color: var(--text-dim); font-size: 10px; }
-
-.logout-container { padding: 20px; margin-bottom: 30px; text-align: center; }
-.btn-logout-small { background: transparent; border: 1.5px solid var(--red); color: var(--red); padding: 6px 20px; border-radius: 8px; font-size: 12px; font-weight: bold; }
-
-/* =========================================
-   7. LUCROS E RENDIMENTOS
-   ========================================= */
-.promo-banner { background: linear-gradient(to right, #9c27b0, #673ab7); border-radius: 15px; padding: 15px; display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
-.profit-summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-.summary-box { background: var(--card); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
-
-.profit-card-full { background: #0b1437; border-radius: 20px; padding: 15px; margin-bottom: 15px; border: 1px solid #1e3a8a; }
-.profit-card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 12px; }
-
-.progress-container { margin: 15px 0; }
-.progress-bar-bg { background: rgba(255,255,255,0.1); height: 6px; border-radius: 10px; overflow: hidden; }
-.progress-bar-fill { background: var(--blue); height: 100%; border-radius: 10px; }
-.progress-info { display: flex; justify-content: space-between; font-size: 9px; margin-top: 5px; color: var(--text-dim); }
-
-.btn-claim { background: var(--green); color: white; width: 100%; border: none; padding: 12px; border-radius: 12px; font-weight: bold; cursor: pointer; }
-
-/* =========================================
-   8. MODAIS, CHAT E NAVEGAÇÃO
-   ========================================= */
-.floating-chat {
-    position: fixed; bottom: 85px; right: 20px; background: var(--blue);
-    width: 55px; height: 55px; border-radius: 50%; display: flex;
-    align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.4); z-index: 999;
-}
-
-.modal-overlay { 
-    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-    background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center; 
-}
-.modal-box { 
-    background: var(--card); border: 1px solid #1e3a8a; border-radius: 20px; 
-    width: 85%; max-width: 350px; padding: 25px; text-align: center; animation: zoomIn 0.3s;
-}
-
-.btn-modal-prim { flex: 1; background: var(--blue); border: none; padding: 12px; border-radius: 10px; color: white; font-weight: bold; }
-.btn-modal-sec { flex: 1; background: rgba(255,255,255,0.05); border: none; padding: 12px; border-radius: 10px; color: white; }
-
-/* Barra de Navegação Inferior Principal */
-.bottom-nav { 
-    position: fixed; bottom: 0; width: 100%; background: #0b1437; 
-    display: flex; justify-content: space-around; padding: 12px 0; 
-    border-top: 1px solid rgba(255,255,255,0.1); z-index: 998;
-}
+.bottom-nav { position: fixed; bottom: 0; width: 100%; background: #0b1437; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.1); z-index: 1000; }
 .nav-item { font-size: 10px; color: #6e84ab; text-align: center; cursor: pointer; }
 .nav-item.active { color: white; font-weight: bold; }
+
+/* Planos */
+.plan-mini-card { background: var(--card); border-radius: 16px; padding: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05); }
+.plan-img-right { width: 80px; height: 80px; border-radius: 12px; object-fit: cover; }
+
+/* Conta */
+.account-slider-fixed { width: 100%; height: 180px; overflow: hidden; border-radius: 0 0 20px 20px; }
+.slider-wrapper { display: flex; height: 100%; transition: transform 0.6s ease; }
+.slide { width: 25%; height: 100%; } .slide img { width: 100%; height: 100%; object-fit: cover; }
+.profile-info-card-sm { background: #ffffff !important; color: #050a30 !important; margin: -30px 20px 15px !important; position: relative; z-index: 10; }
+.logout-container { padding: 30px; text-align: center; }
