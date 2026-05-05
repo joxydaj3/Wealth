@@ -334,6 +334,43 @@ body {
 
 .nav-item.active { color: white; }
 
+/* Correção da separação: Slider no topo e Card embaixo */
+.account-slider-fixed {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    border-radius: 0 0 20px 20px;
+}
+
+.profile-info-card {
+    margin-top: 15px !important; /* Espaço para não ficar colado na imagem */
+    background: linear-gradient(135deg, #ffffff, #edf2ff);
+    color: #050a30 !important;
+}
+
+/* Estilo do Botão Sair Pequeno */
+.btn-logout-small {
+    background: transparent;
+    border: 1.5px solid #ff4d4d;
+    color: #ff4d4d;
+    padding: 6px 20px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Estilos de Menus e Voltar */
+.btn-back { background: none; border: none; font-size: 20px; color: white; cursor: pointer; }
+.menu-item-row { 
+    padding: 18px; background: #0d1b3e; margin-bottom: 5px; 
+    border-radius: 12px; display: flex; justify-content: space-between; font-size: 14px; 
+}
+.arrow { color: #8899ac; font-size: 10px; }
+
+/* Subtelas */
+.about-content p { font-size: 13px; line-height: 1.6; color: #8899ac; }
+
 /* Banner Promocional */
 .promo-banner {
     background: linear-gradient(to right, #9c27b0, #673ab7);
