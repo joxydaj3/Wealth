@@ -55,7 +55,9 @@ window.loadUserData = async function() {
     try {
         const res = await fetch('/api/user/data');
         if(!res.ok) return;
-        const user = await res.json();
+        
+        // AQUI ESTAVA O ERRO: Precisamos extrair o 'user' da resposta
+        const user = await res.json(); 
         window.currentUser = user; 
         
         const update = (id, val) => {
@@ -63,7 +65,7 @@ window.loadUserData = async function() {
             if(el) el.innerText = parseFloat(val || 0).toFixed(2);
         };
 
-        // Atualiza Home e Bloco de Saldo
+        // 1. Atualiza Home (Saldo, Semana, Mês, etc)
         update('u-balance', user.balance);
         update('stat-with', user.total_with);
         update('stat-week', user.week_earned);
@@ -73,18 +75,24 @@ window.loadUserData = async function() {
 
         if(document.getElementById('u-name')) document.getElementById('u-name').innerText = user.name;
 
-        // Atualiza Página de Conta
-        if(document.getElementById('acc-name')) document.getElementById('acc-name').innerText = user.name;
-        if(document.getElementById('acc-phone')) document.getElementById('acc-phone').innerText = user.phone;
-
-        // Atualiza Página de Equipe
+        // 2. Atualiza Página de EQUIPE
         if(document.getElementById('display-ref-id')) document.getElementById('display-ref-id').innerText = user.ref_code;
         if(document.getElementById('ref-link-input')) {
             document.getElementById('ref-link-input').value = window.location.origin + "/?ref=" + user.ref_code;
         }
-        update('team-total-earned', user.total_ref);
 
-    } catch(e) { console.error("Erro ao carregar dados:", e); }
+        // 3. ATUALIZA PÁGINA DE CONTA (O que causou o erro)
+        const nameLabel = document.getElementById('acc-name-label');
+        const phoneLabel = document.getElementById('acc-phone-label');
+        const balanceLabel = document.getElementById('acc-balance-total');
+        
+        if(nameLabel) nameLabel.innerText = user.name;
+        if(phoneLabel) phoneLabel.innerText = user.phone;
+        if(balanceLabel) balanceLabel.innerText = parseFloat(user.balance || 0).toFixed(2);
+
+    } catch(e) { 
+        console.error("Erro ao carregar dados do usuário:", e); 
+    }
 }
 
 // 4. Carregar Planos e Anúncios na Home
