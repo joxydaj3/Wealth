@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wealth</title>
+    <title>Wealth Pro - Investimentos</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
@@ -21,7 +21,7 @@
                     <input type="text" id="l_phone" placeholder="Número de Telefone" class="input-tiny">
                     <input type="password" id="l_pass" placeholder="Senha" class="input-tiny">
                     <div class="captcha-box">
-                        <div id="l_cap_val" class="captcha-display">----</div>
+                        <div id="l_cap_val" class="captcha-display-img">----</div>
                         <input type="text" id="l_cap_in" placeholder="Código" class="input-captcha">
                     </div>
                     <button class="btn btn-blue" onclick="handleLogin()">Aceder Conta</button>
@@ -44,7 +44,7 @@
                     <input type="password" id="r_conf" placeholder="Confirmar Senha" class="input-tiny">
                     <input type="text" id="r_invite" placeholder="Código de Convite" class="input-tiny">
                     <div class="captcha-box">
-                        <div id="r_cap_val" class="captcha-display">----</div>
+                        <div id="r_cap_val" class="captcha-display-img">----</div>
                         <input type="text" id="r_cap_in" placeholder="Código" class="input-captcha">
                     </div>
                     <button class="btn btn-green" onclick="handleRegister()">Criar Conta Agora</button>
@@ -104,7 +104,7 @@
 
             <div class="section-header" style="margin-top:25px">
                 <h4>Últimas Transações</h4>
-                <span class="view-all" onclick="goTo('page-history')">Ver Tudo</span>
+                <span class="view-all" onclick="goTo('page-profits')">Ver Tudo</span>
             </div>
             <div id="mini-history" class="history-list"></div>
 
@@ -113,33 +113,7 @@
             </div>
         </section>
 
-        <!-- TELA: DEPÓSITO -->
-        <section id="page-deposit" class="page">
-            <div class="header-main"><h3>Efectuar Depósito</h3></div>
-            <div class="wealth-card">
-                <p>Valor do Depósito (MZN):</p>
-                <input type="number" id="dep-amount" class="input-tiny" placeholder="Mínimo 500 MT">
-                <p>Método de Pagamento:</p>
-                <select id="dep-method" class="input-tiny" style="background: #0b1437; color: white;">
-                    <option value="M-Pesa">M-Pesa</option>
-                    <option value="e-Mola">e-Mola</option>
-                </select>
-                <button class="btn btn-green" onclick="startDepositTimer()">Gerar Dados de Pagamento</button>
-            </div>
-        </section>
-
-        <!-- TELA: SAQUE -->
-        <section id="page-withdraw" class="page">
-            <div class="header-main"><h3>Solicitar Saque</h3></div>
-            <div class="wealth-card">
-                <p>Valor (Taxa 13%):</p>
-                <input type="number" id="with-amount" class="input-tiny" placeholder="Mínimo 130 MT">
-                <input type="password" id="with-pin" class="input-tiny" placeholder="Seu PIN de 4 dígitos">
-                <button class="btn btn-blue" onclick="handleWithdraw()">Confirmar Levantamento</button>
-            </div>
-        </section>
-
-        <!-- TELA PROJETOS -->
+        <!-- PÁGINA: PROJETOS -->
         <section id="page-projects" class="page">
             <div class="header-main" style="position: relative; padding: 20px;">
                 <h3>Planos de Investimento</h3>
@@ -149,7 +123,6 @@
             <div id="plans_normal_list" class="plans-column-list"></div>
         </section>
 
-        <!-- TELA VIP -->
         <section id="page-vip-list" class="page">
             <div class="header-main" style="padding: 20px;">
                 <button class="btn-back" onclick="goTo('page-projects')">⬅ Voltar</button>
@@ -159,13 +132,10 @@
             <div id="plans_vip_list" class="plans-column-list"></div>
         </section>
 
-        <!-- LUCROS -->
+        <!-- PÁGINA: LUCROS -->
         <section id="page-profits" class="page">
-            <div class="header-main">
-                <h3>Lucros Diários</h3>
-                <p class="plan-desc">Acompanhe e colete os seus rendimentos.</p>
-            </div>
-            <div class="promo-banner" onclick="showAlert('Código', 'Funcionalidade de bónus em breve!')">
+            <div class="header-main"><h3>Lucros Diários</h3></div>
+            <div class="promo-banner" onclick="showAlert('Código', 'Funcionalidade em breve!')">
                 <div class="promo-icon">🎁</div>
                 <div class="promo-text"><strong>Resgatar Código</strong><span>Use o seu código promocional</span></div>
                 <div class="promo-arrow">→</div>
@@ -180,181 +150,83 @@
             <div id="profit-history-list" class="history-list"></div>
         </section>
 
-        <!-- EQUIPE -->
+        <!-- PÁGINA: EQUIPE -->
         <section id="page-team" class="page">
-    <div class="header-main">
-        <h3>Minha Equipe</h3>
-    </div>
-
-    <!-- 4 Blocos de Ganhos no Topo (Compactos) -->
-    <div class="team-stats-grid-4">
-        <div class="team-mini-card">
-            <small>Total</small>
-            <p>MT <span id="team-total-earned">0.00</span></p>
-        </div>
-        <div class="team-mini-card">
-            <small>Nível 1</small>
-            <p>MT <span id="team-lv1-earned">0.00</span></p>
-        </div>
-        <div class="team-mini-card">
-            <small>Nível 2</small>
-            <p>MT <span id="team-lv2-earned">0.00</span></p>
-        </div>
-        <div class="team-mini-card">
-            <small>Nível 3</small>
-            <p>MT <span id="team-lv3-earned">0.00</span></p>
-        </div>
-    </div>
-
-    <!-- Bloco Total de Convidados (Compacto) -->
-    <div class="wealth-card team-summary-sm">
-        <div style="display:flex; align-items:center; gap:10px; justify-content:center;">
-            <span>👥</span>
-            <div>
-                <small>Total de Convidados</small>
-                <h4 id="team-total-count" style="margin:0">0</h4>
+            <div class="header-main"><h3>Minha Equipe</h3></div>
+            <div class="team-stats-grid-4">
+                <div class="team-mini-card"><small>Total</small><p>MT <span id="team-total-earned">0.00</span></p></div>
+                <div class="team-mini-card"><small>Nível 1</small><p>MT <span id="team-lv1-earned">0.00</span></p></div>
+                <div class="team-mini-card"><small>Nível 2</small><p>MT <span id="team-lv2-earned">0.00</span></p></div>
+                <div class="team-mini-card"><small>Nível 3</small><p>MT <span id="team-lv3-earned">0.00</span></p></div>
             </div>
-        </div>
-        <div class="sub-stats">
-            <span id="lv1-count">0</span> L1 • <span id="lv2-count">0</span> L2 • <span id="lv3-count">0</span> L3
-        </div>
-    </div>
-
-    <!-- Bloco de Link (Visível e Compacto) -->
-    <div class="wealth-card invite-card-sm">
-        <div class="id-badge-sm">🆔 ID: <b id="display-ref-id">...</b></div>
-        <div class="link-box-dark">
-            <input type="text" id="ref-link-input" readonly value="Carregando...">
-            <button class="btn-copy-sm" onclick="copyInvite()">📋</button>
-        </div>
-        <div class="social-grid-sm">
-            <button class="social-btn-sm wa" onclick="shareSocial('wa')">Wa 💬</button>
-            <button class="social-btn-sm tg" onclick="shareSocial('tg')">Tg ✈️</button>
-        </div>
-    </div>
-
-    <!-- Como funciona e Exemplo (Letras Pequenas) -->
-    <div class="team-info-box">
-        <p class="info-title-sm">💡 Como funcionam as comissões:</p>
-        <div class="commission-list">
-            <span>Nível 1 (Diretos): <b>6%</b></span>
-            <span>Nível 2 (Indiretos): <b>3%</b></span>
-            <span>Nível 3 (Indiretos): <b>1%</b></span>
-        </div>
-
-        <div class="example-box-sm">
-            <p>💰 <b>Exemplo Prático:</b></p>
-            <p>Se um convidado (Nível 1) depositar <b>MT 10.000,00</b>, você ganha imediatamente <b>MT 600,00</b> (6%) no seu saldo.</p>
-        </div>
-        <p class="footer-note-sm">✨ Quanto mais convidar, maior será o seu rendimento passivo.</p>
-    </div>
+            <div class="wealth-card team-summary-sm">
+                <div class="sub-stats"><span id="lv1-count">0</span> L1 • <span id="lv2-count">0</span> L2 • <span id="lv3-count">0</span> L3</div>
+            </div>
+            <div class="wealth-card invite-card-sm">
+                <div class="id-badge-sm">🆔 ID: <b id="display-ref-id">...</b></div>
+                <div class="link-box-dark">
+                    <input type="text" id="ref-link-input" readonly value="Carregando...">
+                    <button class="btn-copy-sm" onclick="copyInvite()">📋</button>
+                </div>
+                <div class="social-grid-sm">
+                    <button class="social-btn-sm wa" onclick="shareSocial('wa')">Wa 💬</button>
+                    <button class="social-btn-sm tg" onclick="shareSocial('tg')">Tg ✈️</button>
+                </div>
+            </div>
+            <div class="team-info-box">
+                <div class="example-box-sm">
+                    <p>💰 <b>Exemplo Prático:</b> Se um convidado (Nível 1) depositar MT 10.000, você ganha MT 600 (6%)!</p>
+                </div>
+            </div>
         </section>
 
-        <!-- CONTA -->
-        <!-- PÁGINA: CONTA (ESTRUTURA CORRIGIDA E SEPARADA) -->
-<section id="page-account" class="page">
-    <!-- 1. Imagem/Slider (Separado) -->
-    <div class="account-slider-fixed">
-        <div class="slider-wrapper" id="account-slider-wrapper">
-            <div class="slide"><img src="https://images.unsplash.com/photo-1611974714024-4607a5146b91?w=500" alt="1"></div>
-            <div class="slide"><img src="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=500" alt="2"></div>
-        </div>
-    </div>
-
-    <!-- 2. Card de Informações (Abaixo da Imagem) -->
-    <div class="wealth-card profile-info-card">
-        <div class="profile-header-flex">
-            <div class="avatar-circle">W</div>
-            <div class="user-text-box">
-                <h3 id="acc-name-label">...</h3>
-                <p id="acc-phone-label">...</p>
-            </div>
-        </div>
-        <div class="profile-assets-box">
-            <small>Ativos totais</small>
-            <h2>MZN <span id="acc-balance-total">0.00</span></h2>
-        </div>
-    </div>
-
-    <!-- 3. Botões de Ação Rápida -->
-    <div class="account-grid-actions">
-        <div class="q-btn" onclick="goTo('page-deposit')">💳<br>Recarregar</div>
-        <div class="q-btn" onclick="goTo('page-withdraw')">📤<br>Saque</div>
-        <div class="q-btn" onclick="goTo('sub-page-bank')">🏛️<br>Conta Bancária</div>
-    </div>
-
-    <!-- 4. Lista de Menus -->
-    <div class="menu-vertical">
-        <div class="menu-item-row" onclick="goTo('sub-page-about')">📊 Sobre Nós <span class="arrow">▶</span></div>
-        <div class="menu-item-row" onclick="goTo('page-profits')">🧾 Registros / Faturas <span class="arrow">▶</span></div>
-        <div class="menu-item-row" onclick="toggleSupport()">🎧 Atendimento ao Cliente <span class="arrow">▶</span></div>
-        <div class="menu-item-row" onclick="goTo('sub-page-security')">🔒 Alterar Senha / PIN <span class="arrow">▶</span></div>
-        <div class="menu-item-row" onclick="showAlert('APP', 'O nosso aplicativo oficial será lançado em breve para Android e iOS!')">☁️ Baixar APP (APK) <span class="arrow">▶</span></div>
-    </div>
-
-    <!-- 5. Botão Sair (Pequeno e Visível) -->
-    <div style="text-align: center; margin-top: 10px;">
-        <button class="btn-logout-small" onclick="location.reload()">Sair da Conta</button>
-    </div>
-</section>
-
-<!-- SUB-TELA: CONTA BANCÁRIA -->
-<section id="sub-page-bank" class="page">
-    <div class="header-main"><button class="btn-back" onclick="goTo('page-account')">⬅</button><h3>Dados para Saque</h3></div>
-    <div class="wealth-card">
-        <p>Método de Saque:</p>
-        <select id="bank-method" class="input-tiny">
-            <option value="M-Pesa">M-Pesa</option>
-            <option value="e-Mola">e-Mola</option>
-        </select>
-        <input type="text" id="bank-name" placeholder="Nome do Titular" class="input-tiny">
-        <input type="number" id="bank-phone" placeholder="Número da Conta (+258)" class="input-tiny">
-        <input type="password" id="bank-pin" placeholder="Criar PIN de Saque (4 dígitos)" class="input-tiny">
-        <button class="btn btn-green" onclick="saveBankInfo()">Salvar Dados</button>
-    </div>
-</section>
-
-<!-- SUB-TELA: SEGURANÇA -->
-<section id="sub-page-security" class="page">
-    <div class="header-main"><button class="btn-back" onclick="goTo('page-account')">⬅</button><h3>Segurança</h3></div>
-    <div class="wealth-card">
-        <h4>Alterar Senha de Login</h4>
-        <input type="password" id="pass-old" placeholder="Senha Antiga" class="input-tiny">
-        <input type="password" id="pass-new" placeholder="Nova Senha" class="input-tiny">
-        <button class="btn btn-blue" onclick="changePass()">Atualizar Senha</button>
-    </div>
-</section>
-
-<!-- SUB-TELA: SOBRE NÓS -->
-<section id="sub-page-about" class="page">
-    <div class="header-main"><button class="btn-back" onclick="goTo('page-account')">⬅</button><h3>Sobre a Wealth</h3></div>
-    <div class="wealth-card about-content">
-        <h4>O Futuro do Investimento em Moçambique</h4>
-        <p>A Wealth Pro é uma plataforma fintech focada em democratizar o acesso ao mercado financeiro. Operamos com fundos de alta liquidez e garantimos retornos consistentes para nossos investidores.</p>
-        <p>Nossa missão é a transparência e a segurança de cada metical investido.</p>
-        <small>Versão 2.0.4 | 2026</small>
-    </div>
-                                                                                                                     </section>
-
-        <!-- MODAL SUPORTE -->
-        <div id="support-modal" class="modal-overlay">
-            <div class="modal-content">
-                <h3>Suporte Wealth Pro</h3>
-                <p>🕒 Horário: 09:00 - 20:00</p>
-                <div class="support-links">
-                    <a href="#" class="support-btn wa">WhatsApp Oficial</a>
-                    <a href="#" class="support-btn tg">Canal Telegram</a>
+        <!-- PÁGINA: CONTA -->
+        <section id="page-account" class="page">
+            <div class="account-slider-fixed">
+                <div class="slider-wrapper" id="account-slider-wrapper">
+                    <div class="slide"><img src="https://images.unsplash.com/photo-1611974714024-4607a5146b91?w=500" alt="1"></div>
+                    <div class="slide"><img src="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=500" alt="2"></div>
+                    <div class="slide"><img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=500" alt="3"></div>
+                    <div class="slide"><img src="https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=500" alt="4"></div>
                 </div>
-                <button class="btn btn-red" onclick="toggleSupport()" style="margin-top:15px">Fechar</button>
             </div>
-        </div>
+            <div class="wealth-card profile-info-card-sm">
+                <div class="profile-top-row">
+                    <div class="avatar-circle-sm">W</div>
+                    <div class="user-id-box"><h4 id="acc-name-label">...</h4><p id="acc-phone-label">...</p></div>
+                </div>
+                <div class="profile-balance-row"><small>Ativos totais</small><h3>MZN <span id="acc-balance-total">0.00</span></h3></div>
+            </div>
+            <div class="account-action-row">
+                <div class="q-btn-sm" onclick="goTo('page-deposit')">💳<br>Recarregar</div>
+                <div class="q-btn-sm" onclick="goTo('page-withdraw')">📤<br>Saque</div>
+                <div class="q-btn-sm" onclick="goTo('sub-page-bank')">🏛️<br>Banco</div>
+            </div>
+            <div class="menu-vertical">
+                <div class="menu-item-row" onclick="goTo('sub-page-about')">📊 Sobre Nós <span class="arrow">▶</span></div>
+                <div class="menu-item-row" onclick="goTo('sub-page-security')">🔒 Alterar Senha / PIN <span class="arrow">▶</span></div>
+            </div>
+            <div class="logout-container"><button class="btn-logout-small" onclick="logout()">Sair da Conta</button></div>
+        </section>
 
-        <!-- MODAL ALERTA CUSTOMIZADO -->
+        <!-- SUB-TELA: BANCO -->
+        <section id="sub-page-bank" class="page">
+            <div class="header-main"><button class="btn-back" onclick="goTo('page-account')">⬅</button><h3>Dados Bancários</h3></div>
+            <div class="wealth-card">
+                <input type="text" id="bank-name" placeholder="Titular" class="input-tiny">
+                <input type="number" id="bank-phone" placeholder="Número (+258)" class="input-tiny">
+                <input type="password" id="bank-pin" placeholder="PIN de Saque" class="input-tiny">
+                <button class="btn btn-green" onclick="saveBankInfo()">Salvar</button>
+            </div>
+        </section>
+
+        <!-- MODAL SUPORTE E ALERTAS -->
+        <div id="support-modal" class="modal-overlay">
+            <div class="modal-content"><h3>Suporte</h3><button class="btn" onclick="toggleSupport()">Fechar</button></div>
+        </div>
         <div id="wealth-modal" class="modal-overlay">
             <div class="modal-box">
-                <div id="modal-icon" class="modal-icon">!</div>
-                <h3 id="modal-title">Título</h3>
-                <p id="modal-text">Mensagem...</p>
+                <h3 id="modal-title">Título</h3><p id="modal-text">Mensagem...</p>
                 <div class="modal-buttons">
                     <button id="modal-cancel" class="btn-modal-sec" onclick="closeWealthModal()">Cancelar</button>
                     <button id="modal-ok" class="btn-modal-prim">Confirmar</button>
@@ -362,7 +234,6 @@
             </div>
         </div>
 
-        <!-- NAVEGAÇÃO -->
         <nav class="bottom-nav" id="main-nav" style="display: none;">
             <div class="nav-item active" onclick="goTo('page-home', this)">🏠<br>Início</div>
             <div class="nav-item" onclick="goTo('page-projects', this)">📂<br>Projetos</div>
@@ -373,4 +244,4 @@
     </div>
     <script src="app.js"></script>
 </body>
-    </html>
+                </html>
