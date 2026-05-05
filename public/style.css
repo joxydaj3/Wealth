@@ -260,6 +260,78 @@ body {
 /* Navigation */
 .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #0b1437; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.1); }
 .nav-item { font-size: 10px; color: #6e84ab; text-align: center; cursor: pointer; }
+
+/* Slider de Imagens */
+.account-slider {
+    width: 100%;
+    height: 160px;
+    overflow: hidden;
+    border-radius: 20px;
+    margin-bottom: -40px; /* Sobrepõe o card no slider */
+    position: relative;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.slider-wrapper {
+    display: flex;
+    width: 400%; /* 4 imagens */
+    height: 100%;
+    transition: transform 0.8s ease-in-out;
+}
+.slide { width: 25%; height: 100%; }
+.slide img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Card de Perfil */
+.profile-card-main {
+    background: linear-gradient(135deg, #ffffff 0%, #d1d8ff 100%);
+    color: #050a30 !important;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    z-index: 2;
+}
+.profile-info-top { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+.avatar-box { 
+    width: 50px; height: 50px; background: #050a30; color: gold; 
+    border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800;
+}
+.user-text h3 { margin: 0; font-size: 18px; }
+.user-text p { margin: 0; font-size: 12px; opacity: 0.7; }
+.profile-balance-box h2 { margin: 0; font-size: 28px; font-weight: 900; }
+.profile-balance-box small { font-weight: bold; opacity: 0.6; }
+.profile-decoration { 
+    position: absolute; right: -10px; top: 50%; transform: translateY(-50%);
+    font-size: 80px; opacity: 0.2; color: #ffcc00;
+}
+
+/* Quick Actions */
+.account-quick-actions {
+    background: #0d1b3e;
+    margin: 15px 0;
+    padding: 15px;
+    border-radius: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    text-align: center;
+}
+.q-icon { font-size: 22px; margin-bottom: 5px; }
+.q-item span { font-size: 10px; font-weight: bold; color: #8899ac; }
+
+/* Lista de Menus */
+.account-menu-list { background: #0d1b3e; border-radius: 20px; padding: 5px 15px; margin-bottom: 20px; }
+.menu-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.menu-row:last-child { border-bottom: none; }
+.menu-left { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 500; }
+.menu-right { font-size: 10px; color: #8899ac; }
+
+/* Botão Sair Amarelo */
+.btn-logout-yellow {
+    width: 100%; padding: 15px; border: 2px solid #ffcc00; background: transparent;
+    color: #ffcc00; border-radius: 15px; font-weight: 800; cursor: pointer; margin-top: 10px;
+}
+
 .nav-item.active { color: white; }
 
 /* Banner Promocional */
