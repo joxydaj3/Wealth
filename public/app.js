@@ -285,6 +285,50 @@ window.toggleSupport = () => {
     if(m) m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
 }
 
+// Salvar Dados Bancários
+window.saveBankInfo = async function() {
+    const method = document.getElementById('bank-method').value;
+    const name = document.getElementById('bank-name').value;
+    const phone = document.getElementById('bank-phone').value;
+    const pin = document.getElementById('bank-pin').value;
+
+    if(!name || !phone || !pin) return showAlert("Atenção", "Preencha todos os campos bancários.");
+
+    const res = await fetch('/api/user/update-bank', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ method, name, phone, pin })
+    });
+
+    if(res.ok) {
+        showAlert("Sucesso", "Dados bancários e PIN salvos com sucesso!");
+        goTo('page-account');
+    } else {
+        showAlert("Erro", "Falha ao salvar dados.");
+    }
+}
+
+// Alterar Senha
+window.changePass = async function() {
+    const oldP = document.getElementById('pass-old').value;
+    const newP = document.getElementById('pass-new').value;
+
+    if(!oldP || !newP) return showAlert("Atenção", "Preencha as senhas.");
+
+    const res = await fetch('/api/user/change-password', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ oldP, newP })
+    });
+
+    if(res.ok) {
+        showAlert("Sucesso", "Senha alterada! Faça login novamente.");
+        location.reload();
+    } else {
+        showAlert("Erro", "Senha antiga incorreta.");
+    }
+       }
+
 window.onload = () => {
     window.generateCaptcha();
     const date = new Date();
