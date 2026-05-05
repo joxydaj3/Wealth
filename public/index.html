@@ -251,76 +251,90 @@
         </section>
 
         <!-- CONTA -->
-        <section id="page-account" class="page">
-    <!-- 1. Banner Rotativo (Slider de 4 Imagens) -->
-    <div class="account-slider">
+        <!-- PÁGINA: CONTA (ESTRUTURA CORRIGIDA E SEPARADA) -->
+<section id="page-account" class="page">
+    <!-- 1. Imagem/Slider (Separado) -->
+    <div class="account-slider-fixed">
         <div class="slider-wrapper" id="account-slider-wrapper">
-            <div class="slide"><img src="https://images.unsplash.com/photo-1611974714024-4607a5146b91?w=500" alt="Slide 1"></div>
-            <div class="slide"><img src="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=500" alt="Slide 2"></div>
-            <div class="slide"><img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=500" alt="Slide 3"></div>
-            <div class="slide"><img src="https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=500" alt="Slide 4"></div>
+            <div class="slide"><img src="https://images.unsplash.com/photo-1611974714024-4607a5146b91?w=500" alt="1"></div>
+            <div class="slide"><img src="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=500" alt="2"></div>
         </div>
     </div>
 
-    <!-- 2. Card de Perfil Estilo Fintech -->
-    <div class="wealth-card profile-card-main">
-        <div class="profile-info-top">
-            <div class="avatar-box">W</div>
-            <div class="user-text">
-                <h3 id="acc-name-label">Carregando...</h3>
-                <p id="acc-phone-label">+258 ...</p>
+    <!-- 2. Card de Informações (Abaixo da Imagem) -->
+    <div class="wealth-card profile-info-card">
+        <div class="profile-header-flex">
+            <div class="avatar-circle">W</div>
+            <div class="user-text-box">
+                <h3 id="acc-name-label">...</h3>
+                <p id="acc-phone-label">...</p>
             </div>
         </div>
-        <div class="profile-balance-box">
-            <h2>MZN <span id="acc-balance-total">0.00</span></h2>
+        <div class="profile-assets-box">
             <small>Ativos totais</small>
+            <h2>MZN <span id="acc-balance-total">0.00</span></h2>
         </div>
-        <div class="profile-decoration">⭐</div>
     </div>
 
     <!-- 3. Botões de Ação Rápida -->
-    <div class="account-quick-actions">
-        <div class="q-item" onclick="goTo('page-deposit')">
-            <div class="q-icon yellow">💳</div>
-            <span>Recarregar</span>
-        </div>
-        <div class="q-item" onclick="goTo('page-withdraw')">
-            <div class="q-icon gold">📤</div>
-            <span>Saque</span>
-        </div>
-        <div class="q-item" onclick="showAlert('Banco', 'Funcionalidade de conta bancária em breve.')">
-            <div class="q-icon orange">🏛️</div>
-            <span>Conta Bancária</span>
-        </div>
+    <div class="account-grid-actions">
+        <div class="q-btn" onclick="goTo('page-deposit')">💳<br>Recarregar</div>
+        <div class="q-btn" onclick="goTo('page-withdraw')">📤<br>Saque</div>
+        <div class="q-btn" onclick="goTo('sub-page-bank')">🏛️<br>Conta Bancária</div>
     </div>
 
-    <!-- 4. Lista de Menus (Igual às imagens) -->
-    <div class="account-menu-list">
-        <div class="menu-row" onclick="showAlert('Sobre Nós', 'Wealth Pro: A plataforma nº 1 em investimentos em Moçambique.')">
-            <div class="menu-left">📊 <span>Sobre Nós</span></div>
-            <div class="menu-right">▶</div>
-        </div>
-        <div class="menu-row" onclick="goTo('page-history')">
-            <div class="menu-left">📋 <span>Registros / Faturas</span></div>
-            <div class="menu-right">▶</div>
-        </div>
-        <div class="menu-row" onclick="toggleSupport()">
-            <div class="menu-left">🎧 <span>Atendimento ao Cliente</span></div>
-            <div class="menu-right">▶</div>
-        </div>
-        <div class="menu-row" onclick="showAlert('Segurança', 'Para alterar sua senha, entre em contato com o suporte.')">
-            <div class="menu-left">🔒 <span>Alterar Senha</span></div>
-            <div class="menu-right">▶</div>
-        </div>
-        <div class="menu-row" onclick="window.open('#', '_blank')">
-            <div class="menu-left">☁️ <span>Baixar APP (APK)</span></div>
-            <div class="menu-right">▶</div>
-        </div>
+    <!-- 4. Lista de Menus -->
+    <div class="menu-vertical">
+        <div class="menu-item-row" onclick="goTo('sub-page-about')">📊 Sobre Nós <span class="arrow">▶</span></div>
+        <div class="menu-item-row" onclick="goTo('page-profits')">🧾 Registros / Faturas <span class="arrow">▶</span></div>
+        <div class="menu-item-row" onclick="toggleSupport()">🎧 Atendimento ao Cliente <span class="arrow">▶</span></div>
+        <div class="menu-item-row" onclick="goTo('sub-page-security')">🔒 Alterar Senha / PIN <span class="arrow">▶</span></div>
+        <div class="menu-item-row" onclick="showAlert('APP', 'O nosso aplicativo oficial será lançado em breve para Android e iOS!')">☁️ Baixar APP (APK) <span class="arrow">▶</span></div>
     </div>
 
-    <!-- 5. Botão Sair Estilizado -->
-    <button class="btn-logout-yellow" onclick="location.reload()">Sair da Conta</button>
-        </section>
+    <!-- 5. Botão Sair (Pequeno e Visível) -->
+    <div style="text-align: center; margin-top: 10px;">
+        <button class="btn-logout-small" onclick="location.reload()">Sair da Conta</button>
+    </div>
+</section>
+
+<!-- SUB-TELA: CONTA BANCÁRIA -->
+<section id="sub-page-bank" class="page">
+    <div class="header-main"><button class="btn-back" onclick="goTo('page-account')">⬅</button><h3>Dados para Saque</h3></div>
+    <div class="wealth-card">
+        <p>Método de Saque:</p>
+        <select id="bank-method" class="input-tiny">
+            <option value="M-Pesa">M-Pesa</option>
+            <option value="e-Mola">e-Mola</option>
+        </select>
+        <input type="text" id="bank-name" placeholder="Nome do Titular" class="input-tiny">
+        <input type="number" id="bank-phone" placeholder="Número da Conta (+258)" class="input-tiny">
+        <input type="password" id="bank-pin" placeholder="Criar PIN de Saque (4 dígitos)" class="input-tiny">
+        <button class="btn btn-green" onclick="saveBankInfo()">Salvar Dados</button>
+    </div>
+</section>
+
+<!-- SUB-TELA: SEGURANÇA -->
+<section id="sub-page-security" class="page">
+    <div class="header-main"><button class="btn-back" onclick="goTo('page-account')">⬅</button><h3>Segurança</h3></div>
+    <div class="wealth-card">
+        <h4>Alterar Senha de Login</h4>
+        <input type="password" id="pass-old" placeholder="Senha Antiga" class="input-tiny">
+        <input type="password" id="pass-new" placeholder="Nova Senha" class="input-tiny">
+        <button class="btn btn-blue" onclick="changePass()">Atualizar Senha</button>
+    </div>
+</section>
+
+<!-- SUB-TELA: SOBRE NÓS -->
+<section id="sub-page-about" class="page">
+    <div class="header-main"><button class="btn-back" onclick="goTo('page-account')">⬅</button><h3>Sobre a Wealth</h3></div>
+    <div class="wealth-card about-content">
+        <h4>O Futuro do Investimento em Moçambique</h4>
+        <p>A Wealth Pro é uma plataforma fintech focada em democratizar o acesso ao mercado financeiro. Operamos com fundos de alta liquidez e garantimos retornos consistentes para nossos investidores.</p>
+        <p>Nossa missão é a transparência e a segurança de cada metical investido.</p>
+        <small>Versão 2.0.4 | 2026</small>
+    </div>
+                                                                                                                     </section>
 
         <!-- MODAL SUPORTE -->
         <div id="support-modal" class="modal-overlay">
