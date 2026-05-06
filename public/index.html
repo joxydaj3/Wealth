@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wealth Pro - Investimentos</title>
+    <title>Wealth Moz</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
@@ -229,32 +229,45 @@
             </div>
         </section>
 
-        <!-- CONTA -->
-        <section id="page-account" class="page">
-            <div class="account-slider-fixed">
-                <div class="slider-wrapper" id="account-slider-wrapper">
-                    <div class="slide"><img src="https://images.unsplash.com/photo-1611974714024-4607a5146b91?w=500" alt="1"></div>
-                    <div class="slide"><img src="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=500" alt="2"></div>
-                </div>
+        <!-- PÁGINA: CONTA (ESTRUTURA COMPACTA) -->
+<section id="page-account" class="page">
+    <!-- 1. Slider (Mantenha o seu wrapper de imagens aqui) -->
+    <div class="account-slider-fixed">
+        <div class="slider-wrapper" id="account-slider-wrapper">
+            <div class="slide"><img src="https://images.unsplash.com/photo-1611974714024-4607a5146b91?w=500" alt="1"></div>
+            <div class="slide"><img src="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=500" alt="2"></div>
+            <div class="slide"><img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=500" alt="3"></div>
+            <div class="slide"><img src="https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=500" alt="4"></div>
+        </div>
+    </div>
+
+    <!-- 2. Card de Perfil MUITO MENOR -->
+    <div class="wealth-card profile-info-card-sm">
+        <div class="profile-top-row">
+            <div class="avatar-circle-sm">W</div>
+            <div class="user-id-box">
+                <h4 id="acc-name-label">Carregando...</h4>
+                <p id="acc-phone-label">86...</p>
             </div>
-            <div class="wealth-card profile-info-card">
-                <div class="profile-header-flex">
-                    <div class="avatar-circle">W</div>
-                    <div class="user-text-box">
-                        <h3 id="acc-name-label">...</h3>
-                        <p id="acc-phone-label">...</p>
-                    </div>
-                </div>
-                <div class="profile-assets-box">
-                    <small>Ativos totais</small>
-                    <h2>MZN <span id="acc-balance-total">0.00</span></h2>
-                </div>
-            </div>
-            <div class="account-grid-actions">
-                <div class="q-btn" onclick="goTo('page-deposit')">💳<br>Recarregar</div>
-                <div class="q-btn" onclick="goTo('page-withdraw')">📤<br>Saque</div>
-                <div class="q-btn" onclick="goTo('sub-page-bank')">🏛️<br>Conta Bancária</div>
-            </div>
+        </div>
+        <div class="profile-balance-row">
+            <small>Ativos totais</small>
+            <h3>MZN <span id="acc-balance-total">0.00</span></h3>
+        </div>
+    </div>
+
+    <!-- 3. Botões NA MESMA LINHA (Grid de 3 colunas) -->
+    <div class="account-action-row">
+        <div class="q-btn-sm" onclick="goTo('page-deposit')">
+            <span class="q-ico">💳</span><br>Recarregar
+        </div>
+        <div class="q-btn-sm" onclick="goTo('page-withdraw')">
+            <span class="q-ico">📤</span><br>Saque
+        </div>
+        <div class="q-btn-sm" onclick="goTo('sub-page-bank')">
+            <span class="q-ico">🏛️</span><br>Banco
+        </div>
+    </div>
             <div class="menu-vertical">
                 <div class="menu-item-row" onclick="goTo('sub-page-about')">📊 Sobre Nós <span class="arrow">▶</span></div>
                 <div class="menu-item-row" onclick="goTo('page-profits')">🧾 Registros / Faturas <span class="arrow">▶</span></div>
