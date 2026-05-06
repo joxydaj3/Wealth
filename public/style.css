@@ -167,23 +167,6 @@ html, body {
 .slide { flex-shrink: 0; width: 100%; height: 100%; }
 .slide img { width: 100%; height: 100%; object-fit: cover; }
 
-.profile-info-card-sm {
-    background: #ffffff !important; color: #050a30 !important;
-    padding: 15px !important; margin: 10px 20px !important; border-radius: 15px !important;
-}
-.profile-top-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-.avatar-circle-sm { 
-    width: 40px; height: 40px; background: #050a30; color: var(--yellow); 
-    border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px;
-}
-.user-id-box h4 { margin: 0; font-size: 16px; }
-.user-id-box p { margin: 0; font-size: 12px; opacity: 0.7; }
-.profile-balance-row h3 { margin: 0; font-size: 24px; font-weight: 900; }
-
-/* Botões na Mesma Linha (Grid 3 colunas) */
-.account-action-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 20px; margin-bottom: 20px; }
-.q-btn-sm { background: var(--card); padding: 12px 5px; border-radius: 12px; text-align: center; font-size: 11px; font-weight: bold; color: var(--text-dim); cursor: pointer; }
-
 .menu-vertical { padding: 0 10px; }
 .menu-item-row { 
     padding: 18px; background: var(--card); margin-bottom: 5px; 
@@ -193,6 +176,69 @@ html, body {
 
 .logout-container { padding: 20px; margin-bottom: 30px; text-align: center; }
 .btn-logout-small { background: transparent; border: 1.5px solid var(--red); color: var(--red); padding: 6px 20px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
+
+/* --- AJUSTES CONTA: CARD COMPACTO --- */
+.profile-info-card-sm {
+    background: #ffffff !important;
+    color: #050a30 !important;
+    padding: 12px 15px !important; /* Padding reduzido */
+    margin: 10px 20px !important;
+    border-radius: 15px !important;
+    border: none !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+}
+
+.profile-top-row { 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    margin-bottom: 5px; 
+}
+
+.avatar-circle-sm { 
+    width: 35px; 
+    height: 35px; 
+    background: #050a30; 
+    color: gold; 
+    border-radius: 50%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-weight: 800; 
+    font-size: 16px;
+}
+
+.user-id-box h4 { margin: 0; font-size: 15px; font-weight: 800; }
+.user-id-box p { margin: 0; font-size: 11px; opacity: 0.7; }
+.profile-balance-row h3 { margin: 0; font-size: 20px; font-weight: 900; }
+.profile-balance-row small { font-size: 9px; font-weight: bold; opacity: 0.6; text-transform: uppercase; }
+
+/* --- BOTÕES EM LINHA --- */
+.account-action-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr; /* Força 3 colunas iguais */
+    gap: 10px;
+    padding: 0 20px;
+    margin: 15px 0;
+}
+
+.q-btn-sm {
+    background: #0d1b3e; /* Cor do fundo do card azul */
+    padding: 10px 5px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 10px;
+    font-weight: bold;
+    color: #ffffff;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.q-ico {
+    font-size: 18px;
+    display: inline-block;
+    margin-bottom: 3px;
+   }
 
 /* =========================================
    7. LUCROS E RENDIMENTOS
