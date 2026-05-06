@@ -29,7 +29,7 @@ html, body {
 .page { 
     display: none !important; 
     padding: 20px; 
-    padding-bottom: 90px !important; /* Espaço extra para o texto no final aparecer */
+    padding-bottom: 60px !important; /* Espaço extra para o texto no final aparecer */
     animation: fadeIn 0.3s ease; 
     background-color: var(--bg);
 }
