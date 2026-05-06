@@ -155,7 +155,7 @@ html, body {
 .btn-copy-sm { background: var(--blue); border: none; border-radius: 6px; width: 30px; height: 30px; color: white; cursor: pointer; }
 
 .social-grid-sm { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
-.social-btn-sm { padding: 8px; border: none; border-radius: 8px; color: white; font-weight: bold; font-size: 10px; cursor: pointer; }
+.social-btn-sm { padding: 8px; border: none; border-radius: 8px; color: green; font-weight: bold; font-size: 10px; cursor: pointer; }
 
 .example-box-sm { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; font-size: 10px; line-height: 1.4; color: var(--text-dim); }
 
