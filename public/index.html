@@ -195,46 +195,57 @@
         </div>
     </div>
 
-    <!-- PASSO 3: FINALIZAR (Dinâmico com Câmbio e Dados) -->
-    <div id="dep-step-content-3" class="dep-container">
-        <div class="wealth-card">
-            <div class="timer-box">⏳ Expira em: <span id="dep-timer">05:00</span></div>
-            
-            <div class="final-details-card">
-                <div id="mzn-display">Valor a pagar: <b id="final-amount" style="font-size:18px;">MT 0.00</b></div>
-                <!-- Exibição de Câmbio para Cripto -->
-                <div id="usd-display" style="display:none; margin-top:5px; padding-top:5px; border-top: 1px solid rgba(255,255,255,0.1);">
-                    <small>Câmbio (1$ = 70 MT):</small><br>
-                    <b id="crypto-usd-val" style="color: #f3ba2f;">0.00 USDT</b>
-                </div>
-                <p>Método: <b id="final-method" style="color: var(--blue);">...</b></p>
-            </div>
+    <!-- PASSO 3: FINALIZAR (REVISADO) -->
+<div id="dep-step-content-3" class="dep-container">
+    <div class="wealth-card">
+        <div class="timer-box">⏳ Expira em: <span id="dep-timer">05:00</span></div>
+        
+        <div class="final-details-card">
+            <div>Valor a pagar: <b id="final-amount">MT 0.00</b></div>
+            <div id="usd-display" style="display:none;"><small>Câmbio:</small> <b id="crypto-usd-val">0.00 USDT</b></div>
+            <p>Método: <b id="final-method" style="color: var(--blue);">...</b></p>
+        </div>
 
-            <div class="instr-card" id="destination-card">
-                <p id="instr-title">⚡ Envie para:</p>
-                <div class="copy-box">
-                    <span id="dest-label">Número:</span> <b id="dest-address">878354556</b>
-                    <button class="btn-copy-mini" onclick="copyText(document.getElementById('dest-address').innerText)">📋</button>
-                </div>
-                <p id="dest-name-container">Titular: <b id="dest-name">Moz Wealth Pay</b></p>
+        <div class="instr-card">
+            <p id="instr-title">⚡ Envie para:</p>
+            <div class="copy-box">
+                <span id="dest-label">Número:</span> <b id="dest-address">...</b>
+                <button class="btn-copy-mini" onclick="copyText(document.getElementById('dest-address').innerText)">📋</button>
             </div>
+            <p id="dest-name-container">Titular: <b id="dest-name">...</b></p>
+        </div>
 
-            <input type="text" id="dep-txid" class="input-tiny" placeholder="Cole o ID / Hash da transação aqui">
-            
-            <div class="upload-area" onclick="document.getElementById('dep-file').click()">
-                <input type="file" id="dep-file" hidden accept="image/*" onchange="previewFile()">
-                <div id="upload-label">📸 Toque para carregar comprovativo</div>
-            </div>
-            
-            <p class="warning-text">⚠️ O comprovativo deve estar legível para aprovação automática.</p>
-            
-            <div class="btn-group-dep">
-                <button class="btn-sec" onclick="nextDepStep(2)">← Voltar</button>
-                <button class="btn btn-green" id="btn-send-dep" onclick="submitDeposit()">🚀 Enviar Depósito</button>
-            </div>
+        <!-- Instruções Pequenas -->
+        <p style="font-size: 10px; color: #8899ac; margin-bottom: 5px;">
+            ℹ️ Após transferir, copie o <b>ID/Referência</b> da mensagem de confirmação e cole abaixo. Tire um print do comprovante.
+        </p>
+        
+        <input type="text" id="dep-txid" class="input-tiny" placeholder="ID da Transação (Referência)">
+        
+        <div class="upload-area" id="upload-box" onclick="document.getElementById('dep-file').click()">
+            <input type="file" id="dep-file" hidden accept="image/*" onchange="previewFile()">
+            <div id="upload-label">📸 Toque para carregar comprovante</div>
+            <!-- Preview da Foto -->
+            <img id="img-preview" style="display:none; width: 100%; height: 100px; object-fit: contain; margin-top: 10px;">
+        </div>
+
+        <div class="btn-group-dep">
+            <button class="btn-action-sm btn-back-new" onclick="nextDepStep(2)">Vortar</button>
+            <button class="btn-action-sm btn-green" id="btn-send-dep" onclick="submitDeposit()">🚀 Enviar Depósito</button>
         </div>
     </div>
-    </section>
+</div>
+
+<!-- MODAL DE SUCESSO 15S (Colocar no final do body) -->
+<div id="success-dep-modal" class="modal-overlay">
+    <div class="modal-box success-popup">
+        <span class="close-modal" onclick="closeSuccessModal()">×</span>
+        <div class="modal-icon">✅</div>
+        <h3>Depósito Enviado!</h3>
+        <p id="success-msg-text">Parabéns! Seu depósito de <b>MT 0.00</b> foi enviado ao nosso departamento de conferência.</p>
+        <p style="font-size: 12px;">O seu saldo será creditado entre 5 a 15 minutos. Após cair, ative seu plano para lucrar!</p>
+    </div>
+</div>
 
         <!-- TELA: SAQUE -->
         <section id="page-withdraw" class="page">
