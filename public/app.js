@@ -322,25 +322,75 @@ window.changePass = async function() {
     else showAlert("Erro", "Senha antiga incorreta.");
 }
 
-let depositData = { amount: 0, method: '' };
-let depTimerInterval;
+let depositData = { amount: 0, method: '', subMethod: '', bonus: 0 };
 
-window.setDepAmount = (val) => { document.getElementById('in-dep-amount').value = val; };
+window.setDepMethod = (m) => {
+    depositData.method = m;
+    depositData.subMethod = ''; // Reseta sub-metodo
+    document.querySelectorAll('.method-item').forEach(i => i.classList.remove('selected'));
+    event.currentTarget.classList.add('selected');
+    
+    // Mostra sub-opções se for Cripto
+    const cryptoSub = document.getElementById('crypto-sub-methods');
+    cryptoSub.style.display = (m === 'Cripto') ? 'block' : 'none';
+    
+    // Define bónus
+    depositData.bonus = (m === 'Cripto') ? 0.02 : 0;
+}
+
+window.setCryptoSub = (sub) => {
+    depositData.subMethod = sub;
+    document.querySelectorAll('.btn-sub-method').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+}
 
 window.nextDepStep = function(step) {
     if (step === 2) {
-        depositData.amount = document.getElementById('in-dep-amount').value;
-        if (depositData.amount < 500) return showAlert("Atenção", "O valor mínimo é 500 MT");
-        document.getElementById('display-dep-val').innerText = "MT " + depositData.amount;
+        depositData.amount = parseFloat(document.getElementById('in-dep-amount').value);
+        if (isNaN(depositData.amount) || depositData.amount < 500) return showAlert("Atenção", "O valor mínimo é 500 MT");
+        document.getElementById('display-dep-val').innerText = "MT " + depositData.amount.toFixed(2);
     }
     
     if (step === 3) {
-        if (!depositData.method) return showAlert("Atenção", "Selecione um método de pagamento.");
-        document.getElementById('final-amount').innerText = "MT " + depositData.amount;
-        document.getElementById('final-method').innerText = depositData.method;
-        startDepositTimer(); // Inicia o contador de 5 min
-    }
+        if (!depositData.method) return showAlert("Atenção", "Selecione um método.");
+        if (depositData.method === 'Cripto' && !depositData.subMethod) return showAlert("Atenção", "Escolha entre USDT ou Binance ID.");
 
+        // CONFIGURA DADOS DE DESTINO
+        const destNumber = document.getElementById('dest-address');
+        const destName = document.getElementById('dest-name');
+        const destLabel = document.getElementById('dest-label');
+        const destNameCont = document.getElementById('dest-name-container');
+        const usdDisplay = document.getElementById('usd-display');
+        
+        // Dados Padrão (M-Pesa / e-Mola)
+        usdDisplay.style.display = 'none';
+        destNameCont.style.display = 'block';
+        destLabel.innerText = "Número:";
+
+        if (depositData.method === 'e-Mola') {
+            destNumber.innerText = "878354556";
+            destName.innerText = "Moz Wealth Pay";
+        } else if (depositData.method === 'M-Pesa') {
+            destNumber.innerText = "858285865";
+            destName.innerText = "Joaquim Jorge";
+        } else if (depositData.method === 'Cripto') {
+            destNameCont.style.display = 'none'; // Cripto não mostra titular
+            usdDisplay.style.display = 'block';
+            destLabel.innerText = (depositData.subMethod === 'Binance_ID') ? "Binance UID:" : "Endereço BSC:";
+            
+            // Coloque seus endereços aqui:
+            destNumber.innerText = (depositData.subMethod === 'Binance_ID') ? "SEU_UID_AQUI" : "SEU_ENDERECO_USDT_AQUI";
+            
+            // Cálculo do Dólar (MT / 70)
+            const usdVal = (depositData.amount / 70).toFixed(2);
+            document.getElementById('crypto-usd-val').innerText = usdVal + " USDT";
+        }
+
+        document.getElementById('final-amount').innerText = "MT " + depositData.amount.toFixed(2);
+        document.getElementById('final-method').innerText = depositData.subMethod || depositData.method;
+        
+        startDepositTimer();
+    }
     // Gerencia Visual
     document.querySelectorAll('.dep-container').forEach(c => c.classList.remove('active'));
     document.getElementById(`dep-step-content-${step}`).classList.add('active');
