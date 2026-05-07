@@ -7,7 +7,7 @@ let currentSlide = 0;
 window.generateCaptcha = function() {
     const chars = "0123456789ABCDEFGHJKLMNPQRSTUVWXYZ";
     let code = "";
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 3; i++) {
         code += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     currentCaptcha = code;
@@ -453,9 +453,9 @@ window.nextDepStep = function(step) {
     });
 }
 
-// 5. Cronômetro de 5 Minutos
+// 5. Cronômetro de 7 Minutos
 function startDepositTimer() {
-    let timeLeft = 300; // 5 minutos em segundos
+    let timeLeft = 420; // 7 minutos em segundos
     const timerDisplay = document.getElementById('dep-timer');
     const sendBtn = document.getElementById('btn-send-dep');
     
@@ -501,6 +501,67 @@ window.copyText = function(text) {
         showAlert("Copiado", "Dados copiados para a área de transferência!");
     });
             }
+// Mostrar a foto escolhida na tela
+window.previewFile = function() {
+    const file = document.getElementById('dep-file').files[0];
+    const preview = document.getElementById('img-preview');
+    const label = document.getElementById('upload-label');
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            label.innerText = "✅ Comprovante Selecionado";
+        }
+        reader.readAsDataURL(file);
+    }
+}
+
+// Enviar Depósito para o Servidor e Admin
+window.submitDeposit = async function() {
+    const txid = document.getElementById('dep-txid').value;
+    const file = document.getElementById('dep-file').files[0];
+    
+    if(!txid) return showAlert("Erro", "Por favor, cole o ID da transação.");
+    if(!file) return showAlert("Erro", "Por favor, selecione a foto do comprovante.");
+
+    const btn = document.getElementById('btn-send-dep');
+    btn.disabled = true;
+    btn.innerText = "Enviando...";
+
+    const formData = new FormData();
+    formData.append('amount', depositData.amount);
+    formData.append('method', depositData.subMethod || depositData.method);
+    formData.append('txid', txid);
+    formData.append('proof', file);
+
+    try {
+        const res = await fetch('/api/user/deposit', {
+            method: 'POST',
+            body: formData // Envia tudo: Valor, ID e Foto
+        });
+
+        if(res.ok) {
+            clearInterval(depTimerInterval);
+            document.getElementById('success-msg-text').innerHTML = `Seu depósito de <b>MT ${depositData.amount.toFixed(2)}</b> foi enviado ao nosso departamento de depósitos para análise.`;
+            
+            // Mostra popup por 15 segundos
+            document.getElementById('success-dep-modal').style.display = 'flex';
+            setTimeout(() => { closeSuccessModal(); }, 15000);
+        } else {
+            showAlert("Erro", "Falha ao enviar. Tente novamente.");
+            btn.disabled = false;
+        }
+    } catch(e) {
+        btn.disabled = false;
+    }
+}
+
+window.closeSuccessModal = () => {
+    document.getElementById('success-dep-modal').style.display = 'none';
+    resetDeposit(); // Volta para a home
+}
 
 // 10. Inicialização e Lógica de Link de Convite
 window.onload = () => {
