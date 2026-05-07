@@ -368,3 +368,32 @@ html, body {
 }
 .nav-item { font-size: 10px; color: #6e84ab; text-align: center; cursor: pointer; }
 .nav-item.active { color: white; font-weight: bold; }
+
+/* Progress Bar Steps */
+.dep-steps-bar { display: flex; align-items: center; justify-content: center; margin: 20px 0; }
+.step-circle { width: 30px; height: 30px; border-radius: 50%; background: #334155; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; z-index: 2; }
+.step-circle.active { background: var(--blue); color: white; box-shadow: 0 0 15px var(--blue); }
+.step-line { flex: 0.2; height: 2px; background: #334155; margin: 0 -5px; }
+.step-line.active { background: var(--blue); }
+
+/* Containers */
+.dep-container { display: none; }
+.dep-container.active { display: block; animation: fadeIn 0.3s; }
+
+/* Preset Amounts */
+.preset-amounts { display: flex; gap: 10px; margin: 10px 0; }
+.preset-amounts button { flex: 1; padding: 10px; background: #0b1437; border: 1px solid #1e3a8a; border-radius: 10px; color: white; cursor: pointer; }
+
+/* Methods */
+.method-item { padding: 15px; background: #0b1437; border: 1px solid #1e3a8a; border-radius: 12px; margin-bottom: 10px; cursor: pointer; }
+.method-item.selected { border-color: var(--blue); background: rgba(0,123,255,0.1); }
+
+/* Timer */
+.timer-box { text-align: center; color: #ff4d4d; font-weight: 800; margin-bottom: 15px; font-size: 16px; }
+
+/* Upload Area */
+.upload-area { border: 2px dashed #1e3a8a; border-radius: 15px; padding: 20px; text-align: center; margin: 15px 0; color: #8899ac; font-size: 12px; }
+.copy-box { display: flex; justify-content: space-between; background: #050a30; padding: 10px; border-radius: 8px; margin: 10px 0; }
+
+.btn-group-dep { display: grid; grid-template-columns: 0.4fr 1fr; gap: 10px; margin-top: 15px; }
+.btn-sec { background: white; color: black; border: none; border-radius: 10px; font-weight: bold; }
