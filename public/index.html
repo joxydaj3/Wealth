@@ -115,18 +115,117 @@
 
         <!-- TELA: DEPÓSITO -->
         <section id="page-deposit" class="page">
-            <div class="header-main"><h3>Efectuar Depósito</h3></div>
-            <div class="wealth-card">
-                <p>Valor do Depósito (MZN):</p>
-                <input type="number" id="dep-amount" class="input-tiny" placeholder="Mínimo 500 MT">
-                <p>Método de Pagamento:</p>
-                <select id="dep-method" class="input-tiny" style="background: #0b1437; color: white;">
-                    <option value="M-Pesa">M-Pesa</option>
-                    <option value="e-Mola">e-Mola</option>
-                </select>
-                <button class="btn btn-green" onclick="startDepositTimer()">Gerar Dados de Pagamento</button>
+    <div class="header-main">
+        <button class="btn-back" onclick="resetDeposit()">← Voltar</button>
+        <h3>Fazer Depósito</h3>
+    </div>
+    <p class="dep-info-text">Depósito mínimo: 500 MZN • Aprovação automática em 5-15 min</p>
+
+    <!-- Barra de Progresso (Igual à imagem) -->
+    <div class="dep-steps-bar">
+        <div class="step-circle active" id="step-1">1</div>
+        <div class="step-line" id="line-1"></div>
+        <div class="step-circle" id="step-2">2</div>
+        <div class="step-line" id="line-2"></div>
+        <div class="step-circle" id="step-3">3</div>
+    </div>
+
+    <!-- PASSO 1: VALOR -->
+    <div id="dep-step-content-1" class="dep-container active">
+        <div class="wealth-card">
+            <p>📥 Quanto deseja depositar?</p>
+            <small>💎 Valores dos Planos</small>
+            <div class="preset-amounts">
+                <button onclick="setDepAmount(300)">MT300.00</button>
+                <button onclick="setDepAmount(500)">MT500.00</button>
             </div>
-        </section>
+            <p>✍️ Ou insira o valor</p>
+            <div class="input-with-tag">
+                <input type="number" id="in-dep-amount" placeholder="0.00">
+                <span>MZN</span>
+            </div>
+            <button class="btn btn-blue" style="margin-top:20px" onclick="nextDepStep(2)">Continuar →</button>
+        </div>
+    </div>
+
+    <!-- PASSO 2: MÉTODO (Atualizado com Cripto) -->
+    <div id="dep-step-content-2" class="dep-container">
+        <div class="wealth-card">
+            <p>💳 Escolha o método de pagamento</p>
+            <p style="font-size: 12px; color: #8899ac;">Valor selecionado: <b id="display-dep-val" style="color: white;">MT 0.00</b></p>
+            
+            <div class="method-list">
+                <div class="method-item" onclick="setDepMethod('e-Mola')">
+                    <span>📱 e-Mola (FRELIMO)</span>
+                </div>
+                <div class="method-item" onclick="setDepMethod('M-Pesa')">
+                    <span>📱 M-Pesa (Voda)</span>
+                </div>
+                <!-- NOVO: Cripto com Bónus -->
+                <div class="method-item" onclick="setDepMethod('Cripto')" style="border-color: #f3ba2f66;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                        <span>🪙 Cripto-Moedas</span>
+                        <small class="bonus-tag">+2% Bónus</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sub-opções Cripto (Aparecem via JS) -->
+            <div id="crypto-sub-methods" style="display:none; margin-bottom:15px;">
+                <p style="font-size:11px; margin-bottom:5px;">Escolha a rede:</p>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-sub-method" onclick="setCryptoSub('USDT_BEP20')">USDT (BEP20)</button>
+                    <button class="btn-sub-method" onclick="setCryptoSub('Binance_ID')">Binance ID</button>
+                </div>
+            </div>
+
+            <div class="btn-group-dep">
+                <button class="btn-sec" onclick="nextDepStep(1)">← Voltar</button>
+                <button class="btn btn-blue" onclick="nextDepStep(3)">Continuar →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PASSO 3: FINALIZAR (Dinâmico com Câmbio e Dados) -->
+    <div id="dep-step-content-3" class="dep-container">
+        <div class="wealth-card">
+            <div class="timer-box">⏳ Expira em: <span id="dep-timer">05:00</span></div>
+            
+            <div class="final-details-card">
+                <div id="mzn-display">Valor a pagar: <b id="final-amount" style="font-size:18px;">MT 0.00</b></div>
+                <!-- Exibição de Câmbio para Cripto -->
+                <div id="usd-display" style="display:none; margin-top:5px; padding-top:5px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <small>Câmbio (1$ = 70 MT):</small><br>
+                    <b id="crypto-usd-val" style="color: #f3ba2f;">0.00 USDT</b>
+                </div>
+                <p>Método: <b id="final-method" style="color: var(--blue);">...</b></p>
+            </div>
+
+            <div class="instr-card" id="destination-card">
+                <p id="instr-title">⚡ Envie para:</p>
+                <div class="copy-box">
+                    <span id="dest-label">Número:</span> <b id="dest-address">878354556</b>
+                    <button class="btn-copy-mini" onclick="copyText(document.getElementById('dest-address').innerText)">📋</button>
+                </div>
+                <p id="dest-name-container">Titular: <b id="dest-name">Moz Wealth Pay</b></p>
+            </div>
+
+            <input type="text" id="dep-txid" class="input-tiny" placeholder="Cole o ID / Hash da transação aqui">
+            
+            <div class="upload-area" onclick="document.getElementById('dep-file').click()">
+                <input type="file" id="dep-file" hidden accept="image/*" onchange="previewFile()">
+                <div id="upload-label">📸 Toque para carregar comprovativo</div>
+            </div>
+            
+            <p class="warning-text">⚠️ O comprovativo deve estar legível para aprovação automática.</p>
+            
+            <div class="btn-group-dep">
+                <button class="btn-sec" onclick="nextDepStep(2)">← Voltar</button>
+                <button class="btn btn-green" id="btn-send-dep" onclick="submitDeposit()">🚀 Enviar Depósito</button>
+            </div>
+        </div>
+    </div>
+    </section>
 
         <!-- TELA: SAQUE -->
         <section id="page-withdraw" class="page">
