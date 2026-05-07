@@ -119,9 +119,11 @@
         <button class="btn-back" onclick="resetDeposit()">← Voltar</button>
         <h3>Fazer Depósito</h3>
     </div>
-    <p class="dep-info-text">Depósito mínimo: 500 MZN • Aprovação automática em 5-15 min</p>
+    <p class="dep-info-text" style="color: #8899ac; font-size: 11px; text-align: center; margin-bottom: 15px;">
+        Depósito mínimo: 500 MZN • Aprovação automática em 5-15 min
+    </p>
 
-    <!-- Barra de Progresso (Igual à imagem) -->
+    <!-- Barra de Progresso -->
     <div class="dep-steps-bar">
         <div class="step-circle active" id="step-1">1</div>
         <div class="step-line" id="line-1"></div>
@@ -132,56 +134,63 @@
 
     <!-- PASSO 1: VALOR -->
     <div id="dep-step-content-1" class="dep-container active">
-        <div class="wealth-card">
-            <p>📥 Quanto deseja depositar?</p>
-            <small>💎 Valores dos Planos</small>
+        <div class="wealth-card" style="background: var(--card) !important;">
+            <p style="margin-bottom: 15px;">📥 Quanto deseja depositar?</p>
+            <small style="color: var(--blue); font-weight: bold;">💎 Valores dos Planos</small>
             <div class="preset-amounts">
-                <button onclick="setDepAmount(300)">MT300.00</button>
-                <button onclick="setDepAmount(500)">MT500.00</button>
+                <button type="button" class="btn-preset" onclick="setDepAmount(500)">MT500.00</button>
+                <button type="button" class="btn-preset" onclick="setDepAmount(5000)">MT5000.00</button>
             </div>
-            <p>✍️ Ou insira o valor</p>
+            <p style="margin: 15px 0 10px;">✍️ Ou insira o valor</p>
             <div class="input-with-tag">
-                <input type="number" id="in-dep-amount" placeholder="0.00">
-                <span>MZN</span>
+                <input type="number" id="in-dep-amount" class="input-tiny" style="margin-bottom: 0;" placeholder="0.00">
+                <span style="color: #8899ac; font-weight: bold; margin-left: 10px;">MZN</span>
             </div>
-            <button class="btn btn-blue" style="margin-top:20px" onclick="nextDepStep(2)">Continuar →</button>
+            <button class="btn btn-blue" style="margin-top:25px; height: 50px; font-size: 16px;" onclick="nextDepStep(2)">Continuar para o Passo 2 →</button>
         </div>
     </div>
 
-    <!-- PASSO 2: MÉTODO (Atualizado com Cripto) -->
+    <!-- PASSO 2: MÉTODO -->
     <div id="dep-step-content-2" class="dep-container">
-        <div class="wealth-card">
+        <div class="wealth-card" style="background: var(--card) !important;">
             <p>💳 Escolha o método de pagamento</p>
-            <p style="font-size: 12px; color: #8899ac;">Valor selecionado: <b id="display-dep-val" style="color: white;">MT 0.00</b></p>
+            <p style="font-size: 12px; color: #8899ac; margin-bottom: 20px;">Valor selecionado: <b id="display-dep-val" style="color: white;">MT 0.00</b></p>
             
             <div class="method-list">
-                <div class="method-item" onclick="setDepMethod('e-Mola')">
-                    <span>📱 e-Mola (FRELIMO)</span>
+                <div class="method-card" id="method-emola" onclick="setDepMethod('e-Mola')">
+                    <span class="method-icon">📱</span>
+                    <div class="method-info">
+                        <strong>e-Mola</strong>
+                        <small>Movitel</small>
+                    </div>
                 </div>
-                <div class="method-item" onclick="setDepMethod('M-Pesa')">
-                    <span>📱 M-Pesa (Voda)</span>
+                <div class="method-card" id="method-mpesa" onclick="setDepMethod('M-Pesa')">
+                    <span class="method-icon">📱</span>
+                    <div class="method-info">
+                        <strong>M-Pesa</strong>
+                        <small>Vodacom</small>
+                    </div>
                 </div>
-                <!-- NOVO: Cripto com Bónus -->
-                <div class="method-item" onclick="setDepMethod('Cripto')" style="border-color: #f3ba2f66;">
-                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <span>🪙 Cripto-Moedas</span>
-                        <small class="bonus-tag">+2% Bónus</small>
+                <div class="method-card" id="method-crypto" onclick="setDepMethod('Cripto')">
+                    <span class="method-icon">🪙</span>
+                    <div class="method-info">
+                        <strong>Cripto-Moedas</strong>
+                        <small>USDT / Binance ID <span class="bonus-tag">+2% Bónus</span></small>
                     </div>
                 </div>
             </div>
 
-            <!-- Sub-opções Cripto (Aparecem via JS) -->
-            <div id="crypto-sub-methods" style="display:none; margin-bottom:15px;">
-                <p style="font-size:11px; margin-bottom:5px;">Escolha a rede:</p>
+            <div id="crypto-sub-options" style="display:none; margin-top: 15px;">
+                <p style="font-size:11px; color: var(--blue); margin-bottom: 10px;">Selecione a rede:</p>
                 <div style="display:flex; gap:10px;">
-                    <button class="btn-sub-method" onclick="setCryptoSub('USDT_BEP20')">USDT (BEP20)</button>
-                    <button class="btn-sub-method" onclick="setCryptoSub('Binance_ID')">Binance ID</button>
+                    <button class="btn-sub-crypto" onclick="setCryptoSub('USDT_BEP20')">USDT (BEP20)</button>
+                    <button class="btn-sub-crypto" onclick="setCryptoSub('Binance_ID')">Binance UID</button>
                 </div>
             </div>
 
-            <div class="btn-group-dep">
+            <div class="btn-group-dep" style="margin-top: 25px;">
                 <button class="btn-sec" onclick="nextDepStep(1)">← Voltar</button>
-                <button class="btn btn-blue" onclick="nextDepStep(3)">Continuar →</button>
+                <button class="btn btn-blue" onclick="nextDepStep(3)">Ir para o Pagamento →</button>
             </div>
         </div>
     </div>
