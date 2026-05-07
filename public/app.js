@@ -321,86 +321,139 @@ window.changePass = async function() {
     if(res.ok) { showAlert("Sucesso", "Senha alterada!"); location.reload(); }
     else showAlert("Erro", "Senha antiga incorreta.");
 }
+// =========================================
+// SISTEMA DE DEPÓSITO - LÓGICA COMPLETA
+// =========================================
 
-let depositData = { amount: 0, method: '', subMethod: '', bonus: 0 };
+// Variável global para controle dos dados
+let depositData = { 
+    amount: 0, 
+    method: '', 
+    subMethod: '', 
+    bonus: 0 
+};
 
-window.setDepMethod = (m) => {
+let depTimerInterval = null;
+
+// 1. Preenchimento Automático de Valor (Preset)
+window.setDepAmount = function(val) {
+    const input = document.getElementById('in-dep-amount');
+    if (input) {
+        input.value = val;
+        // Opcional: Feedback visual ao clicar
+        document.querySelectorAll('.btn-preset').forEach(b => {
+            b.classList.remove('active');
+            if(b.innerText.includes(val)) b.classList.add('active');
+        });
+    }
+}
+
+// 2. Seleção de Método
+window.setDepMethod = function(m) {
     depositData.method = m;
-    depositData.subMethod = ''; // Reseta sub-metodo
-    document.querySelectorAll('.method-item').forEach(i => i.classList.remove('selected'));
-    event.currentTarget.classList.add('selected');
+    depositData.subMethod = ''; // Reseta escolha anterior
     
-    // Mostra sub-opções se for Cripto
-    const cryptoSub = document.getElementById('crypto-sub-methods');
-    cryptoSub.style.display = (m === 'Cripto') ? 'block' : 'none';
+    // UI: Destaca o selecionado
+    document.querySelectorAll('.method-card').forEach(card => card.classList.remove('selected'));
+    // Encontra o card pelo ID definido no HTML
+    const idMap = { 'e-Mola': 'method-emola', 'M-Pesa': 'method-mpesa', 'Cripto': 'method-crypto' };
+    const selectedCard = document.getElementById(idMap[m]);
+    if(selectedCard) selectedCard.classList.add('selected');
+
+    // Lógica de Cripto
+    const cryptoSubOptions = document.getElementById('crypto-sub-options');
+    if(cryptoSubOptions) {
+        cryptoSubOptions.style.display = (m === 'Cripto') ? 'block' : 'none';
+    }
     
-    // Define bónus
+    // Define bónus de 2% se for cripto
     depositData.bonus = (m === 'Cripto') ? 0.02 : 0;
 }
 
-window.setCryptoSub = (sub) => {
+// 3. Seleção de Sub-método Cripto
+window.setCryptoSub = function(sub) {
     depositData.subMethod = sub;
-    document.querySelectorAll('.btn-sub-method').forEach(b => b.classList.remove('active'));
-    event.currentTarget.classList.add('active');
+    document.querySelectorAll('.btn-sub-crypto').forEach(b => {
+        b.classList.remove('active');
+        if(b.innerText.toLowerCase().includes(sub.toLowerCase().replace('_', ''))) b.classList.add('active');
+    });
 }
 
+// 4. Navegação entre Passos (1 -> 2 -> 3)
 window.nextDepStep = function(step) {
+    // Validação do Passo 1 para o 2
     if (step === 2) {
-        depositData.amount = parseFloat(document.getElementById('in-dep-amount').value);
-        if (isNaN(depositData.amount) || depositData.amount < 500) return showAlert("Atenção", "O valor mínimo é 500 MT");
+        const inputVal = document.getElementById('in-dep-amount').value;
+        depositData.amount = parseFloat(inputVal);
+        
+        if (isNaN(depositData.amount) || depositData.amount < 500) {
+            return showAlert("Atenção", "O valor mínimo de depósito é 500 MT.");
+        }
+        
         document.getElementById('display-dep-val').innerText = "MT " + depositData.amount.toFixed(2);
     }
     
+    // Configuração do Passo 3 (Pagamento Final)
     if (step === 3) {
-        if (!depositData.method) return showAlert("Atenção", "Selecione um método.");
-        if (depositData.method === 'Cripto' && !depositData.subMethod) return showAlert("Atenção", "Escolha entre USDT ou Binance ID.");
+        if (!depositData.method) return showAlert("Atenção", "Por favor, selecione um método de pagamento.");
+        if (depositData.method === 'Cripto' && !depositData.subMethod) {
+            return showAlert("Atenção", "Escolha a rede Cripto (USDT ou Binance ID).");
+        }
 
-        // CONFIGURA DADOS DE DESTINO
-        const destNumber = document.getElementById('dest-address');
+        const destAddress = document.getElementById('dest-address');
         const destName = document.getElementById('dest-name');
         const destLabel = document.getElementById('dest-label');
         const destNameCont = document.getElementById('dest-name-container');
         const usdDisplay = document.getElementById('usd-display');
         
-        // Dados Padrão (M-Pesa / e-Mola)
+        // Reset padrão
         usdDisplay.style.display = 'none';
         destNameCont.style.display = 'block';
         destLabel.innerText = "Número:";
 
+        // Lógica Dinâmica de Dados de Destino
         if (depositData.method === 'e-Mola') {
-            destNumber.innerText = "878354556";
+            destAddress.innerText = "878354556";
             destName.innerText = "Moz Wealth Pay";
         } else if (depositData.method === 'M-Pesa') {
-            destNumber.innerText = "858285865";
+            destAddress.innerText = "858285865";
             destName.innerText = "Joaquim Jorge";
         } else if (depositData.method === 'Cripto') {
-            destNameCont.style.display = 'none'; // Cripto não mostra titular
+            destNameCont.style.display = 'none';
             usdDisplay.style.display = 'block';
-            destLabel.innerText = (depositData.subMethod === 'Binance_ID') ? "Binance UID:" : "Endereço BSC:";
             
-            // Coloque seus endereços aqui:
-            destNumber.innerText = (depositData.subMethod === 'Binance_ID') ? "SEU_UID_AQUI" : "SEU_ENDERECO_USDT_AQUI";
+            if (depositData.subMethod === 'Binance_ID') {
+                destLabel.innerText = "Binance UID:";
+                destAddress.innerText = "548291032"; // Coloque seu UID Real aqui
+            } else {
+                destLabel.innerText = "Endereço BSC:";
+                destAddress.innerText = "0x7F2e...A9B"; // Coloque sua Carteira Real aqui
+            }
             
-            // Cálculo do Dólar (MT / 70)
+            // Câmbio 1$ = 70MT
             const usdVal = (depositData.amount / 70).toFixed(2);
             document.getElementById('crypto-usd-val').innerText = usdVal + " USDT";
         }
 
         document.getElementById('final-amount').innerText = "MT " + depositData.amount.toFixed(2);
-        document.getElementById('final-method').innerText = depositData.subMethod || depositData.method;
+        document.getElementById('final-method').innerText = depositData.subMethod ? depositData.subMethod.replace('_', ' ') : depositData.method;
         
+        // Inicia o cronômetro de 5 minutos
         startDepositTimer();
     }
-    // Gerencia Visual
+
+    // Gerenciamento Visual das Telas
     document.querySelectorAll('.dep-container').forEach(c => c.classList.remove('active'));
-    document.getElementById(`dep-step-content-${step}`).classList.add('active');
+    const nextContent = document.getElementById(`dep-step-content-${step}`);
+    if(nextContent) nextContent.classList.add('active');
     
-    // Atualiza Barra de Status
+    // Atualiza Barra de Progresso Superior
     document.querySelectorAll('.step-circle').forEach((c, idx) => {
         if (idx < step) c.classList.add('active'); else c.classList.remove('active');
     });
 }
 
+// 5. Cronômetro de 5 Minutos
 function startDepositTimer() {
     let timeLeft = 300; // 5 minutos em segundos
     const timerDisplay = document.getElementById('dep-timer');
@@ -411,12 +464,15 @@ function startDepositTimer() {
     depTimerInterval = setInterval(() => {
         let mins = Math.floor(timeLeft / 60);
         let secs = timeLeft % 60;
-        timerDisplay.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        
+        if (timerDisplay) {
+            timerDisplay.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
         
         if (timeLeft <= 0) {
             clearInterval(depTimerInterval);
-            sendBtn.style.display = 'none';
-            showAlert("Tempo Expirado", "O tempo para realizar a transferência acabou. Inicie o processo novamente.", () => {
+            if(sendBtn) sendBtn.style.display = 'none';
+            showAlert("Sessão Expirada", "O tempo para realizar o depósito acabou. Comece novamente.", () => {
                 resetDeposit();
             });
         }
@@ -424,17 +480,26 @@ function startDepositTimer() {
     }, 1000);
 }
 
-window.resetDeposit = () => {
+// 6. Resetar e Cancelar Depósito
+window.resetDeposit = function() {
     clearInterval(depTimerInterval);
-    document.getElementById('btn-send-dep').style.display = 'block';
+    const sendBtn = document.getElementById('btn-send-dep');
+    if(sendBtn) sendBtn.style.display = 'block';
+    
+    // Limpa dados
+    document.getElementById('in-dep-amount').value = "";
+    depositData = { amount: 0, method: '', subMethod: '', bonus: 0 };
+    
+    // Volta visualmente
     nextDepStep(1);
     goTo('page-home');
 }
 
-window.setDepMethod = (m) => {
-    depositData.method = m;
-    document.querySelectorAll('.method-item').forEach(i => i.classList.remove('selected'));
-    event.currentTarget.classList.add('selected');
+// Função para copiar texto (número ou carteira)
+window.copyText = function(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        showAlert("Copiado", "Dados copiados para a área de transferência!");
+    });
             }
 
 // 10. Inicialização e Lógica de Link de Convite
