@@ -471,3 +471,20 @@ html, body {
     border: 1px solid var(--blue); color: white; font-size: 11px; font-weight: bold;
 }
 .btn-sub-crypto.active { background: var(--blue); border-color: white; }
+
+/* Botões do Depósito (Cores Fortes) */
+.btn-back-new { background: #334155 !important; color: white !important; }
+.btn-green { background: var(--green) !important; color: white !important; }
+
+/* Modal de Sucesso */
+.success-popup {
+    border-top: 5px solid var(--green);
+    position: relative;
+}
+.close-modal {
+    position: absolute; top: 10px; right: 15px; font-size: 24px; color: #8899ac; cursor: pointer;
+}
+.upload-area img {
+    border-radius: 8px;
+    border: 1px solid var(--green);
+}
