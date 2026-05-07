@@ -322,6 +322,71 @@ window.changePass = async function() {
     else showAlert("Erro", "Senha antiga incorreta.");
 }
 
+let depositData = { amount: 0, method: '' };
+let depTimerInterval;
+
+window.setDepAmount = (val) => { document.getElementById('in-dep-amount').value = val; };
+
+window.nextDepStep = function(step) {
+    if (step === 2) {
+        depositData.amount = document.getElementById('in-dep-amount').value;
+        if (depositData.amount < 500) return showAlert("Atenção", "O valor mínimo é 500 MT");
+        document.getElementById('display-dep-val').innerText = "MT " + depositData.amount;
+    }
+    
+    if (step === 3) {
+        if (!depositData.method) return showAlert("Atenção", "Selecione um método de pagamento.");
+        document.getElementById('final-amount').innerText = "MT " + depositData.amount;
+        document.getElementById('final-method').innerText = depositData.method;
+        startDepositTimer(); // Inicia o contador de 5 min
+    }
+
+    // Gerencia Visual
+    document.querySelectorAll('.dep-container').forEach(c => c.classList.remove('active'));
+    document.getElementById(`dep-step-content-${step}`).classList.add('active');
+    
+    // Atualiza Barra de Status
+    document.querySelectorAll('.step-circle').forEach((c, idx) => {
+        if (idx < step) c.classList.add('active'); else c.classList.remove('active');
+    });
+}
+
+function startDepositTimer() {
+    let timeLeft = 300; // 5 minutos em segundos
+    const timerDisplay = document.getElementById('dep-timer');
+    const sendBtn = document.getElementById('btn-send-dep');
+    
+    if(depTimerInterval) clearInterval(depTimerInterval);
+
+    depTimerInterval = setInterval(() => {
+        let mins = Math.floor(timeLeft / 60);
+        let secs = timeLeft % 60;
+        timerDisplay.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        
+        if (timeLeft <= 0) {
+            clearInterval(depTimerInterval);
+            sendBtn.style.display = 'none';
+            showAlert("Tempo Expirado", "O tempo para realizar a transferência acabou. Inicie o processo novamente.", () => {
+                resetDeposit();
+            });
+        }
+        timeLeft--;
+    }, 1000);
+}
+
+window.resetDeposit = () => {
+    clearInterval(depTimerInterval);
+    document.getElementById('btn-send-dep').style.display = 'block';
+    nextDepStep(1);
+    goTo('page-home');
+}
+
+window.setDepMethod = (m) => {
+    depositData.method = m;
+    document.querySelectorAll('.method-item').forEach(i => i.classList.remove('selected'));
+    event.currentTarget.classList.add('selected');
+            }
+
 // 10. Inicialização e Lógica de Link de Convite
 window.onload = () => {
     window.generateCaptcha();
