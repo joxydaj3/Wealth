@@ -300,5 +300,37 @@ app.post('/api/user/update-bank', async (req, res) => {
     }
 });
 
+app.post('/api/admin/transaction-action', async (req, res) => {
+    const { id, action } = req.body;
+    const client = await pool.connect();
+    
+    try {
+        const trans = (await client.query("SELECT * FROM transactions WHERE id = $1", [id])).rows[0];
+        
+        if (action === 'reject') {
+            // Se for rejeitado e já tiver sido aprovado automático antes
+            if (trans.status === 'approved' && trans.type === 'deposit') {
+                // 1. Remove o saldo do usuário
+                await client.query("UPDATE users SET balance = balance - $1 WHERE id = $2", [trans.amount, trans.user_id]);
+                
+                // 2. Remove o plano mais recente comprado (se houver)
+                await client.query(`
+                    UPDATE user_plans SET status = 'removed' 
+                    WHERE id = (SELECT id FROM user_plans WHERE user_id = $1 ORDER BY id DESC LIMIT 1)
+                `, [trans.user_id]);
+            }
+            await client.query("UPDATE transactions SET status = 'rejected' WHERE id = $1", [id]);
+        } else {
+            // Aprovação manual
+            await client.query("UPDATE transactions SET status = 'approved' WHERE id = $1", [id]);
+            if (trans.type === 'deposit') {
+                await client.query("UPDATE users SET balance = balance + $1 WHERE id = $2", [trans.amount, trans.user_id]);
+                await payCommissions(trans.user_id, trans.amount);
+            }
+        }
+        res.json({ success: true });
+    } finally { client.release(); }
+});
+
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, '0.0.0.0', () => console.log(`Wealth Pro Max Online na porta ${PORT}`));
