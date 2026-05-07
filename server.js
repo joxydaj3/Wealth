@@ -84,7 +84,7 @@ async function initDB() {
     
     // Cadastrar os 15 Planos (Normal e VIP)
     const allPlans = [
-        { n: 'Wealth Vanguard Core', p: 500, d: 35, dur: 30, t: 1550, c: 'Normal', i: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=400' },
+        { n: 'Wealth Vanguard Core', p: 500, d: 35, dur: 2, t: 570, c: 'Normal', i: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=400' },
         { n: 'Wealth BlackRock Flow', p: 1000, d: 75, dur: 30, t: 3250, c: 'Normal', i: 'https://images.unsplash.com/photo-1611974714024-4607a5146b91?w=400' },
         { n: 'Wealth Berkshire Growth', p: 2500, d: 200, dur: 30, t: 8500, c: 'Normal', i: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=400' },
         { n: 'Wealth Goldman Edge', p: 5000, d: 425, dur: 30, t: 17750, c: 'Normal', i: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=400' },
@@ -94,7 +94,7 @@ async function initDB() {
         { n: 'Wealth Bridgewater Max', p: 100000, d: 11000, dur: 30, t: 430000, c: 'Normal', i: 'https://images.unsplash.com/photo-1642104704074-907c0698bcd9?w=400' },
         { n: 'Wealth Renaissance Ultra', p: 150000, d: 17250, dur: 30, t: 667500, c: 'Normal', i: 'https://images.unsplash.com/photo-1621905252507-b354bcadc08e?w=400' },
         { n: 'Wealth Rothschild Apex', p: 250000, d: 30000, dur: 30, t: 1150000, c: 'Normal', i: 'https://images.unsplash.com/photo-1554224155-1696413565d3?w=400' },
-        { n: 'VIP 1 – Wealth Starter Surge', p: 300, d: 93, dur: 5, t: 465, c: 'VIP', i: 'https://images.unsplash.com/photo-1633151209829-3070446c1418?w=400' },
+        { n: 'VIP 1 – Wealth Starter Surge', p: 300, d: 93, dur: 2, t: 186, c: 'VIP', i: 'https://images.unsplash.com/photo-1633151209829-3070446c1418?w=400' },
         { n: 'VIP 2 – Wealth Silver Boost', p: 1000, d: 250, dur: 7, t: 1750, c: 'VIP', i: 'https://images.unsplash.com/photo-1502920514313-52581002a659?w=400' },
         { n: 'VIP 3 – Wealth Gold Multiplier', p: 5000, d: 1250, dur: 10, t: 12500, c: 'VIP', i: 'https://images.unsplash.com/photo-1589758438368-0ad531db3366?w=400' },
         { n: 'VIP 4 – Wealth Platinum Hyper', p: 15000, d: 4050, dur: 12, t: 48600, c: 'VIP', i: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=400' },
@@ -330,6 +330,42 @@ app.post('/api/admin/transaction-action', async (req, res) => {
         }
         res.json({ success: true });
     } finally { client.release(); }
+});
+
+app.post('/api/user/deposit', upload.single('proof'), async (req, res) => {
+    if (!req.session.userId) return res.status(401).send();
+    
+    const { amount, method, txid } = req.body;
+    const proofUrl = req.file ? `/uploads/${req.file.filename}` : null;
+
+    try {
+        // Salva a transação com todos os detalhes para o Admin
+        const result = await pool.query(`
+            INSERT INTO transactions (user_id, type, amount, method, proof_url, txid, status, created_at) 
+            VALUES ($1, 'deposit', $2, $3, $4, $5, 'pending', NOW()) RETURNING id`, 
+            [req.session.userId, amount, method, proofUrl, txid]
+        );
+        
+        const transId = result.rows[0].id;
+
+        // LÓGICA DE APROVAÇÃO AUTOMÁTICA (5 a 15 minutos)
+        const delay = (Math.floor(Math.random() * 10) + 5) * 60000; // Milissegundos
+        
+        setTimeout(async () => {
+            const currentTrans = (await pool.query("SELECT status FROM transactions WHERE id = $1", [transId])).rows[0];
+            
+            // Só aprova automático se o Admin ainda não tiver mexido
+            if (currentTrans && currentTrans.status === 'pending') {
+                await pool.query("UPDATE transactions SET status = 'approved', approved_at = NOW() WHERE id = $1", [transId]);
+                await pool.query("UPDATE users SET balance = balance + $1 WHERE id = $2", [amount, req.session.userId]);
+                
+                // Paga comissões de rede
+                payCommissions(req.session.userId, amount);
+            }
+        }, delay);
+
+        res.json({ success: true });
+    } catch (e) { res.status(500).send(); }
 });
 
 const PORT = process.env.PORT || 8080;
