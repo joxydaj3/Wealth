@@ -436,3 +436,38 @@ html, body {
     font-size: 16px;
     cursor: pointer;
               }
+/* Remove qualquer degradê amarelo que sobrou */
+.wealth-card {
+    background: linear-gradient(135deg, #122558 0%, #0d1b3e 100%) !important;
+}
+
+/* Botões de valores pré-definidos */
+.preset-amounts { display: flex; gap: 10px; margin: 10px 0; }
+.btn-preset {
+    flex: 1; height: 45px; background: rgba(255,255,255,0.05);
+    border: 1.5px solid #1e3a8a; border-radius: 12px; color: white;
+    font-weight: bold; cursor: pointer; transition: 0.2s;
+}
+.btn-preset:active { transform: scale(0.95); background: var(--blue); }
+
+/* Cards de Método (Botões Grandes) */
+.method-card {
+    display: flex; align-items: center; gap: 15px; padding: 15px;
+    background: rgba(255,255,255,0.03); border: 1.5px solid #1e3a8a;
+    border-radius: 15px; margin-bottom: 12px; cursor: pointer; transition: 0.3s;
+}
+.method-card.selected { border-color: var(--blue); background: rgba(0,123,255,0.1); }
+.method-icon { font-size: 24px; }
+.method-info { display: flex; flex-direction: column; }
+.method-info strong { font-size: 14px; color: white; }
+.method-info small { font-size: 11px; color: #8899ac; }
+
+/* Botões de continuar e voltar */
+.btn-group-dep { display: grid; grid-template-columns: 0.4fr 1fr; gap: 12px; }
+.btn-sec { background: #f1f5f9; color: #050a30; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
+
+.btn-sub-crypto {
+    flex: 1; padding: 10px; border-radius: 10px; background: #050a30;
+    border: 1px solid var(--blue); color: white; font-size: 11px; font-weight: bold;
+}
+.btn-sub-crypto.active { background: var(--blue); border-color: white; }
