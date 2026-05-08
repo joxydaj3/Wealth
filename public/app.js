@@ -17,62 +17,45 @@ window.generateCaptcha = function() {
     if(rVal) rVal.innerText = code;
 }
 
-// 2. Navegação entre Páginas (SPA) - CORRIGIDA
+// 2. Navegação entre Páginas (SPA)
 window.goTo = function(pageId, btn) {
     const target = document.getElementById(pageId);
     
-    // Proteção contra tela branca: só muda se a página existir
+    // Se a página não existir no HTML, ele não faz nada (evita tela preta)
     if(!target) {
-        console.error("Erro: A seção com ID '" + pageId + "' não foi encontrada no HTML.");
+        console.error("Página não encontrada: " + pageId);
         return; 
     }
 
     // Esconde todas as telas
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     
-    // Mostra a tela selecionada
+    // Mostra a tela que você clicou
     target.classList.add('active');
 
-    // Persistência: Salva a página atual (exceto login/registro)
-    if(pageId !== 'page-login' && pageId !== 'page-register') {
-        localStorage.setItem('wealth_last_page', pageId);
-    }
-
-    // Gerencia o Menu Inferior (id deve ser 'main-nav')
+    // Gerencia o Menu Inferior
     const nav = document.getElementById('main-nav');
     if(nav) {
-        const isAuthPage = (pageId === 'page-login' || pageId === 'page-register');
-        if (isAuthPage) {
+        // Se for Login ou Registro, esconde o menu. Se for qualquer outra, MOSTRA.
+        if(pageId === 'page-login' || pageId === 'page-register') {
             nav.style.setProperty('display', 'none', 'important');
         } else {
             nav.style.setProperty('display', 'flex', 'important');
         }
     }
 
-    // Atualiza visual dos botões do menu
-    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    // Marca o botão do menu como azul (ativo)
     if(btn) {
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
     }
 
-    // Gatilhos de carregamento
-    if(pageId === 'page-home') {
-        if(window.loadUserData) window.loadUserData();
-        if(window.loadHomeData) window.loadHomeData(); 
-    }
-    if(pageId === 'page-projects') {
-        if(window.loadAllPlans) window.loadAllPlans();
-    }
-    if(pageId === 'page-profits') {
-        if(window.loadProfitClaims) window.loadProfitClaims();
-    }
-    if(pageId === 'page-account') {
-        if(window.startAccountSlider) window.startAccountSlider();
-    }
-    if(pageId === 'page-login' || pageId === 'page-register') {
-        if(window.generateCaptcha) window.generateCaptcha();
-    }
-                      }
+    // Gatilhos de carregamento para cada página
+    if(pageId === 'page-home') loadUserData();
+    if(pageId === 'page-projects' || pageId === 'page-vip-list') loadAllPlans();
+    if(pageId === 'page-profits') loadProfitClaims();
+    if(pageId === 'page-account') window.startAccountSlider();
+}
 
 // 3. Carregar Dados do Usuário (SOMA TOTAL, SEMANA, MÊS, EQUIPE E CONTA)
 window.loadUserData = async function() {
@@ -256,17 +239,44 @@ window.closeWealthModal = () => document.getElementById('wealth-modal').style.di
 window.handleLogin = async function() {
     const phone = document.getElementById('l_phone').value;
     const pass = document.getElementById('l_pass').value;
-    const capIn = document.getElementById('l_cap_in').value.toUpperCase();
+    const capInInput = document.getElementById('l_cap_in');
+    const capIn = capInInput ? capInInput.value.toUpperCase() : "";
 
     if(!phone || !pass) return showAlert("Atenção", "Preencha todos os campos.");
-    if(capIn !== currentCaptcha) { showAlert("Segurança", "Captcha incorreto."); return window.generateCaptcha(); }
+    if(capIn !== currentCaptcha) {
+        showAlert("Segurança", "Captcha incorreto.");
+        return window.generateCaptcha();
+    }
 
-    const res = await fetch('/api/login', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ phone, password: pass }) });
-    const data = await res.json();
-    if(data.success) {
-        if(data.role === 'admin') window.location.href = '/admin.html';
-        else { await loadUserData(); goTo('page-home'); }
-    } else showAlert("Erro", "Dados inválidos.");
+    try {
+        const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ phone, password: pass })
+        });
+        const data = await res.json();
+        
+        if(data.success) {
+            if(data.role === 'admin') {
+                window.location.href = '/admin.html';
+            } else {
+                // 1. Carrega os dados primeiro
+                await loadUserData();
+                
+                // 2. Mostra o menu de baixo ANTES de ir para a Home
+                const nav = document.getElementById('main-nav');
+                if(nav) nav.style.setProperty('display', 'flex', 'important');
+                
+                // 3. Vai para a Home
+                goTo('page-home');
+            }
+        } else {
+            showAlert("Erro", data.error || "Dados inválidos");
+            window.generateCaptcha();
+        }
+    } catch(e) { 
+        showAlert("Erro", "Falha na conexão com o servidor."); 
+    }
 }
 
 window.handleRegister = async function() {
