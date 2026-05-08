@@ -394,5 +394,25 @@ app.post('/api/user/deposit', upload.single('proof'), async (req, res) => {
     }
 });
 
+app.get('/api/user/transactions', async (req, res) => {
+    if (!req.session.userId) return res.status(401).send();
+    const { type } = req.query;
+    
+    try {
+        let query = "SELECT * FROM transactions WHERE user_id = $1";
+        let params = [req.session.userId];
+
+        // Se o tipo for 'all', não filtramos. Se for outro, filtramos.
+        if (type && type !== 'all') {
+            query += " AND type = $2";
+            params.push(type);
+        }
+        
+        query += " ORDER BY created_at DESC LIMIT 50";
+        const result = await pool.query(query, params);
+        res.json(result.rows);
+    } catch (e) { res.status(500).json([]); }
+});
+
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, '0.0.0.0', () => console.log(`Wealth Pro Max Online na porta ${PORT}`));
