@@ -119,8 +119,8 @@
             </div>
         </section>
 
-        <!-- TELA: DEPÓSITO -->
-        <section id="page-deposit" class="page">
+        <!-- TELA: DEPÓSITO (ESTRUTURA CORRIGIDA) -->
+<section id="page-deposit" class="page">
     <div class="header-main">
         <button class="btn-back" onclick="resetDeposit()">← Voltar</button>
         <h3>Fazer Depósito</h3>
@@ -149,7 +149,7 @@
             </div>
             <p style="margin: 15px 0 10px;">✍️ Ou insira o valor</p>
             <div class="input-with-tag">
-                <input type="number" id="in-dep-amount" class="input-tiny" style="margin-bottom: 0;" placeholder="0.00">
+                <input type="number" id="in-dep-amount" class="input-tiny" style="margin-bottom: 0;" placeholder="Mínimo MT500.00">
                 <span style="color: #8899ac; font-weight: bold; margin-left: 10px;">MZN</span>
             </div>
             <button class="btn btn-blue" style="margin-top:25px; height: 50px; font-size: 16px;" onclick="nextDepStep(2)">Continuar para o Passo 2 →</button>
@@ -201,47 +201,46 @@
         </div>
     </div>
 
-    <!-- PASSO 3: FINALIZAR (REVISADO) -->
-<div id="dep-step-content-3" class="dep-container">
-    <div class="wealth-card">
-        <div class="timer-box">⏳ Expira em: <span id="dep-timer">05:00</span></div>
-        
-        <div class="final-details-card">
-            <div>Valor a pagar: <b id="final-amount">MT 0.00</b></div>
-            <div id="usd-display" style="display:none;"><small>Câmbio:</small> <b id="crypto-usd-val">0.00 USDT</b></div>
-            <p>Método: <b id="final-method" style="color: var(--blue);">...</b></p>
-        </div>
-
-        <div class="instr-card">
-            <p id="instr-title">⚡ Envie para:</p>
-            <div class="copy-box">
-                <span id="dest-label">Número:</span> <b id="dest-address">...</b>
-                <button class="btn-copy-mini" onclick="copyText(document.getElementById('dest-address').innerText)">📋</button>
+    <!-- PASSO 3: FINALIZAR (CORRIGIDO PARA DENTRO DA SECTION) -->
+    <div id="dep-step-content-3" class="dep-container">
+        <div class="wealth-card" style="background: var(--card) !important;">
+            <div class="timer-box">⏳ Expira em: <span id="dep-timer">05:00</span></div>
+            
+            <div class="final-details-card">
+                <div>Valor a pagar: <b id="final-amount">MT 0.00</b></div>
+                <div id="usd-display" style="display:none;"><small>Câmbio:</small> <b id="crypto-usd-val">0.00 USDT</b></div>
+                <p>Método: <b id="final-method" style="color: var(--blue);">...</b></p>
             </div>
-            <p id="dest-name-container">Titular: <b id="dest-name">...</b></p>
-        </div>
 
-        <!-- Instruções Pequenas -->
-        <p style="font-size: 10px; color: #8899ac; margin-bottom: 5px;">
-            ℹ️ Após transferir, copie o <b>ID/Referência</b> da mensagem de confirmação e cole abaixo. Tire um print do comprovante.
-        </p>
-        
-        <input type="text" id="dep-txid" class="input-tiny" placeholder="ID da Transação (Referência)">
-        
-        <div class="upload-area" id="upload-box" onclick="document.getElementById('dep-file').click()">
-            <input type="file" id="dep-file" hidden accept="image/*" onchange="previewFile()">
-            <div id="upload-label">📸 Toque para carregar comprovante</div>
-            <!-- Preview da Foto -->
-            <img id="img-preview" style="display:none; width: 100%; height: 100px; object-fit: contain; margin-top: 10px;">
-        </div>
+            <div class="instr-card">
+                <p id="instr-title">⚡ Envie para:</p>
+                <div class="copy-box" style="display: flex; justify-content: space-between; align-items: center; background: #050a30; padding: 10px; border-radius: 10px;">
+                    <div><span id="dest-label">Número:</span> <b id="dest-address">...</b></div>
+                    <button class="btn-copy-mini" onclick="copyText(document.getElementById('dest-address').innerText)">📋</button>
+                </div>
+                <p id="dest-name-container">Titular: <b id="dest-name">...</b></p>
+            </div>
 
-        <div class="btn-group-dep">
-            <button class="btn-action-sm btn-back-new" onclick="nextDepStep(2)">Vortar</button>
-            <button class="btn-action-sm btn-green" id="btn-send-dep" onclick="submitDeposit()">🚀 Enviar Depósito</button>
+            <p style="font-size: 10px; color: #8899ac; margin-bottom: 5px; margin-top: 15px;">
+                ℹ️ Após transferir, copie o <b>ID/Referência</b> da mensagem de confirmação e cole abaixo.
+            </p>
+            
+            <input type="text" id="dep-txid" class="input-tiny" placeholder="ID da Transação (Referência)">
+            
+            <div class="upload-area" id="upload-box" onclick="document.getElementById('dep-file').click()" style="border: 2px dashed #1e3a8a; padding: 15px; border-radius: 12px; text-align: center; margin-top: 10px;">
+                <input type="file" id="dep-file" hidden accept="image/*" onchange="previewFile()">
+                <div id="upload-label" style="font-size: 12px; color: #8899ac;">📸 Carregar Comprovativo</div>
+                <img id="img-preview" style="display:none; width: 100%; height: 100px; object-fit: contain; margin-top: 10px;">
+            </div>
+
+            <div class="btn-group-dep" style="margin-top: 20px;">
+                <button class="btn-sec" onclick="nextDepStep(2)">Vortar</button>
+                <button class="btn btn-green" id="btn-send-dep" onclick="submitDeposit()">🚀 Enviar Depósito</button>
+            </div>
         </div>
     </div>
-</div>
-
+</section> <!-- FECHAMENTO CORRETO DA SECTION -->
+        
 <!-- MODAL DE SUCESSO 15S (Colocar no final do body) -->
 <div id="success-dep-modal" class="modal-overlay">
     <div class="modal-box success-popup">
