@@ -616,6 +616,76 @@ window.closeSuccessModal = () => {
     resetDeposit(); // Volta para a home
 }
 
+// --- ROTA DE HISTÓRICO COMPLETO ---
+app.get('/api/user/transactions', async (req, res) => {
+    if (!req.session.userId) return res.status(401).send();
+    const { type } = req.query; // 'all', 'deposit', 'withdraw', 'profit', 'bonus', 'referral'
+    
+    try {
+        let query = "SELECT * FROM transactions WHERE user_id = $1";
+        let params = [req.session.userId];
+
+        if (type && type !== 'all') {
+            query += " AND type = $2";
+            params.push(type);
+        }
+        
+        query += " ORDER BY created_at DESC";
+        const result = await pool.query(query, params);
+        res.json(result.rows);
+    } catch (e) { res.status(500).send(); }
+});
+
+// --- CARREGAR HISTÓRICO COMPLETO ---
+window.loadFullHistory = async function(type = 'all', btn) {
+    // UI: Muda cor do botão ativo
+    if(btn) {
+        document.querySelectorAll('.tab-item-sm').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    try {
+        // Atualiza o resumo no topo puxando do usuário atual
+        document.getElementById('hist-total-earned').innerText = parseFloat(window.currentUser.total_earned || 0).toFixed(2);
+        document.getElementById('hist-total-with').innerText = parseFloat(window.currentUser.total_with || 0).toFixed(2);
+
+        const res = await fetch(`/api/user/transactions?type=${type}`);
+        const data = await res.json();
+        const container = document.getElementById('full-history-list');
+        
+        container.innerHTML = data.length ? "" : "<p style='text-align:center; padding:50px; color:#8899ac;'>Nenhum registo encontrado.</p>";
+        
+        data.forEach(t => {
+            const date = new Date(t.created_at).toLocaleDateString('pt-MZ');
+            const time = new Date(t.created_at).toLocaleTimeString('pt-MZ', {hour: '2-digit', minute:'2-digit'});
+            
+            container.innerHTML += `
+                <div class="hist-card ${t.type}">
+                    <div>
+                        <strong style="display:block; text-transform: capitalize;">${t.type.replace('profit','Lucro').replace('bonus','Check-in').replace('referral','Convite')}</strong>
+                        <small style="color:#8899ac">${date} às ${time}</small>
+                    </div>
+                    <div style="text-align:right">
+                        <b style="color:${['withdraw','plan_buy'].includes(t.type) ? 'var(--red)' : 'var(--green)'}">
+                            ${['withdraw','plan_buy'].includes(t.type) ? '-' : '+'} MT ${parseFloat(t.amount).toFixed(2)}
+                        </b>
+                        <small style="display:block; font-size:9px; color:#8899ac">${t.status.toUpperCase()}</small>
+                    </div>
+                </div>
+            `;
+        });
+    } catch (e) { console.error(e); }
+}
+
+// --- AJUSTE NA FUNÇÃO GOTO ---
+// Garante que os planos carreguem na Home e nos Projetos
+const originalGoToFix = window.goTo;
+window.goTo = function(pageId, btn) {
+    if(pageId === 'page-history') loadFullHistory('all');
+    if(pageId === 'page-home') loadHomeData(); // Força recarregar planos na home
+    originalGoToFix(pageId, btn);
+}
+
 // 10. Inicialização e Lógica de Link de Convite
 window.onload = () => {
     window.generateCaptcha();
