@@ -26,32 +26,34 @@ html, body {
 }
 
 /* Sistema de Navegação SPA (Páginas) - CORRIGIDO */
+/* --- LIMPEZA DE NAVEGAÇÃO NO CSS --- */
 .page { 
     display: none; 
-    padding: 20px; 
-    padding-bottom: 100px !important; /* Aumentado para o texto final aparecer bem */
-    animation: fadeIn 0.3s ease; 
+    width: 100%; 
+    min-height: 100vh; 
     background-color: var(--bg);
-    width: 100%;
-    min-height: 100vh;
+    position: relative; /* Mudado de absolute para relative */
+    padding-bottom: 60px !important; /* Espaço para o menu não tapar o texto */
 }
 
+/* Essa é a única regra que deve mandar na visibilidade */
 .page.active { 
     display: block !important; 
 }
 
-/* Barra de Navegação - Ajuste de prioridade */
+/* Garante que o menu de baixo esteja sempre visível e por cima de tudo */
 .bottom-nav { 
     position: fixed; 
     bottom: 0; 
     left: 0;
     width: 100%; 
+    height: 70px;
     background: #0b1437; 
-    display: flex; 
+    display: none; /* Começa escondido no Login */
     justify-content: space-around; 
-    padding: 12px 0; 
+    align-items: center;
     border-top: 1px solid rgba(255,255,255,0.1); 
-    z-index: 9999 !important; /* Garantia que fica sempre no topo */
+    z-index: 99999 !important; /* Valor muito alto para não sumir */
 }
 
 /* =========================================
