@@ -11,30 +11,36 @@
     <div id="app">
 
         <!-- TELA: LOGIN -->
-        <section id="page-login" class="page active">
-            <div class="auth-container">
-                <div class="auth-header">
-                    <h1>WEALTH</h1>
-                    <p class="auth-subtitle">Bem-vindo de volta! Faça login para gerir os seus ativos e lucros diários.</p>
-                </div>
-                <div class="form-box">
-                    <input type="text" id="l_phone" placeholder="Número de Telefone" class="input-tiny">
-                    <input type="password" id="l_pass" placeholder="Senha" class="input-tiny">
-                    <div class="captcha-box">
-                        <div id="l_cap_val" class="captcha-display">----</div>
-                        <input type="text" id="l_cap_in" placeholder="Código" class="input-captcha">
-                    </div>
-                    <button class="btn btn-blue" onclick="handleLogin()">Aceder Conta</button>
-                    <p class="auth-link" onclick="goTo('page-register')">Novo por aqui? <span>Criar nova conta</span></p>
-                </div>
+<section id="page-login" class="page active">
+    <div class="auth-container">
+        <div class="auth-header">
+            <h1>WEALTH</h1>
+            <p class="auth-subtitle">Bem-vindo de volta! Faça login para gerir os seus ativos e lucros diários.</p>
+        </div>
+        <div class="form-box">
+            <!-- IDs: l_phone e l_pass -->
+            <input type="text" id="l_phone" placeholder="Número de Telefone" class="input-tiny">
+            <input type="password" id="l_pass" placeholder="Senha" class="input-tiny">
+            
+            <div class="captcha-box">
+                <!-- ID: l_cap_val -->
+                <div id="l_cap_val" class="captcha-display">----</div>
+                <!-- ID: l_cap_in -->
+                <input type="text" id="l_cap_in" placeholder="Código" class="input-captcha">
             </div>
-        </section>
+
+            <!-- Onclick: handleLogin() -->
+            <button class="btn btn-blue" onclick="handleLogin()">Aceder Conta</button>
+            <p class="auth-link" onclick="goTo('page-register')">Novo por aqui? <span>Criar nova conta</span></p>
+        </div>
+    </div>
+</section>
 
         <!-- TELA: REGISTRO -->
         <section id="page-register" class="page">
             <div class="auth-container">
                 <div class="auth-header">
-                    <h2>Criar Conta</h2>
+                    <h2>Wealth</h2>
                     <p class="auth-subtitle">Crie sua conta profissional e comece a rentabilizar o seu capital com segurança.</p>
                 </div>
                 <div class="form-box">
