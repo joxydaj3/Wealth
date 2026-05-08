@@ -70,11 +70,20 @@ html, body {
 }
 
 /* Captcha Dinâmico */
-.captcha-box { display: flex; gap: 10px; margin-bottom: 15px; }
+.captcha-box { display: flex; gap: 8px; margin-bottom: 10px; }
 .captcha-display {
-    flex: 1; height: 45px; background: #0b1437; border: 1px dashed var(--blue);
-    border-radius: 10px; display: flex; align-items: center; justify-content: center;
-    font-weight: bold; letter-spacing: 5px; color: var(--green); font-size: 18px;
+    flex: 1;
+    height: 45px;
+    background: #0b1437;
+    border: 1px dashed var(--blue);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    letter-spacing: 5px;
+    color: var(--green); /* Cor verde neon para os números */
+    font-size: 18px;
 }
 .input-captcha { width: 100px; height: 45px; background: rgba(255,255,255,0.05); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); color: white; text-align: center; }
 
