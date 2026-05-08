@@ -168,66 +168,76 @@ window.loadUserData = async function() {
 }
 
 // 4. Carregar Planos e Anúncios na Home
-window.loadHomeData = async function() {
-    try {
-        const res = await fetch('/api/plans');
-        window.allPlans = await res.json();
-        
-        const container = document.getElementById('beginner-plans');
-        if(container) {
-            let html = "";
-            const homePlans = [
-                ...window.allPlans.filter(p => p.category === 'Normal').slice(0, 1),
-                ...window.allPlans.filter(p => p.category === 'VIP').slice(0, 1)
-            ];
-            homePlans.forEach(p => html += createPlanCard(p));
-            container.innerHTML = html;
-        }
-
-        const adsRes = await fetch('/api/admin/list-ads');
-        const ads = await adsRes.json();
-        const adsContainer = document.getElementById('mini-history'); 
-        if(ads.length > 0 && adsContainer) {
-            adsContainer.innerHTML = `<div class="wealth-card" style="background:rgba(0,123,255,0.1); font-size:12px; border-left:4px solid var(--blue); padding:10px">📢 <b>AVISO:</b> ${ads[0].message}</div>`;
-        }
-    } catch(e) { console.error(e); }
-}
-
-// 5. Carregar TODOS os Planos (Página de Projetos)
+// Carregar Planos na Home e Projetos
 window.loadAllPlans = async function() {
     try {
         const res = await fetch('/api/plans');
-        window.allPlans = await res.json();
+        const plans = await res.json();
+        window.allPlans = plans; // Guarda na memória
+
         const normalList = document.getElementById('plans_normal_list');
         const vipList = document.getElementById('plans_vip_list');
+        const homeList = document.getElementById('beginner-plans');
 
-        if(normalList) {
-            let html = "";
-            window.allPlans.filter(p => p.category === 'Normal').forEach(p => html += createPlanCard(p));
-            normalList.innerHTML = html || "<p style='text-align:center; color:grey'>Nenhum plano disponível.</p>";
-        }
-        if(vipList) {
-            let html = "";
-            window.allPlans.filter(p => p.category === 'VIP').forEach(p => html += createPlanCard(p));
-            vipList.innerHTML = html || "<p style='text-align:center; color:grey'>Nenhum plano VIP disponível.</p>";
-        }
-    } catch(e) { console.error(e); }
+        if(normalList) normalList.innerHTML = "";
+        if(vipList) vipList.innerHTML = "";
+        if(homeList) homeList.innerHTML = "";
+
+        plans.forEach(p => {
+            const card = createPlanCard(p);
+            const category = (p.category || 'Normal').toUpperCase();
+
+            // 1. Preenche a página de Projetos
+            if (category === 'VIP' && vipList) vipList.innerHTML += card;
+            else if (normalList) normalList.innerHTML += card;
+
+            // 2. Preenche a Home (mostra os 2 primeiros planos)
+            if (homeList && plans.indexOf(p) < 2) homeList.innerHTML += card;
+        });
+
+    } catch(e) { console.error("Erro ao carregar planos", e); }
 }
 
-function createPlanCard(p) {
-    const totalProfit = (parseFloat(p.daily_profit) * parseInt(p.duration)).toFixed(2);
-    const totalGain = (parseFloat(p.price) + parseFloat(totalProfit)).toFixed(2);
-    return `
-    <div class="plan-mini-card ${p.category === 'VIP' ? 'vip-card' : ''}">
-        <div class="plan-info-left">
-            <h5>${p.name}</h5>
-            <p>Compra: <b>MT ${p.price}</b> | Dias: <b>${p.duration}</b></p>
-            <p>Diário: <b>MT ${p.daily_profit}</b> | Ganho: <b>MT ${totalProfit}</b></p>
-            <p>Total + Capital: <b>MT ${totalGain}</b></p>
-            <button class="btn-buy-mini" onclick="handleBuyPlan(${p.id}, '${p.category}')">INVESTIR AGORA</button>
-        </div>
-        <img src="${p.image_url || 'https://via.placeholder.com/80'}" class="plan-img-right">
-    </div>`;
+// Carregar Histórico com correção nos botões
+window.loadFullHistory = async function(type = 'all', btn) {
+    if(btn) {
+        document.querySelectorAll('.tab-item-sm').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    try {
+        const res = await fetch(`/api/user/transactions?type=${type}`);
+        const data = await res.json();
+        const container = document.getElementById('full-history-list');
+        
+        if(!container) return;
+        container.innerHTML = data.length ? "" : "<p style='text-align:center; padding:50px; color:#8899ac;'>Nenhum registo de "+type+" encontrado.</p>";
+        
+        data.forEach(t => {
+            const isNegative = ['withdraw', 'plan_buy'].includes(t.type);
+            const typeLabels = {
+                'deposit': 'Depósito',
+                'withdraw': 'Saque',
+                'profit': 'Lucro Plano',
+                'bonus': 'Check-in',
+                'referral': 'Convite'
+            };
+
+            container.innerHTML += `
+                <div class="hist-card ${t.type}">
+                    <div>
+                        <strong>${typeLabels[t.type] || t.type}</strong>
+                        <small style="display:block; color:#8899ac">${new Date(t.created_at).toLocaleString('pt-MZ')}</small>
+                    </div>
+                    <div style="text-align:right">
+                        <b style="color:${isNegative ? '#ff4d4d' : '#00d084'}">
+                            ${isNegative ? '-' : '+'} MT ${parseFloat(t.amount).toFixed(2)}
+                        </b>
+                        <small style="display:block; font-size:10px; opacity:0.7">${t.status.toUpperCase()}</small>
+                    </div>
+                </div>`;
+        });
+    } catch (e) { console.error(e); }
 }
 
 // 6. Página de Lucros (Colheita Diária)
