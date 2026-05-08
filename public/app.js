@@ -20,47 +20,66 @@ window.generateCaptcha = function() {
     if(rVal) rVal.innerText = code;
 }
 
-// 2. FUNÇÃO DE LOGIN (Blindada)
+// 2. FUNÇÃO DE LOGIN (Blindada e Organizada)
 window.handleLogin = async function() {
     const phone = document.getElementById('l_phone').value;
     const pass = document.getElementById('l_pass').value;
-    const captchaInput = document.getElementById('l_cap_in').value.toUpperCase();
+    const capInElement = document.getElementById('l_cap_in');
+    const captchaInput = capInElement ? capInElement.value.toUpperCase() : "";
 
+    // 1. Validação de Campos Vazios
     if(!phone || !pass) {
-        return showAlert("Atenção", "Preencha telefone e senha.");
+        return showAlert("Atenção", "Por favor, preencha o número de telefone e a senha.");
     }
 
+    // 2. Validação do Captcha
     if(captchaInput !== currentCaptcha) {
         showAlert("Erro", "Código de verificação (Captcha) incorreto.");
-        window.generateCaptcha(); // Muda o código se errar
+        window.generateCaptcha(); // Muda o código para segurança
         return;
     }
 
     try {
+        // 3. Chamada para o Servidor
         const res = await fetch('/api/login', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ phone, password: pass })
         });
+        
         const data = await res.json();
 
         if(data.success) {
-        if(data.role === 'admin') {
-            window.location.href = '/admin.html';
-        } else {
-            // 1. Carrega dados do usuário
-            await window.loadUserData();
-            
-            // 2. FORÇA o menu a aparecer antes de mudar de tela
-            const nav = document.getElementById('main-nav');
-            if(nav) {
-                nav.style.display = 'flex';
-                nav.classList.add('show-menu');
-            }
+            if(data.role === 'admin') {
+                // Se for Admin, vai para a página de administração
+                window.location.href = '/admin.html';
+            } else {
+                // Se for Usuário Comum:
+                
+                // A. Carrega os dados (Saldo, Nome, etc)
+                await window.loadUserData();
+                
+                // B. FORÇA o menu de navegação a aparecer
+                const nav = document.getElementById('main-nav');
+                if(nav) {
+                    nav.style.display = 'flex';
+                    nav.classList.add('show-menu');
+                }
 
-            // 3. Vai para a Home
-            window.goTo('page-home');
+                // C. Entra na Dashboard (Home)
+                window.goTo('page-home');
+            }
+        } else {
+            // Caso o servidor retorne erro (senha errada, etc)
+            showAlert("Erro", data.error || "Telefone ou senha incorretos.");
+            window.generateCaptcha();
         }
+
+    } catch(e) {
+        // Caso haja falha de internet ou servidor fora do ar
+        showAlert("Erro", "Falha ao conectar com o servidor. Verifique sua internet.");
+        console.error("Erro no login:", e);
+    }
         }
 
 // 3. COMANDO QUE FAZ TUDO ACORDAR ASSIM QUE O SITE ABRE
