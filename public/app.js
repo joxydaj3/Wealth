@@ -3,7 +3,7 @@ window.allPlans = [];
 window.currentUser = null;
 let currentSlide = 0;
 
-// 1. Gerador de Captcha Dinâmico
+// 1. GERAR CAPTCHA (Forçado)
 window.generateCaptcha = function() {
     const chars = "0123456789ABCDEFGHJKLMNPQRSTUVWXYZ";
     let code = "";
@@ -11,11 +11,60 @@ window.generateCaptcha = function() {
         code += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     currentCaptcha = code;
+    
+    // Procura a ID no HTML. Se achar, coloca o código.
     const lVal = document.getElementById('l_cap_val');
     const rVal = document.getElementById('r_cap_val');
+    
     if(lVal) lVal.innerText = code;
     if(rVal) rVal.innerText = code;
 }
+
+// 2. FUNÇÃO DE LOGIN (Blindada)
+window.handleLogin = async function() {
+    const phone = document.getElementById('l_phone').value;
+    const pass = document.getElementById('l_pass').value;
+    const captchaInput = document.getElementById('l_cap_in').value.toUpperCase();
+
+    if(!phone || !pass) {
+        return showAlert("Atenção", "Preencha telefone e senha.");
+    }
+
+    if(captchaInput !== currentCaptcha) {
+        showAlert("Erro", "Código de verificação (Captcha) incorreto.");
+        window.generateCaptcha(); // Muda o código se errar
+        return;
+    }
+
+    try {
+        const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ phone, password: pass })
+        });
+        const data = await res.json();
+
+        if(data.success) {
+            if(data.role === 'admin') {
+                window.location.href = '/admin.html';
+            } else {
+                await loadUserData();
+                goTo('page-home');
+            }
+        } else {
+            showAlert("Erro", data.error || "Dados incorretos.");
+            window.generateCaptcha();
+        }
+    } catch(e) {
+        showAlert("Erro", "Falha ao conectar com o servidor.");
+    }
+}
+
+// 3. COMANDO QUE FAZ TUDO ACORDAR ASSIM QUE O SITE ABRE
+window.onload = () => {
+    window.generateCaptcha();
+    // Outras inicializações...
+};
 
 // 2. Navegação entre Páginas (SPA)
 window.goTo = function(pageId, btn) {
@@ -242,42 +291,6 @@ window.showAlert = function(title, text, confirmCallback = null) {
 }
 
 window.closeWealthModal = () => document.getElementById('wealth-modal').style.display = 'none';
-
-window.handleLogin = async function() {
-    const phone = document.getElementById('l_phone').value;
-    const pass = document.getElementById('l_pass').value;
-    const capInInput = document.getElementById('l_cap_in');
-    const capIn = capInInput ? capInInput.value.toUpperCase() : "";
-
-    if(!phone || !pass) return showAlert("Atenção", "Preencha todos os campos.");
-    if(capIn !== currentCaptcha) {
-        showAlert("Segurança", "Captcha incorreto.");
-        return window.generateCaptcha();
-    }
-
-    try {
-        const res = await fetch('/api/login', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ phone, password: pass })
-        });
-        const data = await res.json();
-        
-        if(data.success) {
-    if(data.role === 'admin') {
-        window.location.href = '/admin.html';
-    } else {
-        // Carrega dados
-        await window.loadUserData();
-        
-        // ACORDA O MENU: Procura o menu e força ele a aparecer antes de mudar de tela
-        const nav = document.getElementById('main-nav');
-        if(nav) nav.style.display = 'flex'; 
-
-        // Agora sim, vai para a Home
-        window.goTo('page-home');
-    }
-        }
 
 window.handleRegister = async function() {
     const phone = document.getElementById('r_phone').value;
