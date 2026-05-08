@@ -198,8 +198,15 @@ app.get('/api/user/data', async (req, res) => {
 });
 
 app.get('/api/plans', async (req, res) => {
-    const plans = await pool.query("SELECT * FROM plans WHERE active = 1 ORDER BY price ASC");
-    res.json(plans.rows);
+    try {
+        const plans = await pool.query("SELECT * FROM plans WHERE active = 1 ORDER BY price ASC");
+        // Garantia: Se a categoria vier vazia do banco, marcamos como 'Normal'
+        const rows = plans.rows.map(p => ({
+            ...p,
+            category: p.category || 'Normal'
+        }));
+        res.json(rows);
+    } catch (e) { res.status(500).json([]); }
 });
 
 app.post('/api/user/buy-plan', async (req, res) => {
