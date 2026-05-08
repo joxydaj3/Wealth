@@ -25,21 +25,34 @@ html, body {
     min-height: 100vh;
 }
 
-/* Sistema de Navegação SPA (Páginas) */
+/* Sistema de Navegação SPA (Páginas) - CORRIGIDO */
 .page { 
-    display: none !important; 
+    display: none; 
     padding: 20px; 
-    padding-bottom: 60px !important; /* Espaço extra para o texto no final aparecer */
+    padding-bottom: 100px !important; /* Aumentado para o texto final aparecer bem */
     animation: fadeIn 0.3s ease; 
     background-color: var(--bg);
+    width: 100%;
+    min-height: 100vh;
 }
 
 .page.active { 
     display: block !important; 
 }
 
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+/* Barra de Navegação - Ajuste de prioridade */
+.bottom-nav { 
+    position: fixed; 
+    bottom: 0; 
+    left: 0;
+    width: 100%; 
+    background: #0b1437; 
+    display: flex; 
+    justify-content: space-around; 
+    padding: 12px 0; 
+    border-top: 1px solid rgba(255,255,255,0.1); 
+    z-index: 9999 !important; /* Garantia que fica sempre no topo */
+}
 
 /* =========================================
    2. FORMULÁRIOS E AUTENTICAÇÃO (LOGIN/REG)
@@ -360,14 +373,6 @@ html, body {
 
 .btn-modal-prim { flex: 1; background: var(--blue); border: none; padding: 12px; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; }
 .btn-modal-sec { flex: 1; background: rgba(255,255,255,0.05); border: none; padding: 12px; border-radius: 10px; color: white; cursor: pointer; }
-
-.bottom-nav { 
-    position: fixed; bottom: 0; width: 100%; background: #0b1437; 
-    display: flex; justify-content: space-around; padding: 12px 0; 
-    border-top: 1px solid rgba(255,255,255,0.1); z-index: 998;
-}
-.nav-item { font-size: 10px; color: #6e84ab; text-align: center; cursor: pointer; }
-.nav-item.active { color: white; font-weight: bold; }
 
 /* Progress Bar Steps */
 .dep-steps-bar { display: flex; align-items: center; justify-content: center; margin: 20px 0; }
