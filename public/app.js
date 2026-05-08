@@ -17,41 +17,62 @@ window.generateCaptcha = function() {
     if(rVal) rVal.innerText = code;
 }
 
-// 2. Navegação entre Páginas (SPA)
+// 2. Navegação entre Páginas (SPA) - CORRIGIDA
 window.goTo = function(pageId, btn) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     const target = document.getElementById(pageId);
-    if(target) target.classList.add('active');
+    
+    // Proteção contra tela branca: só muda se a página existir
+    if(!target) {
+        console.error("Erro: A seção com ID '" + pageId + "' não foi encontrada no HTML.");
+        return; 
+    }
+
+    // Esconde todas as telas
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    
+    // Mostra a tela selecionada
+    target.classList.add('active');
 
     // Persistência: Salva a página atual (exceto login/registro)
     if(pageId !== 'page-login' && pageId !== 'page-register') {
         localStorage.setItem('wealth_last_page', pageId);
     }
 
+    // Gerencia o Menu Inferior (id deve ser 'main-nav')
     const nav = document.getElementById('main-nav');
-    const isAuthPage = (pageId === 'page-login' || pageId === 'page-register');
-    if(nav) nav.style.display = isAuthPage ? 'none' : 'flex';
+    if(nav) {
+        const isAuthPage = (pageId === 'page-login' || pageId === 'page-register');
+        if (isAuthPage) {
+            nav.style.setProperty('display', 'none', 'important');
+        } else {
+            nav.style.setProperty('display', 'flex', 'important');
+        }
+    }
 
+    // Atualiza visual dos botões do menu
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
     if(btn) {
-        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
     }
 
+    // Gatilhos de carregamento
     if(pageId === 'page-home') {
-        window.loadUserData();
-        window.loadHomeData(); 
+        if(window.loadUserData) window.loadUserData();
+        if(window.loadHomeData) window.loadHomeData(); 
     }
-    if(pageId === 'page-projects' || pageId === 'page-vip-list') {
-        window.loadAllPlans();
+    if(pageId === 'page-projects') {
+        if(window.loadAllPlans) window.loadAllPlans();
     }
     if(pageId === 'page-profits') {
-        window.loadProfitClaims();
+        if(window.loadProfitClaims) window.loadProfitClaims();
     }
     if(pageId === 'page-account') {
-        window.startAccountSlider();
+        if(window.startAccountSlider) window.startAccountSlider();
     }
-    if(isAuthPage) window.generateCaptcha();
-}
+    if(pageId === 'page-login' || pageId === 'page-register') {
+        if(window.generateCaptcha) window.generateCaptcha();
+    }
+                      }
 
 // 3. Carregar Dados do Usuário (SOMA TOTAL, SEMANA, MÊS, EQUIPE E CONTA)
 window.loadUserData = async function() {
