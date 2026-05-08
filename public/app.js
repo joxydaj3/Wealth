@@ -19,43 +19,50 @@ window.generateCaptcha = function() {
 
 // 2. Navegação entre Páginas (SPA)
 window.goTo = function(pageId, btn) {
+    console.log("Tentando ir para:", pageId); // Isso ajuda a ver erros no navegador
+
     const target = document.getElementById(pageId);
-    
-    // Se a página não existir no HTML, ele não faz nada (evita tela preta)
-    if(!target) {
-        console.error("Página não encontrada: " + pageId);
-        return; 
+    const nav = document.getElementById('main-nav');
+
+    // 1. Verificação de Segurança
+    if (!target) {
+        alert("Erro técnico: A página " + pageId + " não existe no seu HTML. Verifique os nomes das IDs.");
+        return;
     }
 
-    // Esconde todas as telas
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    
-    // Mostra a tela que você clicou
-    target.classList.add('active');
+    // 2. Esconde todas as páginas e remove o 'active'
+    document.querySelectorAll('.page').forEach(p => {
+        p.classList.remove('active');
+        p.style.display = 'none';
+    });
 
-    // Gerencia o Menu Inferior
-    const nav = document.getElementById('main-nav');
-    if(nav) {
-        // Se for Login ou Registro, esconde o menu. Se for qualquer outra, MOSTRA.
-        if(pageId === 'page-login' || pageId === 'page-register') {
-            nav.style.setProperty('display', 'none', 'important');
+    // 3. Mostra a página alvo
+    target.classList.add('active');
+    target.style.display = 'block';
+
+    // 4. Lógica do Menu Inferior (Nav)
+    if (nav) {
+        if (pageId === 'page-login' || pageId === 'page-register') {
+            nav.style.display = 'none';
         } else {
-            nav.style.setProperty('display', 'flex', 'important');
+            nav.style.display = 'flex'; // FORÇA o menu a aparecer
         }
     }
 
-    // Marca o botão do menu como azul (ativo)
-    if(btn) {
-        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    // 5. Atualiza as cores dos botões do menu
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+
+    if (btn) {
         btn.classList.add('active');
     }
 
-    // Gatilhos de carregamento para cada página
-    if(pageId === 'page-home') loadUserData();
-    if(pageId === 'page-projects' || pageId === 'page-vip-list') loadAllPlans();
-    if(pageId === 'page-profits') loadProfitClaims();
-    if(pageId === 'page-account') window.startAccountSlider();
-}
+    // 6. Carregamento de dados (Gatilhos)
+    if (pageId === 'page-home') window.loadUserData();
+    if (pageId === 'page-projects') window.loadAllPlans();
+    if (pageId === 'page-profits') window.loadProfitClaims();
+        }
 
 // 3. Carregar Dados do Usuário (SOMA TOTAL, SEMANA, MÊS, EQUIPE E CONTA)
 window.loadUserData = async function() {
@@ -257,27 +264,20 @@ window.handleLogin = async function() {
         const data = await res.json();
         
         if(data.success) {
-            if(data.role === 'admin') {
-                window.location.href = '/admin.html';
-            } else {
-                // 1. Carrega os dados primeiro
-                await loadUserData();
-                
-                // 2. Mostra o menu de baixo ANTES de ir para a Home
-                const nav = document.getElementById('main-nav');
-                if(nav) nav.style.setProperty('display', 'flex', 'important');
-                
-                // 3. Vai para a Home
-                goTo('page-home');
-            }
-        } else {
-            showAlert("Erro", data.error || "Dados inválidos");
-            window.generateCaptcha();
-        }
-    } catch(e) { 
-        showAlert("Erro", "Falha na conexão com o servidor."); 
+    if(data.role === 'admin') {
+        window.location.href = '/admin.html';
+    } else {
+        // Carrega dados
+        await window.loadUserData();
+        
+        // ACORDA O MENU: Procura o menu e força ele a aparecer antes de mudar de tela
+        const nav = document.getElementById('main-nav');
+        if(nav) nav.style.display = 'flex'; 
+
+        // Agora sim, vai para a Home
+        window.goTo('page-home');
     }
-}
+        }
 
 window.handleRegister = async function() {
     const phone = document.getElementById('r_phone').value;
