@@ -45,20 +45,23 @@ window.handleLogin = async function() {
         const data = await res.json();
 
         if(data.success) {
-            if(data.role === 'admin') {
-                window.location.href = '/admin.html';
-            } else {
-                await loadUserData();
-                goTo('page-home');
-            }
+        if(data.role === 'admin') {
+            window.location.href = '/admin.html';
         } else {
-            showAlert("Erro", data.error || "Dados incorretos.");
-            window.generateCaptcha();
+            // 1. Carrega dados do usuário
+            await window.loadUserData();
+            
+            // 2. FORÇA o menu a aparecer antes de mudar de tela
+            const nav = document.getElementById('main-nav');
+            if(nav) {
+                nav.style.display = 'flex';
+                nav.classList.add('show-menu');
+            }
+
+            // 3. Vai para a Home
+            window.goTo('page-home');
         }
-    } catch(e) {
-        showAlert("Erro", "Falha ao conectar com o servidor.");
-    }
-}
+        }
 
 // 3. COMANDO QUE FAZ TUDO ACORDAR ASSIM QUE O SITE ABRE
 window.onload = () => {
@@ -68,50 +71,40 @@ window.onload = () => {
 
 // 2. Navegação entre Páginas (SPA)
 window.goTo = function(pageId, btn) {
-    console.log("Tentando ir para:", pageId); // Isso ajuda a ver erros no navegador
-
     const target = document.getElementById(pageId);
     const nav = document.getElementById('main-nav');
 
-    // 1. Verificação de Segurança
-    if (!target) {
-        alert("Erro técnico: A página " + pageId + " não existe no seu HTML. Verifique os nomes das IDs.");
-        return;
-    }
+    if(!target) return;
 
-    // 2. Esconde todas as páginas e remove o 'active'
+    // 1. Esconde todas as páginas
     document.querySelectorAll('.page').forEach(p => {
         p.classList.remove('active');
         p.style.display = 'none';
     });
 
-    // 3. Mostra a página alvo
+    // 2. Mostra a página atual
     target.classList.add('active');
     target.style.display = 'block';
 
-    // 4. Lógica do Menu Inferior (Nav)
-    if (nav) {
-        if (pageId === 'page-login' || pageId === 'page-register') {
+    // 3. LÓGICA DO MENU (CORRIGIDA)
+    if(nav) {
+        if(pageId === 'page-login' || pageId === 'page-register') {
+            nav.classList.remove('show-menu');
             nav.style.display = 'none';
         } else {
-            nav.style.display = 'flex'; // FORÇA o menu a aparecer
+            // Para QUALQUER outra página (Início, Depósito, etc), MOSTRA o menu
+            nav.classList.add('show-menu');
+            nav.style.display = 'flex';
         }
     }
 
-    // 5. Atualiza as cores dos botões do menu
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
-    });
+    // 4. Atualiza os botões do menu
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    if(btn) btn.classList.add('active');
 
-    if (btn) {
-        btn.classList.add('active');
-    }
-
-    // 6. Carregamento de dados (Gatilhos)
-    if (pageId === 'page-home') window.loadUserData();
-    if (pageId === 'page-projects') window.loadAllPlans();
-    if (pageId === 'page-profits') window.loadProfitClaims();
-        }
+    // 5. Gatilhos de dados
+    if(pageId === 'page-home') window.loadUserData();
+                }
 
 // 3. Carregar Dados do Usuário (SOMA TOTAL, SEMANA, MÊS, EQUIPE E CONTA)
 window.loadUserData = async function() {
