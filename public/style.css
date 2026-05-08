@@ -508,3 +508,13 @@ html, body {
     border-radius: 8px;
     border: 1px solid var(--green);
 }
+
+/* Isso garante que o menu apareça na Home e desapareça no Login */
+#page-home.active ~ #main-nav {
+    display: flex !important;
+}
+
+#page-login.active ~ #main-nav, 
+#page-register.active ~ #main-nav {
+    display: none !important;
+}
