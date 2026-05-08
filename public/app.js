@@ -93,37 +93,34 @@ window.goTo = function(pageId, btn) {
     const target = document.getElementById(pageId);
     const nav = document.getElementById('main-nav');
 
-    if(!target) return;
+    if (!target) return;
 
-    // 1. Esconde todas as páginas
+    // 1. Esconde TODAS as páginas
     document.querySelectorAll('.page').forEach(p => {
         p.classList.remove('active');
         p.style.display = 'none';
     });
 
-    // 2. Mostra a página atual
+    // 2. Mostra a página desejada
     target.classList.add('active');
     target.style.display = 'block';
 
-    // 3. LÓGICA DO MENU (CORRIGIDA)
-    if(nav) {
-        if(pageId === 'page-login' || pageId === 'page-register') {
-            nav.classList.remove('show-menu');
+    // 3. Gerencia o Menu Inferior
+    if (nav) {
+        if (pageId === 'page-login' || pageId === 'page-register') {
             nav.style.display = 'none';
         } else {
-            // Para QUALQUER outra página (Início, Depósito, etc), MOSTRA o menu
-            nav.classList.add('show-menu');
-            nav.style.display = 'flex';
+            nav.style.display = 'flex'; // Mostra em todas as outras
         }
     }
 
-    // 4. Atualiza os botões do menu
+    // 4. Marca o botão do menu como ativo
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    if(btn) btn.classList.add('active');
+    if (btn) btn.classList.add('active');
 
-    // 5. Gatilhos de dados
-    if(pageId === 'page-home') window.loadUserData();
-                }
+    // 5. Carrega dados se for pra Home
+    if (pageId === 'page-home') window.loadUserData();
+}
 
 // 3. Carregar Dados do Usuário (SOMA TOTAL, SEMANA, MÊS, EQUIPE E CONTA)
 window.loadUserData = async function() {
