@@ -477,6 +477,39 @@
             </div>
         </div>
 
+        <!-- TELA: HISTÓRICO COMPLETO -->
+<section id="page-history" class="page">
+    <div class="header-main">
+        <h3>Histórico de Atividades</h3>
+    </div>
+
+    <!-- Resumo no Topo (Solicitado: Ganho à esquerda, Sacado à direita) -->
+    <div class="history-summary">
+        <div class="h-sum-box">
+            <small>Total Ganho</small>
+            <p>MT <span id="hist-total-earned">0.00</span></p>
+        </div>
+        <div class="h-sum-box" style="text-align: right; border-left: 1px solid #1e3a8a;">
+            <small>Total Sacado</small>
+            <p>MT <span id="hist-total-with">0.00</span></p>
+        </div>
+    </div>
+
+    <!-- Filtros de Categorias -->
+    <div class="tab-category scroll-x">
+        <button onclick="loadFullHistory('all', this)" class="tab-item-sm active">Tudo</button>
+        <button onclick="loadFullHistory('deposit', this)" class="tab-item-sm">Depósitos</button>
+        <button onclick="loadFullHistory('withdraw', this)" class="tab-item-sm">Saques</button>
+        <button onclick="loadFullHistory('profit', this)" class="tab-item-sm">Lucros</button>
+        <button onclick="loadFullHistory('referral', this)" class="tab-item-sm">Convites</button>
+        <button onclick="loadFullHistory('bonus', this)" class="tab-item-sm">Bónus</button>
+    </div>
+
+    <div id="full-history-list" class="history-list-full">
+        <!-- Lista carregada via JS -->
+    </div>
+</section>
+
         <!-- NAVEGAÇÃO -->
         <nav class="bottom-nav" id="main-nav" style="display: none;">
             <div class="nav-item active" onclick="goTo('page-home', this)">🏠<br>Início</div>
