@@ -201,34 +201,26 @@ window.loadAllPlans = async function() {
         const vipList = document.getElementById('plans_vip_list');
         const homeList = document.getElementById('beginner-plans');
 
-        // Limpa containers
         if(normalList) normalList.innerHTML = "";
         if(vipList) vipList.innerHTML = "";
         if(homeList) homeList.innerHTML = "";
 
-        if(plans.length === 0) {
-            if(normalList) normalList.innerHTML = "<p style='text-align:center; padding:20px'>Nenhum plano disponível.</p>";
-            return;
-        }
-
         plans.forEach((p, index) => {
             const card = createPlanCard(p);
-            const category = (p.category || 'Normal').toUpperCase();
+            // .trim() remove espaços e .toUpperCase() deixa tudo igual
+            const cat = (p.category || 'Normal').trim().toUpperCase();
 
-            // Página de Projetos
-            if (category === 'VIP') {
+            if (cat === 'VIP') {
                 if(vipList) vipList.innerHTML += card;
             } else {
                 if(normalList) normalList.innerHTML += card;
             }
 
-            // Página Home (Mostrar os 2 primeiros planos como "Iniciante")
-            if (homeList && index < 2) {
-                homeList.innerHTML += card;
-            }
+            // Mostra os 2 primeiros na Home
+            if (homeList && index < 2) homeList.innerHTML += card;
         });
-    } catch(e) { console.error("Erro ao carregar planos", e); }
-}
+    } catch(e) { console.error("Erro no front-end:", e); }
+                      }
 
 // Carregar Histórico com correção nos botões
 window.loadFullHistory = async function(type = 'all', btn) {
