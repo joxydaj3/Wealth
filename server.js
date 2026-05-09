@@ -36,11 +36,17 @@ app.use(session({
     cookie: { maxAge: 86400000 }
 }));
 
-// --- INICIALIZAÇÃO DO BANCO DE DADOS (VERSÃO CORRIGIDA) ---
+// --- INICIALIZAÇÃO DO BANCO DE DADOS (VERSÃO FORÇADA PARA CORREÇÃO) ---
 async function initDB() {
   const client = await pool.connect();
   try {
-    // 1. Criar Tabelas
+    console.log("Iniciando limpeza e migração do banco de dados...");
+
+    // 1. LIMPEZA (Nuclear): Apaga a tabela de planos para recriar do zero sem erros de coluna
+    // Após os planos aparecerem, você pode remover esta linha se quiser manter edições do admin
+    await client.query("DROP TABLE IF EXISTS plans CASCADE;"); 
+
+    // 2. Criar Tabelas Reais e Completas
     await client.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY, phone TEXT UNIQUE, name TEXT, password TEXT, password_plain TEXT, 
@@ -48,52 +54,83 @@ async function initDB() {
         role TEXT DEFAULT 'user', status TEXT DEFAULT 'active', created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         last_checkin DATE
       );
+      
       CREATE TABLE IF NOT EXISTS plans (
-        id SERIAL PRIMARY KEY, name TEXT UNIQUE, price REAL, daily_profit REAL, duration INTEGER, 
-        total_return REAL, image_url TEXT, category TEXT DEFAULT 'Normal', active INTEGER DEFAULT 1
+        id SERIAL PRIMARY KEY, 
+        name TEXT UNIQUE, 
+        price REAL, 
+        daily_profit REAL, 
+        duration INTEGER, 
+        total_return REAL, 
+        image_url TEXT, 
+        category TEXT DEFAULT 'Normal', 
+        active INTEGER DEFAULT 1
       );
+
       CREATE TABLE IF NOT EXISTS user_plans (
         id SERIAL PRIMARY KEY, user_id INTEGER, plan_id INTEGER, buy_date DATE DEFAULT CURRENT_DATE, 
         last_claim DATE, expires_at DATE, status TEXT DEFAULT 'active'
       );
+
       CREATE TABLE IF NOT EXISTS transactions (
         id SERIAL PRIMARY KEY, user_id INTEGER, type TEXT, amount REAL, method TEXT, status TEXT DEFAULT 'pending', 
         txid TEXT, proof_url TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+
       CREATE TABLE IF NOT EXISTS ads (id SERIAL PRIMARY KEY, message TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
     `);
 
-    // 2. Garantir colunas e restrições
+    // 3. Migrações de segurança para a tabela de Usuários
     await client.query(`
       DO $$ BEGIN 
-        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='plans' AND column_name='category') THEN
-          ALTER TABLE plans ADD COLUMN category TEXT DEFAULT 'Normal';
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='last_checkin') THEN
+          ALTER TABLE users ADD COLUMN last_checkin DATE;
         END IF;
       END $$;
     `);
     
-    // 3. Cadastrar Planos (Corrigido para bater com a regra de capital)
+    // 4. Cadastrar os 15 Planos (Normal e VIP)
     const allPlans = [
         { n: 'Wealth Vanguard Core', p: 500, d: 35, dur: 30, t: 1550, c: 'Normal', i: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=400' },
         { n: 'Wealth BlackRock Flow', p: 1000, d: 75, dur: 30, t: 3250, c: 'Normal', i: 'https://images.unsplash.com/photo-1611974714024-4607a5146b91?w=400' },
         { n: 'Wealth Berkshire Growth', p: 2500, d: 200, dur: 30, t: 8500, c: 'Normal', i: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=400' },
         { n: 'Wealth Goldman Edge', p: 5000, d: 425, dur: 30, t: 17750, c: 'Normal', i: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=400' },
         { n: 'Wealth Morgan Prime', p: 10000, d: 900, dur: 30, t: 37000, c: 'Normal', i: 'https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=400' },
+        { n: 'Wealth Fidelity Boost', p: 25000, d: 2375, dur: 30, t: 96250, c: 'Normal', i: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400' },
+        { n: 'Wealth Citadel Power', p: 50000, d: 5000, dur: 30, t: 200000, c: 'Normal', i: 'https://images.unsplash.com/photo-1639754390267-dc26d370126a?w=400' },
+        { n: 'Wealth Bridgewater Max', p: 100000, d: 11000, dur: 30, t: 430000, c: 'Normal', i: 'https://images.unsplash.com/photo-1642104704074-907c0698bcd9?w=400' },
+        { n: 'Wealth Renaissance Ultra', p: 150000, d: 17250, dur: 30, t: 667500, c: 'Normal', i: 'https://images.unsplash.com/photo-1621905252507-b354bcadc08e?w=400' },
+        { n: 'Wealth Rothschild Apex', p: 250000, d: 30000, dur: 30, t: 1150000, c: 'Normal', i: 'https://images.unsplash.com/photo-1554224155-1696413565d3?w=400' },
         { n: 'VIP 1 – Wealth Starter Surge', p: 300, d: 93, dur: 5, t: 465, c: 'VIP', i: 'https://images.unsplash.com/photo-1633151209829-3070446c1418?w=400' },
         { n: 'VIP 2 – Wealth Silver Boost', p: 1000, d: 250, dur: 7, t: 1750, c: 'VIP', i: 'https://images.unsplash.com/photo-1502920514313-52581002a659?w=400' },
-        { n: 'VIP 3 – Wealth Gold Multiplier', p: 5000, d: 1250, dur: 10, t: 12500, c: 'VIP', i: 'https://images.unsplash.com/photo-1589758438368-0ad531db3366?w=400' }
+        { n: 'VIP 3 – Wealth Gold Multiplier', p: 5000, d: 1250, dur: 10, t: 12500, c: 'VIP', i: 'https://images.unsplash.com/photo-1589758438368-0ad531db3366?w=400' },
+        { n: 'VIP 4 – Wealth Platinum Hyper', p: 15000, d: 4050, dur: 12, t: 48600, c: 'VIP', i: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=400' },
+        { n: 'VIP 5 – Wealth Diamond Prime', p: 50000, d: 11850, dur: 15, t: 177750, c: 'VIP', i: 'https://images.unsplash.com/photo-1599056377704-5853406399a0?w=400' }
     ];
 
     for (let p of allPlans) {
         await client.query(`
             INSERT INTO plans (name, price, daily_profit, duration, total_return, image_url, category) 
             VALUES ($1,$2,$3,$4,$5,$6,$7) 
-            ON CONFLICT (name) DO UPDATE SET price = EXCLUDED.price, daily_profit = EXCLUDED.daily_profit, category = EXCLUDED.category, total_return = EXCLUDED.total_return`, 
+            ON CONFLICT (name) DO UPDATE SET 
+                price = EXCLUDED.price, 
+                daily_profit = EXCLUDED.daily_profit, 
+                category = EXCLUDED.category, 
+                total_return = EXCLUDED.total_return,
+                image_url = EXCLUDED.image_url`, 
             [p.n, p.p, p.d, p.dur, p.t, p.i, p.c]);
+        
+        console.log(`✅ Semeado: ${p.n} (${p.c})`);
     }
-    console.log("Banco Wealth Atualizado!");
-  } catch (err) { console.error("Erro DB:", err); } finally { client.release(); }
+
+    console.log("🚀 BANCO DE DADOS WEALTH ATUALIZADO COM SUCESSO!");
+  } catch (err) { 
+      console.error("❌ ERRO CRÍTICO NO BANCO DE DADOS:", err); 
+  } finally { 
+      client.release(); 
+  }
 }
+initDB();
 
 // ROTA DE PLANOS (Garante que envie tudo)
 app.get('/api/plans', async (req, res) => {
