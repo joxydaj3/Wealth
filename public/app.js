@@ -168,33 +168,65 @@ window.loadUserData = async function() {
 }
 
 // 4. Carregar Planos e Anúncios na Home
-// Carregar Planos na Home e Projetos
+// 1. Criar Card de Plano (Texto esquerda, Imagem direita)
+function createPlanCard(p) {
+    const isVip = (p.category || '').toUpperCase() === 'VIP';
+    
+    // Regra de Texto: Normal devolve capital, VIP não.
+    const profitText = isVip 
+        ? `<p>Lucro Total: <b>MT ${p.total_return}</b></p><p style="color:orange; font-size:9px">⚠️ Capital não devolvido</p>`
+        : `<p>Ganho Total: <b>MT ${(p.daily_profit * p.duration).toFixed(2)}</b></p><p>Total + Capital: <b>MT ${p.total_return}</b></p>`;
+
+    return `
+    <div class="plan-mini-card ${isVip ? 'vip-card' : ''}">
+        <div class="plan-info-left">
+            <h5>${p.name}</h5>
+            <p>Compra: <b>MT ${p.price}</b> | Dias: <b>${p.duration}</b></p>
+            <p>Diário: <b style="color:var(--green)">MT ${p.daily_profit}</b></p>
+            ${profitText}
+            <button class="btn-buy-mini" onclick="handleBuyPlan(${p.id}, '${p.category}')">INVESTIR AGORA</button>
+        </div>
+        <img src="${p.image_url || 'https://via.placeholder.com/80'}" class="plan-img-right">
+    </div>`;
+}
+
+// 2. Carregar Planos (Corrigido para preencher Home e Projetos)
 window.loadAllPlans = async function() {
     try {
         const res = await fetch('/api/plans');
         const plans = await res.json();
-        window.allPlans = plans; // Guarda na memória
+        window.allPlans = plans;
 
         const normalList = document.getElementById('plans_normal_list');
         const vipList = document.getElementById('plans_vip_list');
         const homeList = document.getElementById('beginner-plans');
 
+        // Limpa containers
         if(normalList) normalList.innerHTML = "";
         if(vipList) vipList.innerHTML = "";
         if(homeList) homeList.innerHTML = "";
 
-        plans.forEach(p => {
+        if(plans.length === 0) {
+            if(normalList) normalList.innerHTML = "<p style='text-align:center; padding:20px'>Nenhum plano disponível.</p>";
+            return;
+        }
+
+        plans.forEach((p, index) => {
             const card = createPlanCard(p);
             const category = (p.category || 'Normal').toUpperCase();
 
-            // 1. Preenche a página de Projetos
-            if (category === 'VIP' && vipList) vipList.innerHTML += card;
-            else if (normalList) normalList.innerHTML += card;
+            // Página de Projetos
+            if (category === 'VIP') {
+                if(vipList) vipList.innerHTML += card;
+            } else {
+                if(normalList) normalList.innerHTML += card;
+            }
 
-            // 2. Preenche a Home (mostra os 2 primeiros planos)
-            if (homeList && plans.indexOf(p) < 2) homeList.innerHTML += card;
+            // Página Home (Mostrar os 2 primeiros planos como "Iniciante")
+            if (homeList && index < 2) {
+                homeList.innerHTML += card;
+            }
         });
-
     } catch(e) { console.error("Erro ao carregar planos", e); }
 }
 
