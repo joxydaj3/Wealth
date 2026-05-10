@@ -74,7 +74,7 @@ html, body {
 }
 
 /* Captcha Dinâmico */
-.captcha-box { display: flex; gap: 6px; margin-bottom: 8px; }
+.captcha-box { display: flex; gap: 8px; margin-bottom: 10px; }
 .captcha-display {
     flex: 1;
     height: 20px;
