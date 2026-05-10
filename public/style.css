@@ -68,9 +68,9 @@ html, body {
 .auth-subtitle { font-size: 12px; color: var(--text-dim); margin: 14px 0 24px; line-height: 1.5; }
 
 .input-tiny {
-    width: 100%; height: 45px; background: rgba(255,255,255,0.05);
+    width: 100%; height: 40px; background: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
-    color: white; padding: 0 15px; margin-bottom: 12px; font-size: 14px;
+    color: white; padding: 0 10px; margin-bottom: 8px; font-size: 12px;
 }
 
 /* Captcha Dinâmico */
@@ -89,7 +89,7 @@ html, body {
     color: var(--green); /* Cor verde neon para os números */
     font-size: 15px;
 }
-.input-captcha { width: 100px; height: 45px; background: rgba(255,255,255,0.05); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); color: white; text-align: center; }
+.input-captcha { width: 80px; height: 30px; background: rgba(255,255,255,0.05); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); color: white; text-align: center; }
 
 .auth-link { margin-top: 20px; font-size: 13px; text-align: center; }
 .auth-link span { color: var(--blue); font-weight: bold; cursor: pointer; }
