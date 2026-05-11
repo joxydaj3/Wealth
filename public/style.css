@@ -423,19 +423,60 @@ html, body {
 /* =========================================
    7. LUCROS E RENDIMENTOS
    ========================================= */
-.promo-banner { background: linear-gradient(to right, #9c27b0, #673ab7); border-radius: 15px; padding: 15px; display: flex; align-items: center; gap: 15px; margin-bottom: 20px; cursor: pointer; }
-.profit-summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-.summary-box { background: var(--card); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
+.profit-card-detailed h4 { margin: 0 0 10px; font-size: 16px; }
 
-.profit-card-full { background: #0b1437; border-radius: 20px; padding: 15px; margin-bottom: 15px; border: 1px solid #1e3a8a; }
-.profit-card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 12px; }
+.profit-data-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+.data-box {
+    background: rgba(255,255,255,0.03);
+    padding: 10px;
+    border-radius: 12px;
+}
+.data-box small { display: block; font-size: 8px; color: #8899ac; text-transform: uppercase; margin-bottom: 4px; }
+.data-box span { font-size: 13px; font-weight: bold; color: white; }
 
-.progress-container { margin: 15px 0; }
-.progress-bar-bg { background: rgba(255,255,255,0.1); height: 6px; border-radius: 10px; overflow: hidden; }
-.progress-bar-fill { background: var(--blue); height: 100%; border-radius: 10px; }
-.progress-info { display: flex; justify-content: space-between; font-size: 9px; margin-top: 5px; color: var(--text-dim); }
+/* Bloco de Total de Ganho Central */
+.total-gain-box {
+    text-align: center;
+    background: rgba(0, 123, 255, 0.05);
+    border: 1px solid rgba(0, 123, 255, 0.2);
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+.total-gain-box h2 { font-size: 24px; color: var(--green); margin: 5px 0; }
 
-.btn-claim { background: var(--green); color: white; width: 100%; border: none; padding: 12px; border-radius: 12px; font-weight: bold; cursor: pointer; }
+/* Estado Vazio (Sem Planos) */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6e84ab;
+}
+.empty-icon { font-size: 50px; margin-bottom: 15px; opacity: 0.5; }
+
+/* Botão de Coleta Específico */
+.btn-claim-today {
+    background: var(--green);
+    color: white;
+    width: 100%;
+    height: 48px;
+    border: none;
+    border-radius: 12px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+.btn-claim-waiting {
+    background: #2d3748;
+    color: #718096;
+    cursor: default;
+}
 
 /* =========================================
    8. MODAIS, CHAT E NAV BAR
