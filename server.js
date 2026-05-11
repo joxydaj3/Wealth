@@ -469,6 +469,25 @@ app.get('/api/logout', (req, res) => {
     res.json({ success: true });
 });
 
+app.post('/api/user/claim-campaign', async (req, res) => {
+    if (!req.session.userId) return res.status(401).send();
+    const { target, prize } = req.body;
+    
+    const user = (await pool.query("SELECT campaign_count FROM users WHERE id = $1", [req.session.userId])).rows[0];
+
+    if (user.campaign_count >= target) {
+        // Adiciona o prêmio ao saldo
+        await pool.query("UPDATE users SET balance = balance + $1 WHERE id = $2", [prize, req.session.userId]);
+        // Registra no histórico para o Admin ver
+        await pool.query("INSERT INTO transactions (user_id, type, amount, status, method) VALUES ($1, 'bonus', $2, 'approved', $3)", 
+        [req.session.userId, prize, `Prêmio Meta ${target}`]);
+        
+        res.json({ success: true });
+    } else {
+        res.status(400).json({ error: "Meta não atingida." });
+    }
+});
+
 app.get('/api/user/transactions', async (req, res) => {
     if (!req.session.userId) return res.status(401).send();
     const { type } = req.query;
