@@ -423,6 +423,29 @@ html, body {
 /* =========================================
    7. LUCROS E RENDIMENTOS
    ========================================= */
+.promo-banner { background: linear-gradient(to right, #9c27b0, #673ab7); border-radius: 15px; padding: 15px; display: flex; align-items: center; gap: 15px; margin-bottom: 20px; cursor: pointer; }
+.profit-summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.summary-box { background: var(--card); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
+
+.profit-card-full { background: #0b1437; border-radius: 20px; padding: 15px; margin-bottom: 15px; border: 1px solid #1e3a8a; }
+.profit-card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 12px; }
+
+.progress-container { margin: 15px 0; }
+.progress-bar-bg { background: rgba(255,255,255,0.1); height: 6px; border-radius: 10px; overflow: hidden; }
+.progress-bar-fill { background: var(--blue); height: 100%; border-radius: 10px; }
+.progress-info { display: flex; justify-content: space-between; font-size: 9px; margin-top: 5px; color: var(--text-dim); }
+
+.btn-claim { background: var(--green); color: white; width: 100%; border: none; padding: 12px; border-radius: 12px; font-weight: bold; cursor: pointer; }
+
+/* Card Detalhado de Lucro (Igual à imagem) */
+.profit-card-detailed {
+    background: #0b1437;
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #1e3a8a;
+}
+
 .profit-card-detailed h4 { margin: 0 0 10px; font-size: 16px; }
 
 .profit-data-grid {
