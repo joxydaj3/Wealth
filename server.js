@@ -132,12 +132,16 @@ async function initDB() {
 }
 initDB();
 
-// ROTA DE PLANOS (Garante que envie tudo)
+// ROTA PARA BUSCAR TODOS OS PLANOS
 app.get('/api/plans', async (req, res) => {
     try {
-        const plans = await pool.query("SELECT * FROM plans WHERE active = 1 ORDER BY price ASC");
-        res.json(plans.rows);
-    } catch (e) { res.status(500).json([]); }
+        const result = await pool.query("SELECT * FROM plans WHERE active = 1 ORDER BY price ASC");
+        // Isso envia a lista de planos para o app.js
+        res.json(result.rows); 
+    } catch (e) {
+        console.error("Erro ao buscar planos no banco:", e);
+        res.status(500).json([]);
+    }
 });
 
 // --- LÓGICA DE COMISSÃO (6%, 3%, 1%) ---
