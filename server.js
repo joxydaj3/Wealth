@@ -140,18 +140,40 @@ app.get('/api/plans', async (req, res) => {
     }
 });
 
-// --- LÓGICA DE COMISSÃO (6%, 3%, 1%) ---
+// --- LÓGICA DE COMISSÃO (6%, 3%, 1%) - REVISADA COM TRAVA DE PLANO ---
 async function payCommissions(userId, amount) {
     const user = (await pool.query("SELECT invited_by FROM users WHERE id = $1", [userId])).rows[0];
     if (!user || !user.invited_by) return;
+
     const levels = [0.06, 0.03, 0.01];
     let currentCode = user.invited_by;
+
     for (let i = 0; i < levels.length; i++) {
-        const upline = (await pool.query("SELECT id, invited_by FROM users WHERE ref_code = $1", [currentCode])).rows[0];
+        const upline = (await pool.query(`
+            SELECT id, invited_by, 
+            (SELECT count(*) FROM user_plans WHERE user_id = users.id AND status = 'active') as has_plan 
+            FROM users WHERE ref_code = $1`, [currentCode])).rows[0];
+
         if (upline) {
             const bonus = amount * levels[i];
-            await pool.query("UPDATE users SET balance = balance + $1 WHERE id = $2", [bonus, upline.id]);
-            await pool.query("INSERT INTO transactions (user_id, type, amount, status) VALUES ($1, 'referral', $2, 'approved')", [upline.id, bonus]);
+            const levelNum = i + 1;
+
+            if (parseInt(upline.has_plan) > 0) {
+                // GANHA COMISSÃO: Tem plano ativo
+                await pool.query("UPDATE users SET balance = balance + $1 WHERE id = $2", [bonus, upline.id]);
+                await pool.query("INSERT INTO transactions (user_id, type, amount, status, method) VALUES ($1, 'referral', $2, 'approved', $3)", 
+                [upline.id, bonus, `Nível ${levelNum}`]);
+                
+                // Se for Nível 1, incrementa contador da Campanha (Metas)
+                if (levelNum === 1) {
+                    await pool.query("UPDATE users SET campaign_count = campaign_count + 1 WHERE id = $1", [upline.id]);
+                }
+            } else {
+                // PERDE COMISSÃO: Não tem plano ativo
+                await pool.query("INSERT INTO transactions (user_id, type, amount, status, method) VALUES ($1, 'referral', $2, 'rejected', $3)", 
+                [upline.id, bonus, `Nível ${levelNum} - S/ Plano`]);
+            }
+
             if (!upline.invited_by) break;
             currentCode = upline.invited_by;
         } else break;
@@ -187,21 +209,67 @@ app.post('/api/login', async (req, res) => {
 app.get('/api/user/data', async (req, res) => {
     if (!req.session.userId) return res.status(401).send();
     const userId = req.session.userId;
+
     try {
         const user = (await pool.query("SELECT * FROM users WHERE id = $1", [userId])).rows[0];
+
+        // SQL Poderoso para calcular toda a rede (Nível 1, 2 e 3)
+        const teamStats = await pool.query(`
+            WITH RECURSIVE subordinates AS (
+                -- Nível 1
+                SELECT id, ref_code, invited_by, 1 as depth FROM users WHERE invited_by = $1
+                UNION ALL
+                -- Níveis 2 e 3
+                SELECT u.id, u.ref_code, u.invited_by, s.depth + 1 FROM users u
+                INNER JOIN subordinates s ON u.invited_by = s.ref_code WHERE s.depth < 3
+            )
+            SELECT 
+                COUNT(*) as total_members,
+                -- Ativos: Quem tem pelo menos 1 depósito aprovado
+                COUNT(CASE WHEN (SELECT count(*) FROM transactions WHERE user_id = subordinates.id AND type='deposit' AND status='approved') > 0 THEN 1 END) as active_members,
+                -- Inativos: Quem nunca depositou
+                COUNT(CASE WHEN (SELECT count(*) FROM transactions WHERE user_id = subordinates.id AND type='deposit' AND status='approved') = 0 THEN 1 END) as inactive_members,
+                -- Financeiro da Equipe
+                COALESCE((SELECT sum(amount) FROM transactions WHERE user_id IN (SELECT id FROM subordinates) AND type='deposit' AND status='approved'), 0) as team_deposits,
+                COALESCE((SELECT sum(amount) FROM transactions WHERE user_id IN (SELECT id FROM subordinates) AND type='withdraw' AND status='approved'), 0) as team_withdraws,
+                COALESCE((SELECT sum(amount) FROM transactions WHERE user_id IN (SELECT id FROM subordinates) AND type='profit'), 0) as team_profits
+            FROM subordinates
+        `, [user.ref_code]);
+
+        const t = teamStats.rows[0];
+
+        // Ganhos individuais do usuário (Sua lógica original mantida e melhorada)
         const gains = (await pool.query(`
             SELECT 
-                SUM(CASE WHEN type IN ('profit', 'bonus', 'referral') THEN amount ELSE 0 END) as total_earned,
+                SUM(CASE WHEN type IN ('profit', 'bonus', 'referral') AND status='approved' THEN amount ELSE 0 END) as total_earned,
                 SUM(CASE WHEN type = 'withdraw' AND status = 'approved' THEN amount ELSE 0 END) as total_with,
-                SUM(CASE WHEN type = 'referral' THEN amount ELSE 0 END) as total_ref,
-                SUM(CASE WHEN type IN ('profit', 'bonus', 'referral') AND created_at >= NOW() - INTERVAL '7 days' THEN amount ELSE 0 END) as week_earned,
-                SUM(CASE WHEN type IN ('profit', 'bonus', 'referral') AND created_at >= DATE_TRUNC('month', NOW()) THEN amount ELSE 0 END) as month_earned,
+                SUM(CASE WHEN type = 'referral' AND status='approved' THEN amount ELSE 0 END) as total_ref,
+                SUM(CASE WHEN type IN ('profit', 'bonus', 'referral') AND status='approved' AND created_at >= NOW() - INTERVAL '7 days' THEN amount ELSE 0 END) as week_earned,
+                SUM(CASE WHEN type IN ('profit', 'bonus', 'referral') AND status='approved' AND created_at >= DATE_TRUNC('month', NOW()) THEN amount ELSE 0 END) as month_earned,
                 (SELECT count(*) FROM user_plans WHERE user_id = $1 AND status = 'active') as plans_active
             FROM transactions WHERE user_id = $1
         `, [userId])).rows[0];
 
-        res.json({ ...user, total_earned: gains.total_earned || 0, total_with: gains.total_with || 0, total_ref: gains.total_ref || 0, week_earned: gains.week_earned || 0, month_earned: gains.month_earned || 0, plans_count: gains.plans_active || 0 });
-    } catch (e) { res.status(500).send(); }
+        res.json({ 
+            ...user, 
+            total_earned: gains.total_earned || 0, 
+            total_with: gains.total_with || 0, 
+            total_ref: gains.total_ref || 0, 
+            week_earned: gains.week_earned || 0, 
+            month_earned: gains.month_earned || 0, 
+            plans_count: gains.plans_active || 0,
+            // Novos dados da Equipe
+            team_total: t.total_members || 0,
+            team_active: t.active_members || 0,
+            team_inactive: t.inactive_members || 0,
+            team_dep_money: t.team_deposits || 0,
+            team_with_money: t.team_withdraws || 0,
+            team_prof_money: t.team_profits || 0
+        });
+    } catch (e) { 
+        console.error(e);
+        res.status(500).send(); 
+    }
 });
 
 app.post('/api/user/buy-plan', async (req, res) => {
