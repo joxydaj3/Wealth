@@ -254,14 +254,97 @@
 
         <!-- TELA: SAQUE -->
         <section id="page-withdraw" class="page">
-            <div class="header-main"><h3>Solicitar Saque</h3></div>
-            <div class="wealth-card">
-                <p>Valor (Taxa 13%):</p>
-                <input type="number" id="with-amount" class="input-tiny" placeholder="Mínimo 130 MT">
-                <input type="password" id="with-pin" class="input-tiny" placeholder="Seu PIN de 4 dígitos">
-                <button class="btn btn-blue" onclick="handleWithdraw()">Confirmar Levantamento</button>
+    <div class="header-main">
+        <button class="btn-back" onclick="goTo('page-home')">← Menu</button>
+        <h3>Levantamento</h3>
+    </div>
+
+    <!-- PASSO 1: VALOR -->
+    <div id="withdraw-step-1" class="withdraw-container active">
+        <div class="wealth-card saldo-mini-card">
+            <small>Saldo Disponível</small>
+            <h2 id="draw-balance">MT 0.00</h2>
+        </div>
+
+        <div class="wealth-card">
+            <p>Quanto deseja sacar?</p>
+            <div class="input-with-tag">
+                <input type="number" id="in-withdraw-amount" class="input-tiny" placeholder="0.00" oninput="calculateWithdraw()">
+                <span>MZN</span>
             </div>
-        </section>
+            <small style="color: #8899ac;">Mín: MT 150.00</small>
+
+            <div class="withdraw-calc-box">
+                <div class="calc-row"><span>Solicitado:</span> <b id="calc-req">MT 0.00</b></div>
+                <div class="calc-row"><span>Taxa (13%):</span> <b style="color:var(--red)">-MT 0.00</b></div>
+                <div class="calc-row main-result"><span>Receberá:</span> <b id="calc-net">MT 0.00</b></div>
+            </div>
+
+            <button class="btn btn-blue" style="margin-top:20px" onclick="nextWithdrawStep(2)">Continuar →</button>
+        </div>
+
+        <div class="wealth-card info-list-card">
+            <div class="info-title">ℹ️ Como Funciona</div>
+            <ul>
+                <li>🕒 Até 24h para processamento</li>
+                <li>💳 Taxa de levantamento: 13%</li>
+                <li>💰 Mínimo: MT 150.00</li>
+                <li>🔒 PIN de segurança obrigatório</li>
+                <li>✅ Aprovação manual do financeiro</li>
+                <li>📱 Métodos: M-Pesa e e-Mola</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- PASSO 2: CONFIRMAR DADOS -->
+    <div id="withdraw-step-2" class="withdraw-container">
+        <div class="wealth-card confirm-box">
+            <div class="confirm-header">🛡️ Confirmar Levantamento</div>
+            
+            <div class="withdraw-calc-box dark">
+                <div class="calc-row"><span>Solicitado:</span> <b id="conf-req">MT 0.00</b></div>
+                <div class="calc-row"><span>Taxa (13%):</span> <b style="color:var(--red)" id="conf-tax">-MT 0.00</b></div>
+                <div class="calc-row main-result"><span>Receberá:</span> <b id="conf-net" style="color:var(--green)">MT 0.00</b></div>
+            </div>
+
+            <div class="dest-info-card">
+                <p>📤 Enviado para:</p>
+                <div class="dest-item"><span>Método:</span> <b id="draw-method">...</b></div>
+                <div class="dest-item"><span>Número:</span> <b id="draw-number">...</b></div>
+                <div class="dest-item"><span>Titular:</span> <b id="draw-name">...</b></div>
+            </div>
+
+            <p style="margin-top:20px">🔒 PIN de Saque *</p>
+            <input type="password" id="draw-pin" class="input-tiny" placeholder="****" maxlength="4" style="text-align:center; letter-spacing:10px">
+
+            <div class="btn-group-dep">
+                <button class="btn-sec" onclick="nextWithdrawStep(1)">← Voltar</button>
+                <button class="btn btn-green" onclick="confirmWithdraw()">🚀 Confirmar</button>
+            </div>
+            <p style="text-align:center; font-size:10px; color:#8899ac; margin-top:15px">🕒 Processamento em 24h</p>
+        </div>
+    </div>
+
+    <!-- PASSO 3: SUCESSO -->
+    <div id="withdraw-step-3" class="withdraw-container">
+        <div class="wealth-card success-card-draw">
+            <div class="modal-icon">✅</div>
+            <h3>Saque Solicitado!</h3>
+            <p>Sua solicitação foi enviada com sucesso!</p>
+            
+            <div class="final-receive-box">
+                <small>💰 A RECEBER:</small>
+                <h2 id="final-draw-amount">MT 0.00</h2>
+                <small>(Taxa descontada)</small>
+            </div>
+
+            <div class="time-footer">
+                <span class="ico">🕒</span> Em até 24h na sua conta.
+            </div>
+            <button class="btn btn-blue" style="margin-top:20px" onclick="goTo('page-home')">Voltar ao Início</button>
+        </div>
+    </div>
+                                                                                                              </section>
 
         <!-- TELA PROJETOS (PLANOS NORMAIS) -->
         <section id="page-projects" class="page">
