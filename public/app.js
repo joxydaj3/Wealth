@@ -751,23 +751,44 @@ window.goTo = function(pageId, btn) {
     originalGoToFix(pageId, btn);
 }
 
-// 10. Inicialização e Lógica de Link de Convite
-window.onload = () => {
+// 10. Inicialização Protegida (Verifica sessão real no servidor)
+window.onload = async () => {
     window.generateCaptcha();
     
-    // Captura código de convite da URL (?ref=ABCDE)
     const urlParams = new URLSearchParams(window.location.search);
     const refCode = urlParams.get('ref');
+
+    // Se tiver link de convite, vai direto para o registro
     if(refCode) {
         window.goTo('page-register');
         const inputInvite = document.getElementById('r_invite');
         if(inputInvite) inputInvite.value = refCode;
-    } else {
-        // Persistência: Volta para a última página aberta
-        const lastPage = localStorage.getItem('wealth_last_page');
-        if(lastPage) window.goTo(lastPage);
+        return;
     }
 
+    try {
+        // PERGUNTA AO SERVIDOR: O usuário está logado de verdade?
+        const res = await fetch('/api/user/data');
+        
+        if (res.ok) {
+            // Se estiver logado, tenta voltar para a última página que ele viu
+            const lastPage = localStorage.getItem('wealth_last_page');
+            if(lastPage && lastPage !== 'page-login' && lastPage !== 'page-register') {
+                window.goTo(lastPage);
+            } else {
+                window.goTo('page-home');
+            }
+        } else {
+            // SE NÃO ESTIVER LOGADO (OU SESSÃO EXPIROU):
+            localStorage.removeItem('wealth_last_page'); // Limpa a memória antiga
+            window.goTo('page-login'); // Força a tela de login
+        }
+    } catch (e) {
+        // Se houver erro de rede, fica no login por segurança
+        window.goTo('page-login');
+    }
+
+    // Configura a data
     const date = new Date();
     const dEl = document.getElementById('cur-date');
     if(dEl) dEl.innerText = date.toLocaleDateString('pt-MZ', { weekday: 'long', day: 'numeric', month: 'long' });
