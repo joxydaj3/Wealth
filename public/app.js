@@ -882,3 +882,18 @@ window.onload = async () => {
     const dEl = document.getElementById('cur-date');
     if(dEl) dEl.innerText = date.toLocaleDateString('pt-MZ', { weekday: 'long', day: 'numeric', month: 'long' });
 };
+
+// FUNÇÃO PARA SAIR DA CONTA DE VERDADE
+window.logout = async function() {
+    showAlert("Sair", "Deseja realmente sair da sua conta?", async () => {
+        // 1. Limpa a memória do navegador
+        localStorage.removeItem('wealth_last_page');
+        localStorage.removeItem('isLogged'); // Caso você use essa marcação
+        
+        // 2. Avisa o servidor para encerrar a sessão
+        await fetch('/api/logout');
+
+        // 3. Volta para a tela de login
+        window.location.href = "/"; 
+    });
+}
