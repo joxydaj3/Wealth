@@ -673,26 +673,6 @@ window.closeSuccessModal = () => {
     resetDeposit(); // Volta para a home
 }
 
-// --- ROTA DE HISTÓRICO COMPLETO ---
-app.get('/api/user/transactions', async (req, res) => {
-    if (!req.session.userId) return res.status(401).send();
-    const { type } = req.query; // 'all', 'deposit', 'withdraw', 'profit', 'bonus', 'referral'
-    
-    try {
-        let query = "SELECT * FROM transactions WHERE user_id = $1";
-        let params = [req.session.userId];
-
-        if (type && type !== 'all') {
-            query += " AND type = $2";
-            params.push(type);
-        }
-        
-        query += " ORDER BY created_at DESC";
-        const result = await pool.query(query, params);
-        res.json(result.rows);
-    } catch (e) { res.status(500).send(); }
-});
-
 // --- CARREGAR HISTÓRICO COMPLETO ---
 window.loadFullHistory = async function(type = 'all', btn) {
     // UI: Muda cor do botão ativo
