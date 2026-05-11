@@ -21,24 +21,27 @@ window.generateCaptcha = function() {
     }, 50);
 }
 
-// 2. NAVEGAÇÃO ENTRE PÁGINAS (Corrigida para carregar os planos)
+// 2. NAVEGAÇÃO ENTRE PÁGINAS (SPA) - VERSÃO COMPLETA E FUNCIONAL
 window.goTo = function(pageId, btn) {
     const target = document.getElementById(pageId);
     const nav = document.getElementById('main-nav');
 
-    if (!target) return;
+    if (!target) {
+        console.error("Página não encontrada: " + pageId);
+        return;
+    }
 
-    // Esconde todas as páginas
+    // --- 1. ESCONDER TODAS AS PÁGINAS ---
     document.querySelectorAll('.page').forEach(p => {
         p.classList.remove('active');
         p.style.display = 'none';
     });
 
-    // Mostra a página desejada
+    // --- 2. MOSTRAR A PÁGINA DESEJADA ---
     target.classList.add('active');
     target.style.display = 'block';
 
-    // Gerencia o Menu Inferior
+    // --- 3. GERENCIAR O MENU INFERIOR ---
     if (nav) {
         if (pageId === 'page-login' || pageId === 'page-register') {
             nav.style.display = 'none';
@@ -47,25 +50,61 @@ window.goTo = function(pageId, btn) {
         }
     }
 
-    // Marca o botão do menu como ativo
+    // --- 4. ATUALIZAR BOTÃO ATIVO NO MENU ---
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
     if (btn) btn.classList.add('active');
 
-    // GATILHOS DE CARREGAMENTO (Essencial para os planos aparecerem)
+    // --- 5. GATILHOS DE CARREGAMENTO (O QUE ESTAVA FALTANDO) ---
+
+    // Sempre carrega os dados básicos (Saldo/Nome) ao navegar
+    if (pageId !== 'page-login' && pageId !== 'page-register') {
+        window.loadUserData(); 
+    }
+
+    // HOME: Carrega planos iniciais e bônus
     if (pageId === 'page-home') {
-        window.loadUserData();
         window.loadHomeData(); 
     }
+
+    // PROJETOS E VIP: Carrega a lista completa de planos
     if (pageId === 'page-projects' || pageId === 'page-vip-list') {
         window.loadAllPlans();
     }
+
+    // LUCROS: Carrega os cartões de colheita diária (AQUI ESTAVA O ERRO)
+    if (pageId === 'page-profits') {
+        if (typeof window.loadProfitClaims === 'function') {
+            window.loadProfitClaims();
+        }
+    }
+
+    // EQUIPE: Recarrega os dados de convites e ganhos de rede
+    if (pageId === 'page-team') {
+        window.loadUserData(); // A função loadUserData já preenche a equipe
+    }
+
+    // CONTA: Inicia o slider de imagens e carrega perfil
     if (pageId === 'page-account') {
         window.startAccountSlider();
     }
+
+    // HISTÓRICO: Carrega a lista de todas as transações
+    if (pageId === 'page-history') {
+        if (typeof window.loadFullHistory === 'function') {
+            window.loadFullHistory('all');
+        }
+    }
+
+    // LOGIN/REGISTRO: Reseta o Captcha
     if (pageId === 'page-login' || pageId === 'page-register') {
         window.generateCaptcha();
     }
-}
+
+    // PERSISTÊNCIA: Salva a última página para não perder no refresh
+    if(pageId !== 'page-login' && pageId !== 'page-register') {
+        localStorage.setItem('wealth_last_page', pageId);
+    }
+            }
 
 // 3. CARREGAR DADOS DO USUÁRIO
 window.loadUserData = async function() {
