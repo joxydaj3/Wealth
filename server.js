@@ -132,14 +132,14 @@ async function initDB() {
 }
 initDB();
 
-// ROTA PARA BUSCAR TODOS OS PLANOS
+// ROTA DEFINITIVA DE PLANOS
 app.get('/api/plans', async (req, res) => {
     try {
         const result = await pool.query("SELECT * FROM plans WHERE active = 1 ORDER BY price ASC");
-        // Isso envia a lista de planos para o app.js
+        console.log("Planos enviados para o cliente:", result.rows.length);
         res.json(result.rows); 
     } catch (e) {
-        console.error("Erro ao buscar planos no banco:", e);
+        console.error("ERRO AO BUSCAR NO BANCO:", e);
         res.status(500).json([]);
     }
 });
