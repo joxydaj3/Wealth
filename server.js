@@ -87,8 +87,8 @@ async function initDB() {
     
     // 4. Cadastrar os 15 Planos (Normal e VIP)
     const allPlans = [
-        { n: 'Wealth Vanguard Core', p: 100, d: 138, dur: 1, t: 238, c: 'Normal', i: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=400' },
-        { n: 'Wealth BlackRock Flow', p: 1000, d: 75, dur: 30, t: 3250, c: 'Normal', i: 'https://images.unsplash.com/photo-1611974714024-4607a5146b91?w=400' },
+        { n: 'Wealth Vanguard Core', p: 500, d: 35, dur: 30, t: 1550, c: 'Normal', i: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=400' },
+        { n: 'Wealth BlackRock Flow', p: 150, d: 50, dur: 1, t: 200, c: 'Normal', i: 'https://images.unsplash.com/photo-1611974714024-4607a5146b91?w=400' },
         { n: 'Wealth Berkshire Growth', p: 2500, d: 200, dur: 30, t: 8500, c: 'Normal', i: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=400' },
         { n: 'Wealth Goldman Edge', p: 5000, d: 425, dur: 30, t: 17750, c: 'Normal', i: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=400' },
         { n: 'Wealth Morgan Prime', p: 10000, d: 900, dur: 30, t: 37000, c: 'Normal', i: 'https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=400' },
@@ -97,7 +97,7 @@ async function initDB() {
         { n: 'Wealth Bridgewater Max', p: 100000, d: 11000, dur: 30, t: 430000, c: 'Normal', i: 'https://images.unsplash.com/photo-1642104704074-907c0698bcd9?w=400' },
         { n: 'Wealth Renaissance Ultra', p: 150000, d: 17250, dur: 30, t: 667500, c: 'Normal', i: 'https://images.unsplash.com/photo-1621905252507-b354bcadc08e?w=400' },
         { n: 'Wealth Rothschild Apex', p: 250000, d: 30000, dur: 30, t: 1150000, c: 'Normal', i: 'https://images.unsplash.com/photo-1554224155-1696413565d3?w=400' },
-        { n: 'VIP 1 – Wealth Starter Surge', p: 130, d: 162, dur: 5, t: 162, c: 'VIP', i: 'https://images.unsplash.com/photo-1633151209829-3070446c1418?w=400' },
+        { n: 'VIP 1 – Wealth Starter Surge', p: 200, d: 290, dur: 1, t: 290, c: 'VIP', i: 'https://images.unsplash.com/photo-1633151209829-3070446c1418?w=400' },
         { n: 'VIP 2 – Wealth Silver Boost', p: 1000, d: 250, dur: 7, t: 1750, c: 'VIP', i: 'https://images.unsplash.com/photo-1502920514313-52581002a659?w=400' },
         { n: 'VIP 3 – Wealth Gold Multiplier', p: 5000, d: 1250, dur: 10, t: 12500, c: 'VIP', i: 'https://images.unsplash.com/photo-1589758438368-0ad531db3366?w=400' },
         { n: 'VIP 4 – Wealth Platinum Hyper', p: 15000, d: 4050, dur: 12, t: 48600, c: 'VIP', i: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=400' },
