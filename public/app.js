@@ -3,126 +3,71 @@ window.allPlans = [];
 window.currentUser = null;
 let currentSlide = 0;
 
-// 1. GERAR CAPTCHA (Forçado)
+// 1. GERAR CAPTCHA (Ajustado para 5 caracteres e carregamento seguro)
 window.generateCaptcha = function() {
     const chars = "0123456789ABCDEFGHJKLMNPQRSTUVWXYZ";
     let code = "";
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 5; i++) { // Aumentado para 5 para ficar mais bonito no bloco
         code += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     currentCaptcha = code;
     
-    // Procura a ID no HTML. Se achar, coloca o código.
-    const lVal = document.getElementById('l_cap_val');
-    const rVal = document.getElementById('r_cap_val');
-    
-    if(lVal) lVal.innerText = code;
-    if(rVal) rVal.innerText = code;
+    // Pequeno delay para garantir que o HTML já carregou na tela
+    setTimeout(() => {
+        const lVal = document.getElementById('l_cap_val');
+        const rVal = document.getElementById('r_cap_val');
+        if(lVal) lVal.innerText = code;
+        if(rVal) rVal.innerText = code;
+    }, 50);
 }
 
-// 2. FUNÇÃO DE LOGIN (Blindada e Organizada)
-window.handleLogin = async function() {
-    const phone = document.getElementById('l_phone').value;
-    const pass = document.getElementById('l_pass').value;
-    const capInElement = document.getElementById('l_cap_in');
-    const captchaInput = capInElement ? capInElement.value.toUpperCase() : "";
-
-    // 1. Validação de Campos Vazios
-    if(!phone || !pass) {
-        return showAlert("Atenção", "Por favor, preencha o número de telefone e a senha.");
-    }
-
-    // 2. Validação do Captcha
-    if(captchaInput !== currentCaptcha) {
-        showAlert("Erro", "Código de verificação (Captcha) incorreto.");
-        window.generateCaptcha(); // Muda o código para segurança
-        return;
-    }
-
-    try {
-        // 3. Chamada para o Servidor
-        const res = await fetch('/api/login', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ phone, password: pass })
-        });
-        
-        const data = await res.json();
-
-        if(data.success) {
-            if(data.role === 'admin') {
-                // Se for Admin, vai para a página de administração
-                window.location.href = '/admin.html';
-            } else {
-                // Se for Usuário Comum:
-                
-                // A. Carrega os dados (Saldo, Nome, etc)
-                await window.loadUserData();
-                
-                // B. FORÇA o menu de navegação a aparecer
-                const nav = document.getElementById('main-nav');
-                if(nav) {
-                    nav.style.display = 'flex';
-                    nav.classList.add('show-menu');
-                }
-
-                // C. Entra na Dashboard (Home)
-                window.goTo('page-home');
-            }
-        } else {
-            // Caso o servidor retorne erro (senha errada, etc)
-            showAlert("Erro", data.error || "Telefone ou senha incorretos.");
-            window.generateCaptcha();
-        }
-
-    } catch(e) {
-        // Caso haja falha de internet ou servidor fora do ar
-        showAlert("Erro", "Falha ao conectar com o servidor. Verifique sua internet.");
-        console.error("Erro no login:", e);
-    }
-        }
-
-// 3. COMANDO QUE FAZ TUDO ACORDAR ASSIM QUE O SITE ABRE
-window.onload = () => {
-    window.generateCaptcha();
-    // Outras inicializações...
-};
-
-// 2. Navegação entre Páginas (SPA)
+// 2. NAVEGAÇÃO ENTRE PÁGINAS (Corrigida para carregar os planos)
 window.goTo = function(pageId, btn) {
     const target = document.getElementById(pageId);
     const nav = document.getElementById('main-nav');
 
     if (!target) return;
 
-    // 1. Esconde TODAS as páginas
+    // Esconde todas as páginas
     document.querySelectorAll('.page').forEach(p => {
         p.classList.remove('active');
         p.style.display = 'none';
     });
 
-    // 2. Mostra a página desejada
+    // Mostra a página desejada
     target.classList.add('active');
     target.style.display = 'block';
 
-    // 3. Gerencia o Menu Inferior
+    // Gerencia o Menu Inferior
     if (nav) {
         if (pageId === 'page-login' || pageId === 'page-register') {
             nav.style.display = 'none';
         } else {
-            nav.style.display = 'flex'; // Mostra em todas as outras
+            nav.style.display = 'flex';
         }
     }
 
-    // 4. Marca o botão do menu como ativo
+    // Marca o botão do menu como ativo
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
     if (btn) btn.classList.add('active');
 
-    // 5. Carrega dados se for pra Home
-    if (pageId === 'page-home') window.loadUserData();
+    // GATILHOS DE CARREGAMENTO (Essencial para os planos aparecerem)
+    if (pageId === 'page-home') {
+        window.loadUserData();
+        window.loadHomeData(); 
+    }
+    if (pageId === 'page-projects' || pageId === 'page-vip-list') {
+        window.loadAllPlans();
+    }
+    if (pageId === 'page-account') {
+        window.startAccountSlider();
+    }
+    if (pageId === 'page-login' || pageId === 'page-register') {
+        window.generateCaptcha();
+    }
 }
 
-// 3. Carregar Dados do Usuário (SOMA TOTAL, SEMANA, MÊS, EQUIPE E CONTA)
+// 3. CARREGAR DADOS DO USUÁRIO
 window.loadUserData = async function() {
     try {
         const res = await fetch('/api/user/data');
@@ -135,7 +80,7 @@ window.loadUserData = async function() {
             if(el) el.innerText = parseFloat(val || 0).toFixed(2);
         };
 
-        // --- Atualiza Home e Bloco de Saldo ---
+        // Atualiza Home e Bloco de Saldo
         update('u-balance', user.balance);
         update('stat-with', user.total_with);
         update('stat-week', user.week_earned);
@@ -144,7 +89,7 @@ window.loadUserData = async function() {
         update('stat-ref', user.total_ref);
         if(document.getElementById('u-name')) document.getElementById('u-name').innerText = user.name;
 
-        // --- Atualiza Página de Equipe ---
+        // Atualiza Página de Equipe
         if(document.getElementById('display-ref-id')) document.getElementById('display-ref-id').innerText = user.ref_code;
         if(document.getElementById('ref-link-input')) {
             document.getElementById('ref-link-input').value = window.location.origin + "/?ref=" + user.ref_code;
@@ -155,34 +100,117 @@ window.loadUserData = async function() {
         if(document.getElementById('lv2-count')) document.getElementById('lv2-count').innerText = user.lv2_count || 0;
         if(document.getElementById('lv3-count')) document.getElementById('lv3-count').innerText = user.lv3_count || 0;
 
-        // --- Atualiza Página de Conta ---
-        const nameLabel = document.getElementById('acc-name-label');
-        const phoneLabel = document.getElementById('acc-phone-label');
-        const balanceLabel = document.getElementById('acc-balance-total');
-        
-        if(nameLabel) nameLabel.innerText = user.name;
-        if(phoneLabel) phoneLabel.innerText = user.phone;
-        if(balanceLabel) balanceLabel.innerText = parseFloat(user.balance || 0).toFixed(2);
+        // Atualiza Página de Conta
+        if(document.getElementById('acc-name-label')) document.getElementById('acc-name-label').innerText = user.name;
+        if(document.getElementById('acc-phone-label')) document.getElementById('acc-phone-label').innerText = user.phone;
+        if(document.getElementById('acc-balance-total')) document.getElementById('acc-balance-total').innerText = parseFloat(user.balance || 0).toFixed(2);
 
     } catch(e) { console.error("Erro ao carregar dados:", e); }
 }
 
-// 4. Carregar Planos e Anúncios na Home
-// 1. Função que desenha o card (Texto Esquerda, Imagem Direita)
+// 4. CARREGAR PLANOS NA HOME E ANÚNCIOS
+window.loadHomeData = async function() {
+    try {
+        const res = await fetch('/api/plans');
+        const plans = await res.json();
+        window.allPlans = plans;
+        
+        const container = document.getElementById('beginner-plans');
+        if(container) {
+            let html = "";
+            const normalPlans = plans.filter(p => p.category === 'Normal').slice(0, 1);
+            const vipPlans = plans.filter(p => p.category === 'VIP').slice(0, 1);
+            
+            [...normalPlans, ...vipPlans].forEach(p => {
+                html += createPlanCard(p);
+            });
+            container.innerHTML = html;
+        }
+
+        // Carregar Anúncios
+        const adsRes = await fetch('/api/admin/list-ads');
+        const ads = await adsRes.json();
+        const adsContainer = document.getElementById('mini-history'); 
+        if(ads.length > 0 && adsContainer) {
+            adsContainer.innerHTML = `<div class="wealth-card" style="background:rgba(0,123,255,0.1); font-size:12px; border-left:4px solid var(--blue); padding:10px">📢 <b>AVISO:</b> ${ads[0].message}</div>`;
+        }
+    } catch(e) { console.error(e); }
+}
+
+// 5. CARREGAR TODOS OS PLANOS (PROJETOS)
+window.loadAllPlans = async function() {
+    try {
+        const res = await fetch('/api/plans');
+        const plans = await res.json();
+        window.allPlans = plans;
+
+        const normalList = document.getElementById('plans_normal_list');
+        const vipList = document.getElementById('plans_vip_list');
+
+        if(normalList) {
+            let html = "";
+            plans.filter(p => p.category === 'Normal').forEach(p => html += createPlanCard(p));
+            normalList.innerHTML = html || "<p style='text-align:center; color:grey'>Nenhum plano disponível.</p>";
+        }
+        if(vipList) {
+            let html = "";
+            plans.filter(p => p.category === 'VIP').forEach(p => html += createPlanCard(p));
+            vipList.innerHTML = html || "<p style='text-align:center; color:grey'>Nenhum plano VIP disponível.</p>";
+        }
+    } catch(e) { console.error(e); }
+}
+
+// 6. LÓGICA DE LOGIN (Blindada)
+window.handleLogin = async function() {
+    const phone = document.getElementById('l_phone').value;
+    const pass = document.getElementById('l_pass').value;
+    const capInInput = document.getElementById('l_cap_in');
+    const capIn = capInInput ? capInInput.value.toUpperCase() : "";
+
+    if(!phone || !pass) return showAlert("Atenção", "Preencha telefone e senha.");
+    if(capIn !== currentCaptcha) {
+        showAlert("Segurança", "Captcha incorreto.");
+        return window.generateCaptcha();
+    }
+
+    try {
+        const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ phone, password: pass })
+        });
+        const data = await res.json();
+
+        if(data.success) {
+            if(data.role === 'admin') {
+                window.location.href = '/admin.html';
+            } else {
+                await window.loadUserData();
+                window.goTo('page-home');
+            }
+        } else {
+            showAlert("Erro", data.error || "Dados incorretos.");
+            window.generateCaptcha();
+        }
+    } catch(e) {
+        showAlert("Erro", "Falha ao conectar com o servidor. Verifique sua internet.");
+    }
+}
+
+// 7. DESENHAR O CARD DO PLANO
 function createPlanCard(p) {
-    // Pegamos os valores independente se o nome no banco é 'daily' ou 'daily_profit'
-    const name = p.name || "Sem Nome";
+    const name = p.name || "Plano Wealth";
     const price = parseFloat(p.price || 0);
-    const daily = parseFloat(p.daily_profit || p.daily || 0);
+    const daily = parseFloat(p.daily_profit || 0);
     const duration = parseInt(p.duration || 0);
-    const totalReturn = parseFloat(p.total_return || p.total || 0);
-    const image = p.image_url || p.img || 'https://via.placeholder.com/80';
+    const totalReturn = parseFloat(p.total_return || 0);
+    const image = p.image_url || 'https://via.placeholder.com/80';
     const category = (p.category || 'Normal').toUpperCase();
 
     const isVip = category === 'VIP';
     
     const profitText = isVip 
-        ? `<p>Lucro Total: <b>MT ${totalReturn.toFixed(2)}</b></p><p style="color:#ffa500; font-size:9px;">⚠️ Capital não devolvido</p>`
+        ? `<p>Lucro Total: <b>MT ${totalReturn.toFixed(2)}</b></p><p style="color:#ffa500; font-size:9px; font-weight:bold;">⚠️ Capital não devolvido</p>`
         : `<p>Ganho Total: <b>MT ${(daily * duration).toFixed(2)}</b></p><p>Total + Capital: <b style="color:#00d084">MT ${totalReturn.toFixed(2)}</b></p>`;
 
     return `
