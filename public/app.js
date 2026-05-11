@@ -168,77 +168,80 @@ window.loadUserData = async function() {
 }
 
 // 4. Carregar Planos e Anúncios na Home
-// 1. Função que cria o desenho (HTML) de cada plano
+// 1. Função que desenha o card (Texto Esquerda, Imagem Direita)
 function createPlanCard(p) {
-    const isVip = (p.category || '').toUpperCase() === 'VIP';
+    // Pegamos os valores independente se o nome no banco é 'daily' ou 'daily_profit'
+    const name = p.name || "Sem Nome";
+    const price = parseFloat(p.price || 0);
+    const daily = parseFloat(p.daily_profit || p.daily || 0);
+    const duration = parseInt(p.duration || 0);
+    const totalReturn = parseFloat(p.total_return || p.total || 0);
+    const image = p.image_url || p.img || 'https://via.placeholder.com/80';
+    const category = (p.category || 'Normal').toUpperCase();
+
+    const isVip = category === 'VIP';
     
-    // Cálculos
-    const price = parseFloat(p.price);
-    const daily = parseFloat(p.daily_profit);
-    const totalProfit = (daily * p.duration).toFixed(2);
-    
-    // Regra: Normal devolve capital, VIP não.
     const profitText = isVip 
-        ? `<p>Lucro Total: <b>MT ${p.total_return}</b></p><p style="color:#ffa500; font-size:9px;">⚠️ Capital não devolvido</p>`
-        : `<p>Ganho Total: <b>MT ${totalProfit}</b></p><p>Total + Capital: <b style="color:#00d084">MT ${p.total_return}</b></p>`;
+        ? `<p>Lucro Total: <b>MT ${totalReturn.toFixed(2)}</b></p><p style="color:#ffa500; font-size:9px;">⚠️ Capital não devolvido</p>`
+        : `<p>Ganho Total: <b>MT ${(daily * duration).toFixed(2)}</b></p><p>Total + Capital: <b style="color:#00d084">MT ${totalReturn.toFixed(2)}</b></p>`;
 
     return `
     <div class="plan-mini-card ${isVip ? 'vip-card' : ''}">
         <div class="plan-info-left">
-            <h5 style="margin:0; font-size:14px; color:white;">${p.name}</h5>
-            <p style="margin:2px 0; font-size:10px;">Compra: <b>MT ${price}</b> | Dias: <b>${p.duration}</b></p>
+            <h5 style="margin:0; font-size:14px; color:white;">${name}</h5>
+            <p style="margin:2px 0; font-size:10px;">Compra: <b>MT ${price}</b> | Dias: <b>${duration}</b></p>
             <p style="margin:2px 0; font-size:10px;">Diário: <b style="color:#00d084">MT ${daily}</b></p>
-            <div style="margin-top:4px; font-size:10px; color:#8899ac; line-height:1.2">
+            <div style="margin-top:4px; font-size:10px; color:#8899ac;">
                 ${profitText}
             </div>
-            <button class="btn-buy-mini" onclick="handleBuyPlan(${p.id}, '${p.category}')">INVESTIR AGORA</button>
+            <button class="btn-buy-mini" onclick="handleBuyPlan(${p.id}, '${category}')">INVESTIR AGORA</button>
         </div>
-        <img src="${p.image_url || 'https://via.placeholder.com/80'}" class="plan-img-right">
+        <img src="${image}" class="plan-img-right">
     </div>`;
 }
 
-// 2. Função que busca no servidor e coloca nas caixas do HTML
+// 2. Carregamento dos Planos
 window.loadAllPlans = async function() {
+    console.log("Buscando planos...");
     try {
         const res = await fetch('/api/plans');
         const plans = await res.json();
         
-        window.allPlans = plans; // Guarda para as compras
+        console.log("Dados que chegaram do banco:", plans);
 
         const normalList = document.getElementById('plans_normal_list');
         const vipList = document.getElementById('plans_vip_list');
         const homeList = document.getElementById('beginner-plans');
 
-        // Limpa tudo antes de mostrar
+        // Limpeza absoluta
         if(normalList) normalList.innerHTML = "";
         if(vipList) vipList.innerHTML = "";
         if(homeList) homeList.innerHTML = "";
 
-        if(!plans || plans.length === 0) {
-            if(normalList) normalList.innerHTML = "<p style='text-align:center; color:grey'>Nenhum plano disponível.</p>";
+        if (!plans || plans.length === 0) {
+            console.error("ERRO: O Banco de dados retornou zero planos!");
+            if(normalList) normalList.innerHTML = "<p style='color:orange; text-align:center'>O Banco de dados está vazio. Vá no Admin e crie um plano.</p>";
             return;
         }
 
         plans.forEach((p, index) => {
             const cardHtml = createPlanCard(p);
-            const category = (p.category || 'Normal').toUpperCase();
+            const category = (p.category || 'Normal').trim().toUpperCase();
 
-            // Coloca na página de Projetos (Normal)
-            if (category === 'NORMAL' && normalList) {
-                normalList.innerHTML += cardHtml;
-            } 
-            // Coloca na página VIP
-            else if (category === 'VIP' && vipList) {
-                vipList.innerHTML += cardHtml;
+            if (category === 'VIP') {
+                if(vipList) vipList.innerHTML += cardHtml;
+            } else {
+                if(normalList) normalList.innerHTML += cardHtml;
             }
 
-            // Coloca na Home (apenas os 2 primeiros planos cadastrados)
+            // Na Home, mostra os 2 primeiros
             if (homeList && index < 2) {
                 homeList.innerHTML += cardHtml;
             }
         });
-    } catch(err) {
-        console.error("Erro ao carregar os planos no site:", err);
+
+    } catch (err) {
+        console.error("ERRO NO FETCH:", err);
     }
                 }
 
