@@ -21,6 +21,37 @@ window.generateCaptcha = function() {
     }, 50);
 }
 
+window.onload = async () => {
+    window.generateCaptcha();
+    
+    // Verifica se há um código de convite na URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const refCode = urlParams.get('ref');
+
+    if(refCode) {
+        window.goTo('page-register');
+        if(document.getElementById('r_invite')) document.getElementById('r_invite').value = refCode;
+        return;
+    }
+
+    // Tenta carregar dados do usuário para ver se ele está logado no SERVIDOR
+    const res = await fetch('/api/user/data');
+    
+    if (res.ok) {
+        // SE ESTÁ LOGADO: Vai para a última página salva ou para a Home
+        const lastPage = localStorage.getItem('wealth_last_page');
+        if(lastPage && lastPage !== 'page-login' && lastPage !== 'page-register') {
+            window.goTo(lastPage);
+        } else {
+            window.goTo('page-home');
+        }
+    } else {
+        // SE NÃO ESTÁ LOGADO: Limpa lixo da memória e fica no login
+        localStorage.removeItem('wealth_last_page');
+        window.goTo('page-login');
+    }
+};
+
 // 2. NAVEGAÇÃO ENTRE PÁGINAS (SPA) - VERSÃO COMPLETA E FUNCIONAL
 window.goTo = function(pageId, btn) {
     const target = document.getElementById(pageId);
