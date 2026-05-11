@@ -959,6 +959,61 @@ window.goTo = function(pageId, btn) {
     originalGoToFix(pageId, btn);
 }
 
+let currentWithdraw = { amount: 0, net: 0, tax: 0 };
+
+window.calculateWithdraw = function() {
+    const val = parseFloat(document.getElementById('in-withdraw-amount').value) || 0;
+    const tax = val * 0.13;
+    const net = val - tax;
+
+    currentWithdraw = { amount: val, net: net, tax: tax };
+
+    document.getElementById('calc-req').innerText = "MT " + val.toFixed(2);
+    document.getElementById('calc-net').innerText = "MT " + net.toFixed(2);
+}
+
+window.nextWithdrawStep = async function(step) {
+    if (step === 2) {
+        if (currentWithdraw.amount < 150) return showAlert("Atenção", "O valor mínimo de saque é 150 MT");
+        if (currentWithdraw.amount > window.currentUser.balance) return showAlert("Erro", "Saldo insuficiente.");
+
+        // Busca dados bancários vinculados
+        if (!window.currentUser.bank_name) return showAlert("Erro", "Configure sua conta bancária no menu 'Conta' antes de sacar.");
+
+        // Preenche Step 2
+        document.getElementById('conf-req').innerText = "MT " + currentWithdraw.amount.toFixed(2);
+        document.getElementById('conf-tax').innerText = "-MT " + currentWithdraw.tax.toFixed(2);
+        document.getElementById('conf-net').innerText = "MT " + currentWithdraw.net.toFixed(2);
+        
+        document.getElementById('draw-method').innerText = window.currentUser.bank_method || "M-Pesa";
+        document.getElementById('draw-number').innerText = window.currentUser.bank_phone || window.currentUser.phone;
+        document.getElementById('draw-name').innerText = window.currentUser.name;
+    }
+
+    document.querySelectorAll('.withdraw-container').forEach(c => c.classList.remove('active'));
+    document.getElementById(`withdraw-step-${step}`).classList.add('active');
+}
+
+window.confirmWithdraw = async function() {
+    const pin = document.getElementById('draw-pin').value;
+    if (!pin) return showAlert("PIN", "Digite seu PIN de 4 dígitos.");
+
+    const res = await fetch('/api/user/withdraw', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ amount: currentWithdraw.amount, pin: pin })
+    });
+
+    const data = await res.json();
+    if (data.success) {
+        document.getElementById('final-draw-amount').innerText = "MT " + currentWithdraw.net.toFixed(2);
+        nextWithdrawStep(3);
+        loadUserData(); // Atualiza saldo real
+    } else {
+        showAlert("Erro", data.error || "Falha no saque.");
+    }
+        }
+
 // 10. Inicialização Protegida (Verifica sessão real no servidor)
 window.onload = async () => {
     window.generateCaptcha();
