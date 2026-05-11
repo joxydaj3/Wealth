@@ -464,6 +464,53 @@ app.post('/api/user/deposit', upload.single('proof'), async (req, res) => {
     }
 });
 
+app.post('/api/user/withdraw', async (req, res) => {
+    if (!req.session.userId) return res.status(401).send();
+    const { amount, pin } = req.body;
+    const userId = req.session.userId;
+
+    // 1. REGRA DE HORÁRIO (Moçambique GMT+2)
+    const now = new Date();
+    const day = now.getUTCDay(); // 0-Dom, 1-Seg...
+    const hour = now.getUTCHours() + 2; // Ajuste para Moçambique
+
+    if (day === 0 || day === 6) return res.status(400).json({ error: "Saques permitidos apenas de Segunda a Sexta." });
+    if (hour < 11 || hour >= 19) return res.status(400).json({ error: "Horário de saque: das 11h às 19h." });
+
+    try {
+        const user = (await pool.query("SELECT balance, pin FROM users WHERE id = $1", [userId])).rows[0];
+        
+        // 2. REGRA DE SEGURANÇA E VALOR
+        if (user.pin !== pin) return res.status(400).json({ error: "PIN de segurança incorreto." });
+        if (amount < 150) return res.status(400).json({ error: "Mínimo 150 MT." });
+        if (user.balance < amount) return res.status(400).json({ error: "Saldo insuficiente." });
+
+        // 3. REGRA DE FREQUÊNCIA (1 a cada 24h)
+        const lastDraw = (await pool.query("SELECT created_at FROM transactions WHERE user_id = $1 AND type='withdraw' ORDER BY id DESC LIMIT 1", [userId])).rows[0];
+        if (lastDraw) {
+            const diff = (new Date() - new Date(lastDraw.created_at)) / 3600000;
+            if (diff < 24) return res.status(400).json({ error: "Aguarde 24h entre os saques." });
+        }
+
+        // 4. REGRA DE PLANO (Ativo ou expirado há menos de 5 dias)
+        const planCheck = await pool.query(`
+            SELECT id FROM user_plans 
+            WHERE user_id = $1 AND (status = 'active' OR expires_at >= CURRENT_DATE - INTERVAL '5 days') 
+            LIMIT 1`, [userId]);
+        
+        if (planCheck.rows.length === 0) return res.status(400).json({ error: "Necessário ter um plano ativo ou expirado em menos de 5 dias." });
+
+        // TUDO OK: Processar
+        const tax = amount * 0.13;
+        const net = amount - tax;
+
+        await pool.query("UPDATE users SET balance = balance - $1 WHERE id = $2", [amount, userId]);
+        await pool.query("INSERT INTO transactions (user_id, type, amount, method, status) VALUES ($1, 'withdraw', $2, 'pendente', 'approved')", [userId, amount]);
+        
+        res.json({ success: true });
+    } catch (e) { res.status(500).send(); }
+});
+
 app.get('/api/logout', (req, res) => {
     req.session.destroy(); // Destrói a sessão no servidor
     res.json({ success: true });
