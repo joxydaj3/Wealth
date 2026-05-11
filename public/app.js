@@ -137,7 +137,7 @@ window.goTo = function(pageId, btn) {
     }
             }
 
-// 3. CARREGAR DADOS DO USUÁRIO
+// 3. CARREGAR DADOS DO USUÁRIO (COMPLETO: SALDO, EQUIPE E CONTA)
 window.loadUserData = async function() {
     try {
         const res = await fetch('/api/user/data');
@@ -147,10 +147,17 @@ window.loadUserData = async function() {
         
         const update = (id, val) => {
             const el = document.getElementById(id);
-            if(el) el.innerText = parseFloat(val || 0).toFixed(2);
+            if(el) {
+                // Se for dinheiro, formata com MT. Se for apenas número, mostra normal.
+                if(id.includes('money') || id.includes('earned') || id.includes('balance') || id.includes('stat')) {
+                    el.innerText = parseFloat(val || 0).toFixed(2);
+                } else {
+                    el.innerText = val || 0;
+                }
+            }
         };
 
-        // Atualiza Home e Bloco de Saldo
+        // --- ATUALIZA HOME E BLOCO DE SALDO ---
         update('u-balance', user.balance);
         update('stat-with', user.total_with);
         update('stat-week', user.week_earned);
@@ -159,24 +166,105 @@ window.loadUserData = async function() {
         update('stat-ref', user.total_ref);
         if(document.getElementById('u-name')) document.getElementById('u-name').innerText = user.name;
 
-        // Atualiza Página de Equipe
+        // --- ATUALIZA PÁGINA DE EQUIPE (DADOS REAIS) ---
         if(document.getElementById('display-ref-id')) document.getElementById('display-ref-id').innerText = user.ref_code;
         if(document.getElementById('ref-link-input')) {
             document.getElementById('ref-link-input').value = window.location.origin + "/?ref=" + user.ref_code;
         }
-        update('team-total-earned', user.total_ref);
-        if(document.getElementById('team-total-count')) document.getElementById('team-total-count').innerText = user.total_team || 0;
-        if(document.getElementById('lv1-count')) document.getElementById('lv1-count').innerText = user.lv1_count || 0;
-        if(document.getElementById('lv2-count')) document.getElementById('lv2-count').innerText = user.lv2_count || 0;
-        if(document.getElementById('lv3-count')) document.getElementById('lv3-count').innerText = user.lv3_count || 0;
 
-        // Atualiza Página de Conta
+        // Ganhos de Comissão nos 4 blocos
+        update('team-total-earned', user.total_ref);
+        update('team-lv1-earned', user.lv1_earned || 0);
+        update('team-lv2-earned', user.lv2_earned || 0);
+        update('team-lv3-earned', user.lv3_earned || 0);
+
+        // Contagem de Membros (Ativos/Inativos)
+        update('team-total-count', user.team_total);
+        update('lv1-count', user.lv1_count);
+        update('lv2-count', user.lv2_count);
+        update('lv3-count', user.lv3_count);
+        update('team-active-count', user.team_active);
+        update('team-inactive-count', user.team_inactive);
+
+        // Financeiro da Equipe (Soma de MT)
+        if(document.getElementById('team-dep-money')) document.getElementById('team-dep-money').innerText = "MT " + parseFloat(user.team_dep_money || 0).toFixed(2);
+        if(document.getElementById('team-with-money')) document.getElementById('team-with-money').innerText = "MT " + parseFloat(user.team_with_money || 0).toFixed(2);
+        if(document.getElementById('team-prof-money')) document.getElementById('team-prof-money').innerText = "MT " + parseFloat(user.team_prof_money || 0).toFixed(2);
+
+        // --- ATUALIZA PÁGINA DE CONTA ---
         if(document.getElementById('acc-name-label')) document.getElementById('acc-name-label').innerText = user.name;
         if(document.getElementById('acc-phone-label')) document.getElementById('acc-phone-label').innerText = user.phone;
         if(document.getElementById('acc-balance-total')) document.getElementById('acc-balance-total').innerText = parseFloat(user.balance || 0).toFixed(2);
 
+        // --- ATUALIZA CAMPANHAS (METAS) ---
+        renderCampaigns(user.campaign_count);
+
     } catch(e) { console.error("Erro ao carregar dados:", e); }
 }
+
+// 4. LÓGICA DAS CAMPANHAS (METAS DE CONVITE)
+window.renderCampaigns = function(count) {
+    const listContainer = document.getElementById('campaign-list');
+    if(!listContainer) return;
+
+    // Definição das metas e prêmios
+    const goals = [
+        { target: 10, prize: 50 },
+        { target: 20, prize: 100 },
+        { target: 50, prize: 300 },
+        { target: 100, prize: 650 },
+        { target: 500, prize: 3500 },
+        { target: 1000, prize: 10000 }
+    ];
+
+    let html = "";
+    goals.forEach(g => {
+        const progress = Math.min((count / g.target) * 100, 100);
+        const canClaim = count >= g.target;
+
+        html += `
+        <div class="campaign-card">
+            <div class="camp-info">
+                <strong>Meta: ${g.target} Convidados Ativos</strong>
+                <span>Prêmio: <b style="color:var(--green)">MT ${g.prize}.00</b></span>
+            </div>
+            <div class="camp-progress-area">
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                </div>
+                <small>${count}/${g.target}</small>
+            </div>
+            <button class="btn-claim-camp ${canClaim ? 'active' : ''}" 
+                    ${canClaim ? '' : 'disabled'} 
+                    onclick="claimCampaign(${g.target}, ${g.prize})">
+                ${canClaim ? 'Resgatar Agora' : 'Ainda Falta'}
+            </button>
+        </div>`;
+    });
+    listContainer.innerHTML = html;
+}
+
+// 5. RESGATAR PRÊMIO DA CAMPANHA
+window.claimCampaign = async function(target, prize) {
+    showAlert("Resgatar Prêmio", `Deseja coletar o bónus de MT ${prize}.00 pela meta de ${target} convidados?`, async () => {
+        try {
+            const res = await fetch('/api/user/claim-campaign', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ target, prize })
+            });
+            const data = await res.json();
+            if(data.success) {
+                showAlert("Sucesso", `🎉 Parabéns! MT ${prize}.00 foram adicionados ao seu saldo por completar a meta, continuem a convidar para ganhar prêmios especiais.`);
+                loadUserData(); // Recarrega tudo para atualizar saldo e barras
+            } else {
+                showAlert("Erro", data.error || "Você ainda não atingiu esta meta.");
+            }
+        } catch(e) {
+            showAlert("Erro", "Falha ao processar resgate.");
+        }
+    });
+    }
 
 // 4. CARREGAR PLANOS NA HOME E ANÚNCIOS
 window.loadHomeData = async function() {
