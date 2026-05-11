@@ -168,29 +168,27 @@ window.loadUserData = async function() {
 }
 
 // 4. Carregar Planos e Anúncios na Home
-// 1. Função Auxiliar para Criar o Card (Texto Esquerda, Imagem Direita)
-// IMPORTANTE: Esta função precisa existir para o loadAllPlans funcionar
+// 1. Função que cria o desenho (HTML) de cada plano
 function createPlanCard(p) {
-    const isVip = (p.category || '').trim().toUpperCase() === 'VIP';
+    const isVip = (p.category || '').toUpperCase() === 'VIP';
     
-    // Pegamos os valores com segurança (garante que sejam números)
-    const price = parseFloat(p.price || 0);
-    const daily = parseFloat(p.daily_profit || 0);
-    const duration = parseInt(p.duration || 0);
-    const totalReturn = parseFloat(p.total_return || 0);
-
-    // Regra de Texto solicitada: Normal devolve capital, VIP não.
+    // Cálculos
+    const price = parseFloat(p.price);
+    const daily = parseFloat(p.daily_profit);
+    const totalProfit = (daily * p.duration).toFixed(2);
+    
+    // Regra: Normal devolve capital, VIP não.
     const profitText = isVip 
-        ? `<p>Lucro Total: <b>MT ${totalReturn.toFixed(2)}</b></p><p style="color:#ffa500; font-size:9px; font-weight:bold;">💠</p>`
-        : `<p>Ganho Total: <b>MT ${(daily * duration).toFixed(2)}</b></p><p>Total + Capital: <b>MT ${totalReturn.toFixed(2)}</b></p>`;
+        ? `<p>Lucro Total: <b>MT ${p.total_return}</b></p><p style="color:#ffa500; font-size:9px;">⚠️ Capital não devolvido</p>`
+        : `<p>Ganho Total: <b>MT ${totalProfit}</b></p><p>Total + Capital: <b style="color:#00d084">MT ${p.total_return}</b></p>`;
 
     return `
     <div class="plan-mini-card ${isVip ? 'vip-card' : ''}">
         <div class="plan-info-left">
             <h5 style="margin:0; font-size:14px; color:white;">${p.name}</h5>
-            <p style="margin:2px 0; font-size:10px;">Compra: <b>MT ${price}</b> | Dias: <b>${duration}</b></p>
-            <p style="margin:2px 0; font-size:10px;">Diário: <b style="color:var(--green)">MT ${daily}</b></p>
-            <div style="margin-top:4px; font-size:10px; color:#8899ac;">
+            <p style="margin:2px 0; font-size:10px;">Compra: <b>MT ${price}</b> | Dias: <b>${p.duration}</b></p>
+            <p style="margin:2px 0; font-size:10px;">Diário: <b style="color:#00d084">MT ${daily}</b></p>
+            <div style="margin-top:4px; font-size:10px; color:#8899ac; line-height:1.2">
                 ${profitText}
             </div>
             <button class="btn-buy-mini" onclick="handleBuyPlan(${p.id}, '${p.category}')">INVESTIR AGORA</button>
@@ -199,34 +197,31 @@ function createPlanCard(p) {
     </div>`;
 }
 
-// 2. Função para Carregar os Planos do Servidor
+// 2. Função que busca no servidor e coloca nas caixas do HTML
 window.loadAllPlans = async function() {
-    console.log("Tentando carregar planos na tela...");
     try {
         const res = await fetch('/api/plans');
         const plans = await res.json();
         
-        // Salvamos na memória para a trava VIP funcionar
-        window.allPlans = plans;
+        window.allPlans = plans; // Guarda para as compras
 
         const normalList = document.getElementById('plans_normal_list');
         const vipList = document.getElementById('plans_vip_list');
         const homeList = document.getElementById('beginner-plans');
 
-        // Limpa os containers antes de desenhar
+        // Limpa tudo antes de mostrar
         if(normalList) normalList.innerHTML = "";
         if(vipList) vipList.innerHTML = "";
         if(homeList) homeList.innerHTML = "";
 
         if(!plans || plans.length === 0) {
-            console.warn("O servidor não enviou nenhum plano.");
-            if(normalList) normalList.innerHTML = "<p style='text-align:center; padding:20px; color:grey;'>Nenhum plano disponível.</p>";
+            if(normalList) normalList.innerHTML = "<p style='text-align:center; color:grey'>Nenhum plano disponível.</p>";
             return;
         }
 
         plans.forEach((p, index) => {
             const cardHtml = createPlanCard(p);
-            const category = (p.category || 'Normal').trim().toUpperCase();
+            const category = (p.category || 'Normal').toUpperCase();
 
             // Coloca na página de Projetos (Normal)
             if (category === 'NORMAL' && normalList) {
@@ -237,18 +232,15 @@ window.loadAllPlans = async function() {
                 vipList.innerHTML += cardHtml;
             }
 
-            // Coloca na Home (apenas os 2 primeiros planos cadastrados no banco)
+            // Coloca na Home (apenas os 2 primeiros planos cadastrados)
             if (homeList && index < 2) {
                 homeList.innerHTML += cardHtml;
             }
         });
-
-        console.log("Planos renderizados com sucesso!");
-
-    } catch(error) { 
-        console.error("Erro ao desenhar planos na tela:", error); 
+    } catch(err) {
+        console.error("Erro ao carregar os planos no site:", err);
     }
-}
+                }
 
 // Carregar Histórico com correção nos botões
 window.loadFullHistory = async function(type = 'all', btn) {
