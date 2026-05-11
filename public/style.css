@@ -758,3 +758,26 @@ html, body {
 }
 .hist-card.deposit { border-left-color: var(--green); }
 .hist-card.withdraw { border-left-color: var(--red); }
+
+/* Saques */
+.withdraw-container { display: none; }
+.withdraw-container.active { display: block; animation: fadeIn 0.3s; }
+
+.saldo-mini-card { text-align: center; padding: 15px !important; }
+.saldo-mini-card h2 { margin: 5px 0 0; font-size: 24px; color: white; }
+
+.withdraw-calc-box { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 12px; margin-top: 15px; }
+.withdraw-calc-box.dark { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); }
+.calc-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
+.main-result { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px; margin-top: 8px; font-weight: 800; font-size: 16px; }
+
+.dest-info-card { background: rgba(0,123,255,0.05); padding: 15px; border-radius: 12px; margin-top: 15px; border-left: 4px solid var(--blue); }
+.dest-item { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
+
+.info-list-card ul { padding-left: 15px; margin: 10px 0; }
+.info-list-card li { font-size: 11px; color: #8899ac; margin-bottom: 8px; list-style: none; }
+
+.final-receive-box { background: #00d08411; padding: 20px; border-radius: 15px; margin: 20px 0; border: 1px solid #00d08433; }
+.final-receive-box h2 { color: var(--green); font-size: 32px; margin: 5px 0; }
+
+.time-footer { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 10px; font-size: 12px; color: #8899ac; }
