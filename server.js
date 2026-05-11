@@ -396,6 +396,11 @@ app.post('/api/user/deposit', upload.single('proof'), async (req, res) => {
     }
 });
 
+app.get('/api/logout', (req, res) => {
+    req.session.destroy(); // Destrói a sessão no servidor
+    res.json({ success: true });
+});
+
 app.get('/api/user/transactions', async (req, res) => {
     if (!req.session.userId) return res.status(401).send();
     const { type } = req.query;
