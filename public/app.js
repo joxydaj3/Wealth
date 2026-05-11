@@ -196,6 +196,10 @@ window.loadUserData = async function() {
         if(document.getElementById('acc-phone-label')) document.getElementById('acc-phone-label').innerText = user.phone;
         if(document.getElementById('acc-balance-total')) document.getElementById('acc-balance-total').innerText = parseFloat(user.balance || 0).toFixed(2);
 
+        // --- CORREÇÃO AQUI: Atualiza o Saldo Disponível na tela de SAQUE ---
+        const drawBalanceEl = document.getElementById('draw-balance');
+        if(drawBalanceEl) drawBalanceEl.innerText = "MT " + parseFloat(user.balance).toFixed(2);
+
         // --- ATUALIZA CAMPANHAS (METAS) ---
         renderCampaigns(user.campaign_count);
 
@@ -961,29 +965,46 @@ window.goTo = function(pageId, btn) {
 
 let currentWithdraw = { amount: 0, net: 0, tax: 0 };
 
+// --- ATUALIZAÇÃO DO SAQUE EM TEMPO REAL ---
 window.calculateWithdraw = function() {
-    const val = parseFloat(document.getElementById('in-withdraw-amount').value) || 0;
-    const tax = val * 0.13;
-    const net = val - tax;
+    const input = document.getElementById('in-withdraw-amount');
+    const val = parseFloat(input.value) || 0;
+    const calcBox = document.getElementById('calc-box-withdraw');
 
-    currentWithdraw = { amount: val, net: net, tax: tax };
+    // Só mostra o bloco de cálculo se o valor for 150 ou mais
+    if (val >= 150) {
+        calcBox.style.display = 'block';
+        
+        const tax = val * 0.13; // Cálculo de 13%
+        const net = val - tax;
 
-    document.getElementById('calc-req').innerText = "MT " + val.toFixed(2);
-    document.getElementById('calc-net').innerText = "MT " + net.toFixed(2);
+        document.getElementById('calc-req').innerText = "MT " + val.toFixed(2);
+        document.getElementById('calc-tax-val').innerText = "-MT " + tax.toFixed(2);
+        document.getElementById('calc-net').innerText = "MT " + net.toFixed(2);
+
+        // Guarda os valores para o próximo passo
+        currentWithdraw = { amount: val, net: net, tax: tax };
+    } else {
+        // Esconde o bloco se o valor for menor que 150
+        calcBox.style.display = 'none';
+    }
 }
 
 window.nextWithdrawStep = async function(step) {
     if (step === 2) {
-        if (currentWithdraw.amount < 150) return showAlert("Atenção", "O valor mínimo de saque é 150 MT");
-        if (currentWithdraw.amount > window.currentUser.balance) return showAlert("Erro", "Saldo insuficiente.");
+        const amountToDraw = parseFloat(document.getElementById('in-withdraw-amount').value);
+        
+        if (amountToDraw < 150) return showAlert("Atenção", "O valor mínimo de saque é 150 MT");
+        
+        // Compara o valor digitado com o saldo real que veio do servidor
+        if (amountToDraw > window.currentUser.balance) {
+            return showAlert("Erro", "Saldo insuficiente. Você tem MT " + window.currentUser.balance.toFixed(2));
+        }
 
-        // Busca dados bancários vinculados
-        if (!window.currentUser.bank_name) return showAlert("Erro", "Configure sua conta bancária no menu 'Conta' antes de sacar.");
-
-        // Preenche Step 2
-        document.getElementById('conf-req').innerText = "MT " + currentWithdraw.amount.toFixed(2);
-        document.getElementById('conf-tax').innerText = "-MT " + currentWithdraw.tax.toFixed(2);
-        document.getElementById('conf-net').innerText = "MT " + currentWithdraw.net.toFixed(2);
+        // Se passar na verificação, preenche os dados do passo 2 (Confirmação)
+        document.getElementById('conf-req').innerText = "MT " + amountToDraw.toFixed(2);
+        document.getElementById('conf-tax').innerText = "-MT " + (amountToDraw * 0.13).toFixed(2);
+        document.getElementById('conf-net').innerText = "MT " + (amountToDraw * 0.87).toFixed(2);
         
         document.getElementById('draw-method').innerText = window.currentUser.bank_method || "M-Pesa";
         document.getElementById('draw-number').innerText = window.currentUser.bank_phone || window.currentUser.phone;
