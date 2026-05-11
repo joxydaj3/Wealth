@@ -42,10 +42,6 @@ async function initDB() {
   try {
     console.log("Iniciando limpeza e migração do banco de dados...");
 
-    // 1. LIMPEZA (Nuclear): Apaga a tabela de planos para recriar do zero sem erros de coluna
-    // Após os planos aparecerem, você pode remover esta linha se quiser manter edições do admin
-    await client.query("DROP TABLE IF EXISTS plans CASCADE;"); 
-
     // 2. Criar Tabelas Reais e Completas
     await client.query(`
       CREATE TABLE IF NOT EXISTS users (
