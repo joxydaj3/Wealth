@@ -134,37 +134,106 @@ html, body {
 .btn-check { background: #ffa000; }
 
 /* =========================================
-   4. PLANOS E PROJETOS (SIDE-BY-SIDE)
+   4. PLANOS E PROJETOS (SIDE-BY-SIDE) - CORRIGIDO
    ========================================= */
-.plan-desc { font-size: 12px; color: var(--text-dim); line-height: 1.4; margin-top: 5px; }
-.plans-column-list { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
-
-//.plan-mini-card {
-    background: linear-gradient(145deg, #122558 0%, #0d1b3e 100%);
-    border-radius: 16px; padding: 10px 12px; display: flex; justify-content: space-between;
-    align-items: center; height: 115px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px;
+.plan-desc { 
+    font-size: 12px; 
+    color: var(--text-dim); 
+    line-height: 1.4; 
+    margin-top: 5px; 
 }
 
-.plan-info-left { flex: 1; display: flex; flex-direction: column; justify-content: center; }
-.plan-info-left h5 { margin: 0; font-size: 13px; color: white; margin-bottom: 4px; }
-.plan-info-left p { margin: 1px 0; font-size: 10px; color: var(--text-dim); }
-.plan-info-left b { color: var(--green); font-size: 10px; }
+.plans-column-list { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 12px; 
+    margin-top: 15px; 
+    padding-bottom: 30px;
+}
 
-.plan-img-right { width: 80px; height: 80px; border-radius: 12px; object-fit: cover; margin-left: 10px; border: 1px solid rgba(255,255,255,0.1); }
+/* Card Principal: Imagem na Direita, Texto na Esquerda */
+.plan-mini-card {
+    background: linear-gradient(145deg, #122558 0%, #0d1b3e 100%);
+    border-radius: 16px; 
+    padding: 12px; 
+    display: flex !important; 
+    flex-direction: row !important; /* Força ficar um ao lado do outro */
+    justify-content: space-between;
+    align-items: center; 
+    height: 120px; /* Altura fixa para caber 4 na tela */
+    border: 1px solid rgba(255,255,255,0.05); 
+    margin-bottom: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.plan-info-left { 
+    flex: 1; 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    text-align: left;
+}
+
+.plan-info-left h5 { 
+    margin: 0; 
+    font-size: 14px; 
+    color: white; 
+    margin-bottom: 4px; 
+}
+
+.plan-info-left p { 
+    margin: 1px 0; 
+    font-size: 10px; 
+    color: var(--text-dim); 
+}
+
+.plan-info-left b { 
+    color: var(--green); 
+    font-size: 11px; 
+}
+
+/* Imagem redimensionada para a direita */
+.plan-img-right { 
+    width: 85px; 
+    height: 85px; 
+    border-radius: 12px; 
+    object-fit: cover; 
+    margin-left: 10px; 
+    border: 1px solid rgba(255,255,255,0.1); 
+}
 
 .btn-buy-mini, .btn-invest-mini {
-    background: var(--blue); border: none; border-radius: 6px; color: white;
-    font-size: 9px; font-weight: bold; padding: 6px 12px; margin-top: 6px; width: fit-content; cursor: pointer;
+    background: var(--blue); 
+    border: none; 
+    border-radius: 6px; 
+    color: white;
+    font-size: 9px; 
+    font-weight: bold; 
+    padding: 6px 12px; 
+    margin-top: 8px; 
+    width: fit-content; 
+    cursor: pointer;
 }
 
 .btn-vip-toggle {
-    position: absolute; top: 0; right: 0; background: linear-gradient(to right, #ffd700, #ffa500);
-    border: none; padding: 8px 15px; border-radius: 10px; color: #050a30;
-    font-weight: 800; font-size: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3);
+    position: absolute; 
+    top: 5px; 
+    right: 5px; 
+    background: linear-gradient(to right, #ffd700, #ffa500);
+    border: none; 
+    padding: 8px 15px; 
+    border-radius: 10px; 
+    color: #050a30;
+    font-weight: 800; 
+    font-size: 12px; 
+    cursor: pointer; 
+    box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3);
 }
 
-.vip-card, .vip-border { border: 1px solid #ffd700 !important; }
-
+.vip-card, .vip-border { 
+    border: 1px solid #ffd700 !important; 
+   }
+  
 /* =========================================
    5. EQUIPE E COMISSÕES - AJUSTADO
    ========================================= */
@@ -560,43 +629,3 @@ html, body {
 }
 .hist-card.deposit { border-left-color: var(--green); }
 .hist-card.withdraw { border-left-color: var(--red); }
-
-.plan-mini-card {
-    background: #0d1b3e;
-    border-radius: 16px;
-    padding: 12px;
-    display: flex !important;
-    flex-direction: row !important; /* Texto esquerda, Imagem direita */
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-    height: 120px; /* Compacto para caber 4 na tela */
-    border: 1px solid rgba(255,255,255,0.05);
-}
-
-.plan-info-left {
-    flex: 1;
-    text-align: left;
-}
-
-.plan-img-right {
-    width: 85px;
-    height: 85px;
-    border-radius: 12px;
-    object-fit: cover;
-    margin-left: 10px;
-}
-
-.vip-card { border: 1px solid #ffd700 !important; }
-
-.btn-buy-mini {
-    background: #007bff;
-    border: none;
-    border-radius: 6px;
-    color: white;
-    font-size: 10px;
-    font-weight: bold;
-    padding: 6px 12px;
-    margin-top: 8px;
-    cursor: pointer;
-              }
