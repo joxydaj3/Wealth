@@ -317,38 +317,88 @@ window.loadFullHistory = async function(type = 'all', btn) {
 
 // 6. Página de Lucros (Colheita Diária)
 window.loadProfitClaims = async function() {
+    const container = document.getElementById('profits-main-content');
+    const expiredContainer = document.getElementById('expired-plans-container');
+    const expiredSection = document.getElementById('expired-section');
+    const historySection = document.getElementById('history-section');
+
     try {
         const res = await fetch('/api/user/available-profits');
         const data = await res.json();
-        const activeContainer = document.getElementById('active-plans-container');
-        if(document.getElementById('total-collected')) document.getElementById('total-collected').innerText = window.currentUser.total_earned || "0.00";
-        if(document.getElementById('total-invested')) document.getElementById('total-invested').innerText = window.currentUser.total_invested || "0.00";
+        
+        // Atualiza cabeçalho
+        document.getElementById('total-invested').innerText = window.currentUser.total_invested || "0.00";
+        document.getElementById('total-collected').innerText = window.currentUser.total_earned || "0.00";
 
-        activeContainer.innerHTML = data.length === 0 ? "<p style='text-align:center; color:#8899ac; padding:20px;'>Nenhum lucro pendente hoje.</p>" : "";
+        if (data.length === 0) {
+            // TELA DE SEM PLANOS (Igual à imagem 2)
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">📈</div>
+                    <h3>Sem Planos</h3>
+                    <p>Comece a investir para ver seus lucros aqui.</p>
+                </div>`;
+            expiredSection.style.display = 'none';
+            historySection.style.display = 'none';
+            return;
+        }
+
+        container.innerHTML = `<div class="section-label">🚀 Planos Ativos</div>`;
+        expiredContainer.innerHTML = "";
+        let hasExpired = false;
 
         data.forEach(p => {
             const progress = (p.days_passed / p.duration) * 100;
-            const btnHtml = p.claimed_today 
-                ? `<button class="btn-claim" style="background:#2d3748; color:#718096; cursor:default;" disabled>✓ Recebido Hoje</button>`
-                : `<button class="btn-claim" onclick="claimProfit(${p.id})">💸 Receber Lucro Hoje — MT ${p.daily_profit}</button>`;
+            const isExpired = p.days_passed >= p.duration;
 
-            activeContainer.innerHTML += `
-                <div class="profit-card-full">
-                    <div class="profit-card-header"><strong>${p.name}</strong> <span class="status-badge">ATIVO</span></div>
+            // Lógica do Botão: Se comprou hoje (days_passed 0) ou já coletou
+            let buttonHTML = "";
+            if (p.days_passed === 0) {
+                buttonHTML = `<button class="btn-claim-today btn-claim-waiting">⏳ Começa amanhã às 00:00</button>`;
+            } else if (p.claimed_today) {
+                buttonHTML = `<button class="btn-claim-today btn-claim-waiting">✅ Recebido Hoje</button>`;
+            } else {
+                buttonHTML = `<button class="btn-claim-today" onclick="claimProfit(${p.id})">💰 Receber Lucro Hoje — MT ${parseFloat(p.daily_profit).toFixed(2)}</button>`;
+            }
+
+            const cardHTML = `
+                <div class="profit-card-detailed">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                        <strong>${p.name}</strong>
+                        <span class="status-badge" style="background:${isExpired ? '#red22' : '#00d08422'}; color:${isExpired ? 'red' : '#00d084'}">${isExpired ? 'EXPIRADO' : 'ATIVO'}</span>
+                    </div>
+                    <div class="profit-data-grid">
+                        <div class="data-box"><small>Investimento</small><span>MT ${p.price}</span></div>
+                        <div class="data-box"><small>Dias Totais</small><span>${p.duration} dias</span></div>
+                        <div class="data-box"><small>Ganho/Dia</small><span>MT ${p.daily_profit}</span></div>
+                        <div class="data-box"><small>Restantes</small><span>${p.duration - p.days_passed} dias</span></div>
+                    </div>
+                    <div class="total-gain-box">
+                        <small>TOTAL DE GANHO</small>
+                        <h2>MT ${(p.daily_profit * p.duration).toFixed(2)}</h2>
+                        <small>+150% (Capital + Lucro)</small>
+                    </div>
                     <div class="progress-container">
                         <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${progress}%"></div></div>
                         <div class="progress-info"><span>${progress.toFixed(0)}%</span><span>${p.days_passed}/${p.duration} dias</span></div>
                     </div>
-                    ${btnHtml}
+                    ${!isExpired ? buttonHTML : ''}
                 </div>`;
-        });
-    } catch (e) { console.error(e); }
-}
 
-async function claimProfit(id) {
-    const res = await fetch('/api/user/claim-profit', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ userPlanId: id }) });
-    if(res.ok) { showAlert("Sucesso", "Lucro coletado!"); window.loadProfitClaims(); window.loadUserData(); }
-}
+            if (isExpired) {
+                expiredContainer.innerHTML += cardHTML;
+                hasExpired = true;
+            } else {
+                container.innerHTML += cardHTML;
+            }
+        });
+
+        expiredSection.style.display = hasExpired ? 'block' : 'none';
+        historySection.style.display = 'block';
+        loadProfitHistory(); // Chama a função de histórico que já criamos antes
+
+    } catch (e) { console.error(e); }
+            }
 
 // 7. Equipe: Funções
 window.copyInvite = function() {
