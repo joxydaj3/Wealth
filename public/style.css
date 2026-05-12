@@ -850,3 +850,29 @@ html, body {
 .final-receive-box h2 { color: var(--green); font-size: 32px; margin: 5px 0; }
 
 .time-footer { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 10px; font-size: 12px; color: #8899ac; }
+
+/* Card de Visualização de Conta Vinculada */
+.bank-display-card {
+    background: linear-gradient(135deg, #1e3a8a, #0b1437);
+    padding: 20px;
+    border-radius: 20px;
+    margin: 10px 20px;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+.bank-info-item { margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; }
+.bank-info-item small { color: #8899ac; font-size: 10px; text-transform: uppercase; display: block; }
+.bank-info-item b { font-size: 14px; color: white; }
+
+/* Aviso Legal */
+.bank-warning-box {
+    margin: 20px;
+    padding: 15px;
+    background: rgba(255, 77, 77, 0.05);
+    border-radius: 12px;
+    border: 1px dashed #ff4d4d;
+}
+.bank-warning-box p { color: #ff4d4d; font-size: 12px; font-weight: bold; margin: 0 0 5px 0; }
+.bank-warning-box span { color: #8899ac; font-size: 11px; line-height: 1.4; display: block; }
+
+.input-pin-confirm { text-align: center; letter-spacing: 5px; font-weight: bold; }
