@@ -135,6 +135,12 @@ window.goTo = function(pageId, btn) {
         if (typeof window.generateCaptcha === 'function') window.generateCaptcha();
     }
 
+    if(pageId === 'page-support') {
+        document.body.style.backgroundColor = "#f8f9fa"; // Fundo claro como na imagem 1
+    } else {
+        document.body.style.backgroundColor = "#050a30"; // Volta para o azul marinho do app
+    }
+
     // --- 6. PERSISTÊNCIA: SALVAR ÚLTIMA PÁGINA ---
     // Impede que o usuário volte ao login ao dar "refresh" no navegador
     if (pageId !== 'page-login' && pageId !== 'page-register') {
@@ -1161,6 +1167,18 @@ window.updatePinAction = async function() {
         goTo('sub-page-bank');
     } else {
         showAlert("Erro", data.error || "Falha ao mudar PIN.");
+    }
+}
+
+// FUNÇÃO PARA CONTROLAR ACESSO AO GRUPO VIP
+window.accessVipGroup = function() {
+    // Verifica se o usuário tem planos ativos (plans_count vem da nossa rota /api/user/data)
+    if (window.currentUser && window.currentUser.plans_count > 0) {
+        // Se tem plano, abre o link do Telegram VIP
+        window.open('https://t.me/seulinkvip_aqui', '_blank');
+    } else {
+        // Se não tem plano, mostra o alerta profissional azul marinho
+        showAlert("Acesso Negado", "O Grupo VIP é exclusivo para investidores ativos. Por favor, adquira um plano de investimento para liberar o seu acesso.");
     }
 }
     
