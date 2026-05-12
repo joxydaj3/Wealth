@@ -349,10 +349,28 @@ app.post('/api/admin/delete-plan', async (req, res) => { await pool.query("DELET
 // Rota para salvar dados bancários e PIN
 app.post('/api/user/update-bank', async (req, res) => {
     if (!req.session.userId) return res.status(401).send();
-    const { method, name, phone, pin } = req.body;
-    // Salva o PIN e detalhes no banco (Supabase)
-    await pool.query("UPDATE users SET pin = $1, bank_details = $2 WHERE id = $3", [pin, `${method} - ${name} (${phone})`, req.session.userId]);
-    res.json({ success: true });
+    const { method, name, phone, pin, isEdit } = req.body;
+    
+    try {
+        const user = (await pool.query("SELECT pin FROM users WHERE id = $1", [req.session.userId])).rows[0];
+
+        // Se for edição, verifica se o PIN digitado confere com o antigo
+        if (isEdit && user.pin !== pin) {
+            return res.status(400).json({ error: "PIN de segurança incorreto!" });
+        }
+
+        // Atualiza todos os campos (O Admin verá esses campos individualmente no futuro)
+        await pool.query(`
+            UPDATE users 
+            SET pin = $1, bank_method = $2, bank_name = $3, bank_phone = $4 
+            WHERE id = $5`, 
+            [pin, method, name, phone, req.session.userId]
+        );
+
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: "Erro ao acessar o banco de dados." });
+    }
 });
 
 // Rota para trocar senha
