@@ -600,6 +600,18 @@
             </div>
         </section>
 
+        <!-- SUB-TELA: ALTERAR PIN -->
+<section id="sub-page-pin" class="page">
+    <div class="header-main"><button class="btn-back" onclick="renderBankPage(); goTo('sub-page-bank')">⬅</button><h3>Alterar PIN</h3></div>
+    <div class="wealth-card">
+        <p>Segurança de Levantamento:</p>
+        <input type="password" id="pin-old" maxlength="4" placeholder="PIN Antigo" class="input-tiny input-pin-confirm">
+        <input type="password" id="pin-new" maxlength="4" placeholder="Novo PIN (4 dígitos)" class="input-tiny input-pin-confirm">
+        <input type="password" id="pin-conf" maxlength="4" placeholder="Confirmar Novo PIN" class="input-tiny input-pin-confirm">
+        <button class="btn btn-blue" onclick="updatePinAction()">Atualizar PIN agora</button>
+    </div>
+</section>
+
         <section id="sub-page-about" class="page">
             <div class="header-main"><button class="btn-back" onclick="goTo('page-account')">⬅</button><h3>Sobre a Wealth</h3></div>
             <div class="wealth-card about-content">
