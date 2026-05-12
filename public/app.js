@@ -131,6 +131,11 @@ window.goTo = function(pageId, btn) {
         window.generateCaptcha();
     }
 
+    if(pageId === 'sub-page-bank') {
+        renderBankPage();
+    originalGoToBank(pageId, btn);
+}
+
     // PERSISTÊNCIA: Salva a última página para não perder no refresh
     if(pageId !== 'page-login' && pageId !== 'page-register') {
         localStorage.setItem('wealth_last_page', pageId);
@@ -662,6 +667,92 @@ window.saveBankInfo = async function() {
     const res = await fetch('/api/user/update-bank', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ method, name, phone, pin }) });
     if(res.ok) { showAlert("Sucesso", "Dados salvos!"); goTo('page-account'); }
 }
+
+// Função para renderizar a página de banco (chamar no goTo)
+window.renderBankPage = function() {
+    const area = document.getElementById('bank-content-area');
+    const u = window.currentUser;
+
+    // Se o usuário já tem banco e PIN configurado
+    if (u.bank_method && u.bank_phone) {
+        area.innerHTML = `
+            <div class="bank-display-card">
+                <div class="bank-info-item"><small>Método Ativo</small><b>${u.bank_method}</b></div>
+                <div class="bank-info-item"><small>Titular da Conta</small><b>${u.bank_name}</b></div>
+                <div class="bank-info-item"><small>Número / Endereço</small><b>${u.bank_phone}</b></div>
+                <div class="bank-info-item"><small>PIN de Segurança</small><b>${u.pin.substring(0,1)}***</b></div>
+            </div>
+            <div style="padding: 0 20px;">
+                <button class="btn btn-blue" onclick="showBankForm(true)">Mudar Dados de Saque</button>
+                <button class="btn-logout-small" style="width:100%; margin-top:10px; border-color:var(--blue); color:var(--blue)" onclick="showPinForm()">Alterar PIN de Saque</button>
+            </div>
+        `;
+    } else {
+        showBankForm(false);
+    }
+}
+
+// Mostrar Formulário de Cadastro/Edição
+window.showBankForm = function(isEdit) {
+    const area = document.getElementById('bank-content-area');
+    area.innerHTML = `
+        <div class="wealth-card">
+            <p>${isEdit ? 'Editar' : 'Vincular'} Conta para Saques:</p>
+            <select id="bank-method" class="input-tiny">
+                <option value="M-Pesa">M-Pesa</option>
+                <option value="e-Mola">e-Mola</option>
+                <option value="Binance UID">Binance UID (Cripto)</option>
+                <option value="USDT (BSC/BEP-20)">USDT (Rede BSC)</option>
+            </select>
+            <input type="text" id="bank-name" placeholder="Nome Completo do Titular" class="input-tiny" value="${window.currentUser.bank_name || ''}">
+            <input type="text" id="bank-phone" placeholder="Número ou Endereço da Carteira" class="input-tiny" value="${window.currentUser.bank_phone || ''}">
+            <hr style="opacity:0.1; margin:15px 0;">
+            <p>🔒 ${isEdit ? 'Confirme seu PIN atual:' : 'Crie seu PIN de 4 dígitos:'}</p>
+            <input type="password" id="bank-pin" maxlength="4" placeholder="****" class="input-tiny input-pin-confirm">
+            ${!isEdit ? '<input type="password" id="bank-pin-confirm" maxlength="4" placeholder="Confirme o PIN" class="input-tiny input-pin-confirm">' : ''}
+            <button class="btn btn-green" onclick="saveBankInfo(${isEdit})">Confirmar e Salvar</button>
+        </div>
+    `;
+}
+
+// Salvar no Banco (AJUSTADO)
+window.saveBankInfo = async function(isEdit) {
+    const method = document.getElementById('bank-method').value;
+    const name = document.getElementById('bank-name').value;
+    const phone = document.getElementById('bank-phone').value;
+    const pin = document.getElementById('bank-pin').value;
+
+    if(!name || !phone || !pin) return showAlert("Atenção", "Preencha todos os campos.");
+    
+    if(!isEdit) {
+        const confirmPin = document.getElementById('bank-pin-confirm').value;
+        if(pin !== confirmPin) return showAlert("Erro", "Os PINs digitados não coincidem.");
+    }
+
+    const res = await fetch('/api/user/update-bank', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ method, name, phone, pin, isEdit })
+    });
+
+    const data = await res.json();
+    if(res.ok) {
+        showAlert("Sucesso", "Os seus dados bancários foram actualizados!");
+        await loadUserData(); // Atualiza dados globais
+        renderBankPage(); // Volta para a tela de visualização
+    } else {
+        showAlert("Erro", data.error || "Falha ao salvar dados.");
+    }
+}
+
+// Ajuste na função goTo para chamar a renderização
+const originalGoToBank = window.goTo;
+window.goTo = function(pageId, btn) {
+    if(pageId === 'sub-page-bank') {
+        renderBankPage();
+    }
+    originalGoToBank(pageId, btn);
+    }
 
 window.changePass = async function() {
     const oldP = document.getElementById('pass-old').value;
