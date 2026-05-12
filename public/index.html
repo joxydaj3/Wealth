@@ -623,17 +623,71 @@
         </section>
 
         <!-- MODAIS -->
-        <div id="support-modal" class="modal-overlay">
-            <div class="modal-content">
-                <h3>Suporte Wealth Pro</h3>
-                <p>🕒 Horário: 09:00 - 20:00</p>
-                <div class="support-links">
-                    <a href="https://wa.me/seunumerowha" class="support-btn wa">WhatsApp Oficial</a>
-                    <a href="https://t.me/seuchan" class="support-btn tg">Canal Telegram</a>
-                </div>
-                <button class="btn btn-red" onclick="toggleSupport()" style="margin-top:15px">Fechar</button>
-            </div>
+        <!-- TELA: ATENDIMENTO AO CLIENTE (SUPORTE) -->
+<section id="page-support" class="page">
+    <div class="header-main-support">
+        <button class="btn-back" onclick="goTo('page-account')">⬅</button>
+        <h3>Atendimento ao Cliente</h3>
+    </div>
+
+    <!-- Banner com Horário Online (Estilo Imagem 1) -->
+    <div class="support-banner-container">
+        <img src="https://images.weserv.nl/?url=thewealthcenter.ca/wp-content/uploads/2023/11/The-Wealth-Center-Inc-Banner.jpg" class="img-banner-support">
+        <div class="online-time-overlay">
+            <small>Horário de Atendimento</small>
+            <div class="time-badge">09:00 - 20:00</div>
         </div>
+    </div>
+
+    <!-- Lista de 4 Botões de Suporte -->
+    <div class="support-buttons-list">
+        <!-- 1. Suporte Geral -->
+        <div class="support-item" onclick="window.open('https://wa.me/seunumerowha', '_blank')">
+            <div class="s-item-left">
+                <div class="s-icon-circle green-bg">📞</div>
+                <span>Suporte Oficial (WhatsApp)</span>
+            </div>
+            <div class="s-arrow-blue">▶</div>
+        </div>
+
+        <!-- 2. Grupo Geral -->
+        <div class="support-item" onclick="window.open('https://t.me/seugrupogeral', '_blank')">
+            <div class="s-item-left">
+                <div class="s-icon-circle chat-bg">💬</div>
+                <span>Grupo Geral de Membros</span>
+            </div>
+            <div class="s-arrow-blue">▶</div>
+        </div>
+
+        <!-- 3. Grupo VIP (COM LÓGICA DE TRAVA) -->
+        <div class="support-item" onclick="accessVipGroup()">
+            <div class="s-item-left">
+                <div class="s-icon-circle vip-bg">⭐</div>
+                <span>Grupo Exclusivo VIP</span>
+            </div>
+            <div class="s-arrow-blue">▶</div>
+        </div>
+
+        <!-- 4. Canal Oficial -->
+        <div class="support-item" onclick="window.open('https://t.me/seucanaloficial', '_blank')">
+            <div class="s-item-left">
+                <div class="s-icon-circle official-bg">📢</div>
+                <span>Canal de Avisos Oficiais</span>
+            </div>
+            <div class="s-arrow-blue">▶</div>
+        </div>
+    </div>
+
+    <!-- Seção de Conselhos e Regras -->
+    <div class="advice-section">
+        <h4>Conselhos e Regras</h4>
+        <p>1. Para qualquer dúvida sobre a plataforma, pagamentos ou bónus, contacte o suporte via WhatsApp.</p>
+        <p>2. <b>Rapidez no Atendimento:</b> Evite enviar apenas "Olá" ou "Boa tarde". Descreva detalhadamente o seu problema ou dúvida logo na primeira mensagem para ser ajudado rapidamente.</p>
+        <p>3. O <b>Grupo VIP</b> é restrito apenas para investidores com planos ativos. O acesso é verificado automaticamente pelo sistema.</p>
+        <p>4. Respeite o horário de atendimento (09:00h às 20:00h). Mensagens enviadas fora do horário serão respondidas por ordem de chegada no dia seguinte.</p>
+        <p>5. Nunca compartilhe a sua senha ou PIN com ninguém, nem mesmo com os administradores.</p>
+    </div>
+</section>
 
         <div id="wealth-modal" class="modal-overlay">
             <div class="modal-box">
