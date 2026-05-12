@@ -1082,41 +1082,31 @@ window.calculateWithdraw = function() {
 }
 
 window.nextWithdrawStep = async function(step) {
-    // Validação de segurança ao tentar ir para o Passo 2
     if (step === 2) {
-        const inputElement = document.getElementById('in-withdraw-amount');
-        const amountToDraw = parseFloat(inputElement.value);
+        const amountToDraw = parseFloat(document.getElementById('in-withdraw-amount').value);
         
-        // 1. Verifica se o campo está vazio ou não é um número
-        if (!inputElement.value || isNaN(amountToDraw)) {
-            return showAlert("Atenção", "Por favor, digite o valor que deseja sacar.");
+        if (isNaN(amountToDraw) || amountToDraw < 150) return showAlert("Atenção", "O valor mínimo de saque é 150 MT");
+        if (amountToDraw > window.currentUser.balance) return showAlert("Erro", "Saldo insuficiente.");
+
+        // TRAVA OBRIGATÓRIA: Verifica se o usuário vinculou a conta bancária
+        // Não usa dados do registro, exige dados do banco
+        if (!window.currentUser.bank_method || !window.currentUser.bank_phone || !window.currentUser.bank_name) {
+            return showAlert("Conta Necessária", "Você ainda não vinculou uma conta de saque. Por favor, vá ao menu 'Conta Bancária' e cadastre seus dados antes de solicitar um levantamento.", () => {
+                goTo('sub-page-bank'); // Leva ele direto para vincular
+            });
         }
 
-        // 2. Verifica o valor mínimo de 150 MT
-        if (amountToDraw < 150) {
-            return showAlert("Atenção", "O valor mínimo para levantamento é de 150.00 MT");
-        }
-        
-        // 3. Verifica se o usuário tem saldo suficiente
-        if (amountToDraw > window.currentUser.balance) {
-            return showAlert("Erro", "Saldo insuficiente. Você possui apenas MT " + window.currentUser.balance.toFixed(2));
-        }
-
-        // Se passar em tudo, preenche os dados do resumo (Passo 2)
-        const tax = amountToDraw * 0.13;
-        const net = amountToDraw - tax;
-
+        // Se tiver conta vinculada, preenche com os dados REAIS DO BANCO
         document.getElementById('conf-req').innerText = "MT " + amountToDraw.toFixed(2);
-        document.getElementById('conf-tax').innerText = "-MT " + tax.toFixed(2);
-        document.getElementById('conf-net').innerText = "MT " + net.toFixed(2);
+        document.getElementById('conf-tax').innerText = "-MT " + (amountToDraw * 0.13).toFixed(2);
+        document.getElementById('conf-net').innerText = "MT " + (amountToDraw * 0.87).toFixed(2);
         
-        // Puxa os dados bancários salvos no perfil do usuário
-        document.getElementById('draw-method').innerText = window.currentUser.bank_method || "M-Pesa";
-        document.getElementById('draw-number').innerText = window.currentUser.bank_phone || window.currentUser.phone;
-        document.getElementById('draw-name').innerText = window.currentUser.name;
+        // MOSTRAR DADOS VINCULADOS (NÃO DO REGISTRO)
+        document.getElementById('draw-method').innerText = window.currentUser.bank_method;
+        document.getElementById('draw-number').innerText = window.currentUser.bank_phone;
+        document.getElementById('draw-name').innerText = window.currentUser.bank_name;
     }
 
-    // Troca a tela visualmente
     document.querySelectorAll('.withdraw-container').forEach(c => c.classList.remove('active'));
     const nextTab = document.getElementById(`withdraw-step-${step}`);
     if(nextTab) nextTab.classList.add('active');
@@ -1142,6 +1132,38 @@ window.confirmWithdraw = async function() {
     }
         }
 
+// Abrir o formulário de PIN
+window.showPinForm = function() {
+    goTo('sub-page-pin');
+}
+
+// Executar a troca de PIN
+window.updatePinAction = async function() {
+    const oldPin = document.getElementById('pin-old').value;
+    const newPin = document.getElementById('pin-new').value;
+    const confPin = document.getElementById('pin-conf').value;
+
+    if(!oldPin || !newPin || !confPin) return showAlert("Atenção", "Preencha todos os campos.");
+    if(newPin !== confPin) return showAlert("Erro", "O novo PIN e a confirmação não coincidem.");
+    if(newPin.length < 4) return showAlert("Erro", "O PIN deve ter 4 dígitos.");
+
+    const res = await fetch('/api/user/update-pin', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ oldPin, newPin })
+    });
+
+    const data = await res.json();
+    if(res.ok) {
+        showAlert("Sucesso", "O seu PIN de levantamento foi alterado!");
+        await loadUserData(); // Atualiza dados na memória
+        renderBankPage(); // Volta para a tela principal do banco
+        goTo('sub-page-bank');
+    } else {
+        showAlert("Erro", data.error || "Falha ao mudar PIN.");
+    }
+}
+    
 // 10. Inicialização Protegida (Verifica sessão real no servidor)
 window.onload = async () => {
     window.generateCaptcha();
