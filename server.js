@@ -475,7 +475,7 @@ app.post('/api/user/withdraw', async (req, res) => {
     const hour = now.getUTCHours() + 2; // Ajuste para Moçambique
 
     if (day === 0 || day === 6) return res.status(400).json({ error: "Saques permitidos apenas de Segunda a Sexta." });
-    if (hour < 11 || hour >= 19) return res.status(400).json({ error: "Horário de saque: das 11h às 19h." });
+    if (hour < 8 || hour >= 19) return res.status(400).json({ error: "Horário de saque: das 11h às 19h." });
 
     try {
         const user = (await pool.query("SELECT balance, pin FROM users WHERE id = $1", [userId])).rows[0];
