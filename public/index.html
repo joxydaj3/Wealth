@@ -573,18 +573,21 @@
 
         <!-- SUB-TELAS DA CONTA -->
         <section id="sub-page-bank" class="page">
-            <div class="header-main"><button class="btn-back" onclick="goTo('page-account')">⬅</button><h3>Dados para Saque</h3></div>
-            <div class="wealth-card">
-                <p>Método de Saque:</p>
-                <select id="bank-method" class="input-tiny">
-                    <option value="M-Pesa">M-Pesa</option>
-                    <option value="e-Mola">e-Mola</option>
-                </select>
-                <input type="text" id="bank-name" placeholder="Nome do Titular" class="input-tiny">
-                <input type="number" id="bank-phone" placeholder="Número da Conta (+258)" class="input-tiny">
-                <input type="password" id="bank-pin" placeholder="Criar PIN de Saque (4 dígitos)" class="input-tiny">
-                <button class="btn btn-green" onclick="saveBankInfo()">Salvar Dados</button>
-            </div>
+    <div class="header-main">
+        <button class="btn-back" onclick="goTo('page-account')">⬅</button>
+        <h3>Configurações de Saque</h3>
+    </div>
+
+    <!-- Container Dinâmico: O JS vai preencher aqui -->
+    <div id="bank-content-area">
+        <p style="text-align:center; padding:20px;">Carregando informações...</p>
+    </div>
+
+    <!-- Aviso Legal no Final -->
+    <div class="bank-warning-box">
+        <p>⚠️ <b>AVISO DE RESPONSABILIDADE:</b></p>
+        <span>Certifique-se de que todos os dados inseridos estão corretos. A <b>Wealth</b> não se responsabiliza por valores enviados para contas incorretas devido a erros de preenchimento do utilizador. Transferências efectuadas não podem ser estornadas.</span>
+    </div>
         </section>
 
         <section id="sub-page-security" class="page">
