@@ -991,28 +991,44 @@ window.calculateWithdraw = function() {
 }
 
 window.nextWithdrawStep = async function(step) {
+    // Validação de segurança ao tentar ir para o Passo 2
     if (step === 2) {
-        const amountToDraw = parseFloat(document.getElementById('in-withdraw-amount').value);
+        const inputElement = document.getElementById('in-withdraw-amount');
+        const amountToDraw = parseFloat(inputElement.value);
         
-        if (amountToDraw < 150) return showAlert("Atenção", "O valor mínimo de saque é 150 MT");
-        
-        // Compara o valor digitado com o saldo real que veio do servidor
-        if (amountToDraw > window.currentUser.balance) {
-            return showAlert("Erro", "Saldo insuficiente. Você tem MT " + window.currentUser.balance.toFixed(2));
+        // 1. Verifica se o campo está vazio ou não é um número
+        if (!inputElement.value || isNaN(amountToDraw)) {
+            return showAlert("Atenção", "Por favor, digite o valor que deseja sacar.");
         }
 
-        // Se passar na verificação, preenche os dados do passo 2 (Confirmação)
-        document.getElementById('conf-req').innerText = "MT " + amountToDraw.toFixed(2);
-        document.getElementById('conf-tax').innerText = "-MT " + (amountToDraw * 0.13).toFixed(2);
-        document.getElementById('conf-net').innerText = "MT " + (amountToDraw * 0.87).toFixed(2);
+        // 2. Verifica o valor mínimo de 150 MT
+        if (amountToDraw < 150) {
+            return showAlert("Atenção", "O valor mínimo para levantamento é de 150.00 MT");
+        }
         
+        // 3. Verifica se o usuário tem saldo suficiente
+        if (amountToDraw > window.currentUser.balance) {
+            return showAlert("Erro", "Saldo insuficiente. Você possui apenas MT " + window.currentUser.balance.toFixed(2));
+        }
+
+        // Se passar em tudo, preenche os dados do resumo (Passo 2)
+        const tax = amountToDraw * 0.13;
+        const net = amountToDraw - tax;
+
+        document.getElementById('conf-req').innerText = "MT " + amountToDraw.toFixed(2);
+        document.getElementById('conf-tax').innerText = "-MT " + tax.toFixed(2);
+        document.getElementById('conf-net').innerText = "MT " + net.toFixed(2);
+        
+        // Puxa os dados bancários salvos no perfil do usuário
         document.getElementById('draw-method').innerText = window.currentUser.bank_method || "M-Pesa";
         document.getElementById('draw-number').innerText = window.currentUser.bank_phone || window.currentUser.phone;
         document.getElementById('draw-name').innerText = window.currentUser.name;
     }
 
+    // Troca a tela visualmente
     document.querySelectorAll('.withdraw-container').forEach(c => c.classList.remove('active'));
-    document.getElementById(`withdraw-step-${step}`).classList.add('active');
+    const nextTab = document.getElementById(`withdraw-step-${step}`);
+    if(nextTab) nextTab.classList.add('active');
 }
 
 window.confirmWithdraw = async function() {
