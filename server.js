@@ -553,6 +553,25 @@ app.post('/api/user/claim-campaign', async (req, res) => {
     }
 });
 
+// ROTA PARA ALTERAR APENAS O PIN DE SAQUE
+app.post('/api/user/update-pin', async (req, res) => {
+    if (!req.session.userId) return res.status(401).send();
+    const { oldPin, newPin } = req.body;
+    
+    try {
+        const user = (await pool.query("SELECT pin FROM users WHERE id = $1", [req.session.userId])).rows[0];
+
+        if (user.pin !== oldPin) {
+            return res.status(400).json({ error: "O PIN antigo está incorreto." });
+        }
+
+        await pool.query("UPDATE users SET pin = $1 WHERE id = $2", [newPin, req.session.userId]);
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: "Erro ao processar no servidor." });
+    }
+});
+      
 app.get('/api/user/transactions', async (req, res) => {
     if (!req.session.userId) return res.status(401).send();
     const { type } = req.query;
