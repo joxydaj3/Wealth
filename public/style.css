@@ -876,30 +876,47 @@ html, body {
 
 /* --- ESTILO SUPORTE (TEMA ESCURO PARA NÃO DAR ERRO) --- */
 #page-support {
-    background-color: var(--bg) !important;
+    background-color: var(--bg) !important; /* Mantém o azul marinho padrão */
     color: white !important;
+    min-height: 100vh;
 }
 
 .header-main-support {
-    background: #ff4d4d;
+    background: #ff4d4d; /* Cor vermelha do topo */
     padding: 15px;
     display: flex;
     align-items: center;
     color: white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .support-item {
-    background: var(--card) !important; /* Fundo azul do card */
+    background: var(--card) !important; 
     margin-bottom: 12px;
     padding: 15px;
-    border-radius: 12px;
+    border-radius: 15px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.05);
+    cursor: pointer;
 }
 
-.s-item-left span { color: white !important; }
+/* Garante que o texto dos botões seja sempre visível */
+.s-item-left span { 
+    color: white !important; 
+    font-size: 14px;
+    font-weight: 600;
+}
 
-.advice-section { padding: 20px; color: #8899ac; background: var(--bg); }
-.advice-section h4 { color: white; }
+.advice-section { 
+    padding: 20px; 
+    color: #8899ac; 
+    background: var(--bg); 
+    padding-bottom: 50px;
+}
+
+.advice-section h4 { color: white; margin-bottom: 10px; }
+.advice-section p { font-size: 12px; line-height: 1.6; margin-bottom: 10px; }
