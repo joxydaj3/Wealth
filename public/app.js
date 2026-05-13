@@ -1015,15 +1015,6 @@ window.loadFullHistory = async function(type = 'all', btn) {
     } catch (e) { console.error(e); }
 }
 
-// --- AJUSTE NA FUNÇÃO GOTO ---
-// Garante que os planos carreguem na Home e nos Projetos
-const originalGoToFix = window.goTo;
-window.goTo = function(pageId, btn) {
-    if(pageId === 'page-history') loadFullHistory('all');
-    if(pageId === 'page-home') loadHomeData(); // Força recarregar planos na home
-    originalGoToFix(pageId, btn);
-}
-
 let currentWithdraw = { amount: 0, net: 0, tax: 0 };
 
 // --- ATUALIZAÇÃO DO SAQUE EM TEMPO REAL ---
