@@ -52,99 +52,69 @@ window.onload = async () => {
     }
 };
 
-// 2. NAVEGAÇÃO ENTRE PÁGINAS (SPA) - VERSÃO FINAL, COMPLETA E INTEGRADA
+// 2. NAVEGAÇÃO ENTRE PÁGINAS (SPA) - VERSÃO FINAL, COMPLETA E INTEGRA
 window.goTo = function(pageId, btn) {
     const target = document.getElementById(pageId);
     const nav = document.getElementById('main-nav');
 
+    // 1. Proteção: Se a página não existir no HTML, ele não faz nada (evita tela preta)
     if (!target) {
-        console.error("Erro: A página com ID '" + pageId + "' não foi encontrada no HTML.");
-        return;
+        console.error("ERRO: A página '" + pageId + "' não existe no HTML. Verifique o ID da section.");
+        return; 
     }
 
-    // --- 1. ESCONDER TODAS AS PÁGINAS ---
+    // 2. Esconde todas as páginas e remove a classe 'active'
     document.querySelectorAll('.page').forEach(p => {
         p.classList.remove('active');
         p.style.display = 'none';
     });
 
-    // --- 2. MOSTRAR A PÁGINA DESEJADA ---
+    // 3. Mostra a página alvo
     target.classList.add('active');
     target.style.display = 'block';
 
-    // --- 3. LOGICA DE CORES DE FUNDO (SUPORTE VS APP) ---
-    if(pageId === 'page-support') {
-        document.body.style.backgroundColor = "#f8f9fa"; // Fundo claro para o Suporte
-    } else {
-        document.body.style.backgroundColor = "#050a30"; // Fundo escuro padrão
-    }
-
-    // --- 4. GERENCIAR O MENU INFERIOR (NAV) ---
+    // 4. Força o Menu Inferior a aparecer (Exceto no login/registro)
     if (nav) {
-        // Esconde o menu no Login, Registro e Suporte (para ficar igual à Imagem 1)
-        const noNavPages = ['page-login', 'page-register', 'page-support'];
-        if (noNavPages.includes(pageId)) {
-            nav.style.display = 'none';
+        if (pageId === 'page-login' || pageId === 'page-register') {
+            nav.style.setProperty('display', 'none', 'important');
         } else {
-            nav.style.display = 'flex';
+            nav.style.setProperty('display', 'flex', 'important');
         }
     }
 
-    // --- 5. ATUALIZAR BOTÃO ATIVO NO MENU ---
-    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    // 5. Atualiza as cores dos botões do menu inferior
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
     if (btn) {
         btn.classList.add('active');
     }
 
-    // --- 6. GATILHOS DE CARREGAMENTO (DADOS EM TEMPO REAL) ---
+    // 6. GATILHOS DE DADOS (Executam apenas se as funções existirem)
+    try {
+        if (pageId === 'page-home') window.loadUserData();
+        
+        if (pageId === 'page-projects' || pageId === 'page-vip-list') {
+            if (typeof window.loadAllPlans === 'function') window.loadAllPlans();
+        }
+        
+        if (pageId === 'page-profits') {
+            if (typeof window.loadProfitClaims === 'function') window.loadProfitClaims();
+        }
+        
+        if (pageId === 'page-account') {
+            if (typeof window.startAccountSlider === 'function') window.startAccountSlider();
+        }
 
-    // Carrega dados básicos (Saldo/Nome) se não for tela de entrada
-    if (pageId !== 'page-login' && pageId !== 'page-register') {
-        if (typeof window.loadUserData === 'function') window.loadUserData(); 
-    }
+        // Salva a última página para não perder no refresh
+        if(pageId !== 'page-login' && pageId !== 'page-register') {
+            localStorage.setItem('wealth_last_page', pageId);
+        }
 
-    // HOME: Planos iniciais e anúncios
-    if (pageId === 'page-home') {
-        if (typeof window.loadHomeData === 'function') window.loadHomeData(); 
+    } catch (err) {
+        console.warn("Aviso ao carregar dados da página: ", err);
     }
-
-    // PROJETOS E VIP: Lista de planos
-    if (pageId === 'page-projects' || pageId === 'page-vip-list') {
-        if (typeof window.loadAllPlans === 'function') window.loadAllPlans();
     }
-
-    // LUCROS: Colheita diária
-    if (pageId === 'page-profits') {
-        if (typeof window.loadProfitClaims === 'function') window.loadProfitClaims();
-    }
-
-    // CONTA: Slider de imagens
-    if (pageId === 'page-account') {
-        if (typeof window.startAccountSlider === 'function') window.startAccountSlider();
-    }
-
-    // BANCO: Dados bancários
-    if (pageId === 'sub-page-bank') {
-        if (typeof window.renderBankPage === 'function') window.renderBankPage();
-    }
-
-    // HISTÓRICO: Transações
-    if (pageId === 'page-history') {
-        if (typeof window.loadFullHistory === 'function') window.loadFullHistory('all');
-    }
-
-    // LOGIN/REGISTRO: Reseta o Captcha
-    if (pageId === 'page-login' || pageId === 'page-register') {
-        if (typeof window.generateCaptcha === 'function') window.generateCaptcha();
-    }
-
-    // --- 7. PERSISTÊNCIA: SALVAR ÚLTIMA PÁGINA ---
-    // Não salva login, registro ou suporte para não travar o app
-    const ignorePersistence = ['page-login', 'page-register', 'page-support'];
-    if (!ignorePersistence.includes(pageId)) {
-        localStorage.setItem('wealth_last_page', pageId);
-    }
-}; // Fim da função goTo
 
 // 3. CARREGAR DADOS DO USUÁRIO (COMPLETO: SALDO, EQUIPE E CONTA)
 window.loadUserData = async function() {
