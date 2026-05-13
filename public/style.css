@@ -26,19 +26,16 @@ html, body {
 }
 
 /* Sistema de Navegação SPA (Páginas) - CORRIGIDO */
-/* --- LIMPEZA DE NAVEGAÇÃO NO CSS --- */
 .page { 
-    display: none; 
-    width: 100%; 
-    min-height: 100vh; 
+    display: none; /* Sem o !important aqui */
+    padding: 20px; 
+    padding-bottom: 120px; 
+    animation: fadeIn 0.3s ease; 
     background-color: var(--bg);
-    position: relative; /* Mudado de absolute para relative */
-    padding-bottom: 60px !important; /* Espaço para o menu não tapar o texto */
 }
 
-/* Essa é a única regra que deve mandar na visibilidade */
 .page.active { 
-    display: block !important; 
+    display: block !important; /* Deixe o !important apenas no active */
 }
 
 /* Garante que o menu de baixo esteja sempre visível e por cima de tudo */
