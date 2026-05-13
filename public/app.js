@@ -1179,49 +1179,6 @@ window.accessVipGroup = function() {
         showAlert("Acesso Negado", "O Grupo VIP é exclusivo para investidores ativos. Por favor, adquira um plano de investimento para liberar o seu acesso.");
     }
 }
-    
-// 10. Inicialização Protegida (Verifica sessão real no servidor)
-window.onload = async () => {
-    window.generateCaptcha();
-    
-    const urlParams = new URLSearchParams(window.location.search);
-    const refCode = urlParams.get('ref');
-
-    // Se tiver link de convite, vai direto para o registro
-    if(refCode) {
-        window.goTo('page-register');
-        const inputInvite = document.getElementById('r_invite');
-        if(inputInvite) inputInvite.value = refCode;
-        return;
-    }
-
-    try {
-        // PERGUNTA AO SERVIDOR: O usuário está logado de verdade?
-        const res = await fetch('/api/user/data');
-        
-        if (res.ok) {
-            // Se estiver logado, tenta voltar para a última página que ele viu
-            const lastPage = localStorage.getItem('wealth_last_page');
-            if(lastPage && lastPage !== 'page-login' && lastPage !== 'page-register') {
-                window.goTo(lastPage);
-            } else {
-                window.goTo('page-home');
-            }
-        } else {
-            // SE NÃO ESTIVER LOGADO (OU SESSÃO EXPIROU):
-            localStorage.removeItem('wealth_last_page'); // Limpa a memória antiga
-            window.goTo('page-login'); // Força a tela de login
-        }
-    } catch (e) {
-        // Se houver erro de rede, fica no login por segurança
-        window.goTo('page-login');
-    }
-
-    // Configura a data
-    const date = new Date();
-    const dEl = document.getElementById('cur-date');
-    if(dEl) dEl.innerText = date.toLocaleDateString('pt-MZ', { weekday: 'long', day: 'numeric', month: 'long' });
-};
 
 // FUNÇÃO PARA SAIR DA CONTA DE VERDADE
 window.logout = async function() {
@@ -1237,3 +1194,62 @@ window.logout = async function() {
         window.location.href = "/"; 
     });
 }
+
+// 10. Inicialização Protegida e Persistência de Navegação
+window.onload = async () => {
+    // 1. Gera o primeiro captcha do dia
+    if (typeof window.generateCaptcha === 'function') window.generateCaptcha();
+    
+    // 2. Verifica se o usuário veio por um link de convite (?ref=CÓDIGO)
+    const urlParams = new URLSearchParams(window.location.search);
+    const refCode = urlParams.get('ref');
+
+    if (refCode) {
+        // Se tiver código de convite, força ir para o Registro
+        window.goTo('page-register');
+        const inputInvite = document.getElementById('r_invite');
+        if (inputInvite) inputInvite.value = refCode;
+        return; // Para a execução aqui para focar no registro
+    }
+
+    try {
+        // 3. Valida a sessão real com o servidor (Supabase)
+        const res = await fetch('/api/user/data');
+        
+        if (res.ok) {
+            // --- USUÁRIO LOGADO COM SUCESSO ---
+            const lastPage = localStorage.getItem('wealth_last_page');
+            
+            // LISTA DE PÁGINAS PROIBIDAS: O site nunca abrirá nessas telas sozinho
+            // Adicionamos 'page-support' aqui para evitar que ele fique preso nela
+            const restrictedPages = ['page-login', 'page-register', 'page-support'];
+
+            if (lastPage && !restrictedPages.includes(lastPage)) {
+                // Se a última página for válida (ex: Equipe, Conta, Lucros), abre ela
+                window.goTo(lastPage);
+            } else {
+                // Caso contrário, abre sempre a Home por segurança
+                window.goTo('page-home');
+            }
+        } else {
+            // --- USUÁRIO NÃO LOGADO OU SESSÃO EXPIROU ---
+            localStorage.removeItem('wealth_last_page'); // Limpa memória antiga
+            window.goTo('page-login'); // Força tela de login
+        }
+    } catch (e) {
+        // Se o servidor estiver fora do ar ou sem internet, volta para o login
+        console.error("Falha ao conectar com servidor:", e);
+        window.goTo('page-login');
+    }
+
+    // 4. Configura a data de Moçambique no topo da Home
+    const date = new Date();
+    const dEl = document.getElementById('cur-date');
+    if (dEl) {
+        dEl.innerText = date.toLocaleDateString('pt-MZ', { 
+            weekday: 'long', 
+            day: 'numeric', 
+            month: 'long' 
+        });
+    }
+};
