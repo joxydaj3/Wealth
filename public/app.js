@@ -52,35 +52,32 @@ window.onload = async () => {
     }
 };
 
-// 2. NAVEGAÇÃO ENTRE PÁGINAS (SPA) - CORRIGIDA E LIMPA
+// 2. NAVEGAÇÃO ENTRE PÁGINAS (SPA) - VERSÃO BLINDADA
 window.goTo = function(pageId, btn) {
     const target = document.getElementById(pageId);
     const nav = document.getElementById('main-nav');
 
-    // Proteção: Se a página não existir no HTML, não faz nada (evita tela preta)
     if (!target) {
-        console.error("Erro: A página com ID '" + pageId + "' não foi encontrada.");
+        console.error("Página não encontrada: " + pageId);
         return;
     }
 
-    // --- 1. ESCONDER TODAS AS PÁGINAS ---
+    // A. MOSTRAR A TELA IMEDIATAMENTE (Para evitar tela branca)
     document.querySelectorAll('.page').forEach(p => {
         p.classList.remove('active');
-        p.style.display = 'none'; // Garante que some
+        p.style.display = 'none';
     });
-
-    // --- 2. MOSTRAR A PÁGINA DESEJADA ---
     target.classList.add('active');
-    target.style.display = 'block'; // Garante que aparece
+    target.style.display = 'block';
 
-    // --- 3. LÓGICA DE CORES DE FUNDO ---
+    // B. LÓGICA DE CORES (Suporte vs App)
     if(pageId === 'page-support') {
-        document.body.style.backgroundColor = "#f8f9fa"; // Claro para Suporte
+        document.body.style.backgroundColor = "#f8f9fa"; 
     } else {
-        document.body.style.backgroundColor = "#050a30"; // Escuro padrão
+        document.body.style.backgroundColor = "#050a30"; 
     }
 
-    // --- 4. GERENCIAR O MENU INFERIOR (NAV) ---
+    // C. MENU INFERIOR
     if (nav) {
         const noNavPages = ['page-login', 'page-register', 'page-support'];
         if (noNavPages.includes(pageId)) {
@@ -90,45 +87,29 @@ window.goTo = function(pageId, btn) {
         }
     }
 
-    // --- 5. ATUALIZAR BOTÃO ATIVO NO MENU ---
+    // D. BOTÃO ATIVO
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    if (btn) {
-        btn.classList.add('active');
-    }
+    if (btn) btn.classList.add('active');
 
-    // --- 6. GATILHOS DE CARREGAMENTO (DADOS) ---
-    try {
-        if (pageId !== 'page-login' && pageId !== 'page-register') {
-            if (window.loadUserData) window.loadUserData(); 
-        }
-        if (pageId === 'page-home') {
-            if (window.loadHomeData) window.loadHomeData(); 
-        }
-        if (pageId === 'page-projects' || pageId === 'page-vip-list') {
-            if (window.loadAllPlans) window.loadAllPlans();
-        }
-        if (pageId === 'page-profits') {
-            if (window.loadProfitClaims) window.loadProfitClaims();
-        }
-        if (pageId === 'page-account') {
-            if (window.startAccountSlider) window.startAccountSlider();
-        }
-        if (pageId === 'sub-page-bank') {
-            if (window.renderBankPage) window.renderBankPage();
-            // REMOVI A LINHA COM ERRO QUE ESTAVA AQUI
-        }
-        if (pageId === 'page-history') {
-            if (window.loadFullHistory) window.loadFullHistory('all');
-        }
-    } catch (err) {
-        console.warn("Gatilho de carga: ", err);
-    }
-
-    // --- 7. PERSISTÊNCIA ---
-    const ignorePersistence = ['page-login', 'page-register', 'page-support'];
-    if (!ignorePersistence.includes(pageId)) {
+    // E. PERSISTÊNCIA
+    if (!['page-login', 'page-register', 'page-support'].includes(pageId)) {
         localStorage.setItem('wealth_last_page', pageId);
     }
+
+    // F. CARREGAMENTO DE DADOS (Depois de mostrar a tela)
+    setTimeout(async () => {
+        try {
+            if (pageId !== 'page-login' && pageId !== 'page-register') {
+                if (window.loadUserData) await window.loadUserData(); 
+            }
+            if (pageId === 'page-home' && window.loadHomeData) await window.loadHomeData(); 
+            if ((pageId === 'page-projects' || pageId === 'page-vip-list') && window.loadAllPlans) await window.loadAllPlans();
+            if (pageId === 'page-profits' && window.loadProfitClaims) await window.loadProfitClaims();
+            if (pageId === 'page-account' && window.startAccountSlider) window.startAccountSlider();
+            if (pageId === 'sub-page-bank' && window.renderBankPage) window.renderBankPage();
+            if (pageId === 'page-history' && window.loadFullHistory) await window.loadFullHistory('all');
+        } catch (e) { console.warn("Erro ao carregar dados da aba:", e); }
+    }, 50);
 };
 
 // 3. CARREGAR DADOS DO USUÁRIO (COMPLETO: SALDO, EQUIPE E CONTA)
