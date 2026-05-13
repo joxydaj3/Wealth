@@ -52,7 +52,7 @@ window.onload = async () => {
     }
 };
 
-// 2. NAVEGAÇÃO ENTRE PÁGINAS (SPA) - VERSÃO FINAL, COMPLETA E FUNCIONAL
+// 2. NAVEGAÇÃO ENTRE PÁGINAS (SPA) - VERSÃO FINAL, COMPLETA E INTEGRADA
 window.goTo = function(pageId, btn) {
     const target = document.getElementById(pageId);
     const nav = document.getElementById('main-nav');
@@ -72,81 +72,79 @@ window.goTo = function(pageId, btn) {
     target.classList.add('active');
     target.style.display = 'block';
 
-    // --- 3. GERENCIAR O MENU INFERIOR (NAV) ---
+    // --- 3. LOGICA DE CORES DE FUNDO (SUPORTE VS APP) ---
+    if(pageId === 'page-support') {
+        document.body.style.backgroundColor = "#f8f9fa"; // Fundo claro para o Suporte
+    } else {
+        document.body.style.backgroundColor = "#050a30"; // Fundo escuro padrão
+    }
+
+    // --- 4. GERENCIAR O MENU INFERIOR (NAV) ---
     if (nav) {
-        const isAuthPage = (pageId === 'page-login' || pageId === 'page-register');
-        if (isAuthPage) {
+        // Esconde o menu no Login, Registro e Suporte (para ficar igual à Imagem 1)
+        const noNavPages = ['page-login', 'page-register', 'page-support'];
+        if (noNavPages.includes(pageId)) {
             nav.style.display = 'none';
         } else {
             nav.style.display = 'flex';
         }
     }
 
-    // --- 4. ATUALIZAR BOTÃO ATIVO NO MENU ---
+    // --- 5. ATUALIZAR BOTÃO ATIVO NO MENU ---
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
     if (btn) {
         btn.classList.add('active');
     }
 
-    // --- 5. GATILHOS DE CARREGAMENTO (DADOS EM TEMPO REAL) ---
+    // --- 6. GATILHOS DE CARREGAMENTO (DADOS EM TEMPO REAL) ---
 
-    // Sempre carrega dados básicos (Saldo/Nome) se não estiver nas telas de entrada
+    // Carrega dados básicos (Saldo/Nome) se não for tela de entrada
     if (pageId !== 'page-login' && pageId !== 'page-register') {
-        window.loadUserData(); 
+        if (typeof window.loadUserData === 'function') window.loadUserData(); 
     }
 
-    // HOME: Carrega planos iniciais, anúncios e estatísticas
+    // HOME: Planos iniciais e anúncios
     if (pageId === 'page-home') {
         if (typeof window.loadHomeData === 'function') window.loadHomeData(); 
     }
 
-    // PROJETOS E VIP: Carrega a lista completa de planos (Normal e VIP)
+    // PROJETOS E VIP: Lista de planos
     if (pageId === 'page-projects' || pageId === 'page-vip-list') {
         if (typeof window.loadAllPlans === 'function') window.loadAllPlans();
     }
 
-    // LUCROS: Carrega os cartões de colheita diária e barra de progresso
+    // LUCROS: Colheita diária
     if (pageId === 'page-profits') {
         if (typeof window.loadProfitClaims === 'function') window.loadProfitClaims();
     }
 
-    // EQUIPE: A função loadUserData já preenche os ganhos e link de convite
-    if (pageId === 'page-team') {
-        window.loadUserData(); 
-    }
-
-    // CONTA: Inicia o slider de 4 imagens e atualiza perfil
+    // CONTA: Slider de imagens
     if (pageId === 'page-account') {
         if (typeof window.startAccountSlider === 'function') window.startAccountSlider();
     }
 
-    // BANCO: Carrega a visualização da conta vinculada ou o formulário
+    // BANCO: Dados bancários
     if (pageId === 'sub-page-bank') {
         if (typeof window.renderBankPage === 'function') window.renderBankPage();
     }
 
-    // HISTÓRICO: Carrega a lista de todas as transações
+    // HISTÓRICO: Transações
     if (pageId === 'page-history') {
         if (typeof window.loadFullHistory === 'function') window.loadFullHistory('all');
     }
 
-    // LOGIN/REGISTRO: Reseta o Captcha para segurança
+    // LOGIN/REGISTRO: Reseta o Captcha
     if (pageId === 'page-login' || pageId === 'page-register') {
         if (typeof window.generateCaptcha === 'function') window.generateCaptcha();
     }
 
-    if(pageId === 'page-support') {
-        document.body.style.backgroundColor = "#f8f9fa"; // Fundo claro como na imagem 1
-    } else {
-        document.body.style.backgroundColor = "#050a30"; // Volta para o azul marinho do app
-    }
-
-    // --- 6. PERSISTÊNCIA: SALVAR ÚLTIMA PÁGINA ---
-    // Impede que o usuário volte ao login ao dar "refresh" no navegador
-    if (pageId !== 'page-login' && pageId !== 'page-register') {
+    // --- 7. PERSISTÊNCIA: SALVAR ÚLTIMA PÁGINA ---
+    // Não salva login, registro ou suporte para não travar o app
+    const ignorePersistence = ['page-login', 'page-register', 'page-support'];
+    if (!ignorePersistence.includes(pageId)) {
         localStorage.setItem('wealth_last_page', pageId);
     }
-    }
+}; // Fim da função goTo
 
 // 3. CARREGAR DADOS DO USUÁRIO (COMPLETO: SALDO, EQUIPE E CONTA)
 window.loadUserData = async function() {
