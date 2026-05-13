@@ -62,7 +62,7 @@ window.goTo = function(pageId, btn) {
         return;
     }
 
-    // A. MOSTRAR A TELA IMEDIATAMENTE (Para evitar tela branca)
+    // 1. MOSTRA A PÁGINA IMEDIATAMENTE (Evita a tela branca)
     document.querySelectorAll('.page').forEach(p => {
         p.classList.remove('active');
         p.style.display = 'none';
@@ -70,47 +70,53 @@ window.goTo = function(pageId, btn) {
     target.classList.add('active');
     target.style.display = 'block';
 
-    // B. LÓGICA DE CORES (Suporte vs App)
-    if(pageId === 'page-support') {
-        document.body.style.backgroundColor = "#f8f9fa"; 
-    } else {
-        document.body.style.backgroundColor = "#050a30"; 
-    }
+    // 2. SINCRONIZA O FUNDO DO SITE (Removido o branco para evitar erro)
+    document.body.style.backgroundColor = "#050a30"; 
 
-    // C. MENU INFERIOR
+    // 3. GERENCIA O MENU INFERIOR
     if (nav) {
-        const noNavPages = ['page-login', 'page-register', 'page-support'];
-        if (noNavPages.includes(pageId)) {
+        // Agora o menu também some na página de suporte para ficar profissional
+        const hideNav = ['page-login', 'page-register', 'page-support'];
+        if (hideNav.includes(pageId)) {
             nav.style.display = 'none';
         } else {
             nav.style.display = 'flex';
         }
     }
 
-    // D. BOTÃO ATIVO
+    // 4. ATUALIZA BOTÃO ATIVO
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
     if (btn) btn.classList.add('active');
 
-    // E. PERSISTÊNCIA
+    // 5. CARREGA OS DADOS (Com proteção para não travar o site)
+    setTimeout(async () => {
+        try {
+            if (pageId === 'page-home') {
+                if(window.loadUserData) await window.loadUserData();
+                if(window.loadHomeData) await window.loadHomeData();
+            }
+            if (pageId === 'page-projects' || pageId === 'page-vip-list') {
+                if(window.loadAllPlans) await window.loadAllPlans();
+            }
+            if (pageId === 'page-profits') {
+                if(window.loadProfitClaims) await window.loadProfitClaims();
+            }
+            if (pageId === 'page-account' && window.startAccountSlider) {
+                window.startAccountSlider();
+            }
+            if (pageId === 'sub-page-bank' && window.renderBankPage) {
+                window.renderBankPage();
+            }
+        } catch (error) {
+            console.log("Aviso: Carregando dados da aba...");
+        }
+    }, 50);
+
+    // 6. SALVA A PÁGINA (Persistência)
     if (!['page-login', 'page-register', 'page-support'].includes(pageId)) {
         localStorage.setItem('wealth_last_page', pageId);
     }
-
-    // F. CARREGAMENTO DE DADOS (Depois de mostrar a tela)
-    setTimeout(async () => {
-        try {
-            if (pageId !== 'page-login' && pageId !== 'page-register') {
-                if (window.loadUserData) await window.loadUserData(); 
-            }
-            if (pageId === 'page-home' && window.loadHomeData) await window.loadHomeData(); 
-            if ((pageId === 'page-projects' || pageId === 'page-vip-list') && window.loadAllPlans) await window.loadAllPlans();
-            if (pageId === 'page-profits' && window.loadProfitClaims) await window.loadProfitClaims();
-            if (pageId === 'page-account' && window.startAccountSlider) window.startAccountSlider();
-            if (pageId === 'sub-page-bank' && window.renderBankPage) window.renderBankPage();
-            if (pageId === 'page-history' && window.loadFullHistory) await window.loadFullHistory('all');
-        } catch (e) { console.warn("Erro ao carregar dados da aba:", e); }
-    }, 50);
-};
+        }
 
 // --- AJUSTE NA FUNÇÃO GOTO ---
 // Garante que os planos carreguem na Home e nos Projetos
