@@ -52,36 +52,36 @@ window.onload = async () => {
     }
 };
 
-// 2. NAVEGAÇÃO ENTRE PÁGINAS (SPA) - VERSÃO FINAL, COMPLETA E INTEGRADA
+// 2. NAVEGAÇÃO ENTRE PÁGINAS (SPA) - CORRIGIDA E LIMPA
 window.goTo = function(pageId, btn) {
     const target = document.getElementById(pageId);
     const nav = document.getElementById('main-nav');
 
+    // Proteção: Se a página não existir no HTML, não faz nada (evita tela preta)
     if (!target) {
-        console.error("Erro: A página com ID '" + pageId + "' não foi encontrada no HTML.");
+        console.error("Erro: A página com ID '" + pageId + "' não foi encontrada.");
         return;
     }
 
     // --- 1. ESCONDER TODAS AS PÁGINAS ---
     document.querySelectorAll('.page').forEach(p => {
         p.classList.remove('active');
-        p.style.display = 'none';
+        p.style.display = 'none'; // Garante que some
     });
 
     // --- 2. MOSTRAR A PÁGINA DESEJADA ---
     target.classList.add('active');
-    target.style.display = 'block';
+    target.style.display = 'block'; // Garante que aparece
 
-    // --- 3. LOGICA DE CORES DE FUNDO (SUPORTE VS APP) ---
+    // --- 3. LÓGICA DE CORES DE FUNDO ---
     if(pageId === 'page-support') {
-        document.body.style.backgroundColor = "#f8f9fa"; // Fundo claro para o Suporte
+        document.body.style.backgroundColor = "#f8f9fa"; // Claro para Suporte
     } else {
-        document.body.style.backgroundColor = "#050a30"; // Fundo escuro padrão
+        document.body.style.backgroundColor = "#050a30"; // Escuro padrão
     }
 
     // --- 4. GERENCIAR O MENU INFERIOR (NAV) ---
     if (nav) {
-        // Esconde o menu no Login, Registro e Suporte (para ficar igual à Imagem 1)
         const noNavPages = ['page-login', 'page-register', 'page-support'];
         if (noNavPages.includes(pageId)) {
             nav.style.display = 'none';
@@ -96,55 +96,40 @@ window.goTo = function(pageId, btn) {
         btn.classList.add('active');
     }
 
-    // --- 6. GATILHOS DE CARREGAMENTO (DADOS EM TEMPO REAL) ---
-
-    // Carrega dados básicos (Saldo/Nome) se não for tela de entrada
-    if (pageId !== 'page-login' && pageId !== 'page-register') {
-        if (typeof window.loadUserData === 'function') window.loadUserData(); 
+    // --- 6. GATILHOS DE CARREGAMENTO (DADOS) ---
+    try {
+        if (pageId !== 'page-login' && pageId !== 'page-register') {
+            if (window.loadUserData) window.loadUserData(); 
+        }
+        if (pageId === 'page-home') {
+            if (window.loadHomeData) window.loadHomeData(); 
+        }
+        if (pageId === 'page-projects' || pageId === 'page-vip-list') {
+            if (window.loadAllPlans) window.loadAllPlans();
+        }
+        if (pageId === 'page-profits') {
+            if (window.loadProfitClaims) window.loadProfitClaims();
+        }
+        if (pageId === 'page-account') {
+            if (window.startAccountSlider) window.startAccountSlider();
+        }
+        if (pageId === 'sub-page-bank') {
+            if (window.renderBankPage) window.renderBankPage();
+            // REMOVI A LINHA COM ERRO QUE ESTAVA AQUI
+        }
+        if (pageId === 'page-history') {
+            if (window.loadFullHistory) window.loadFullHistory('all');
+        }
+    } catch (err) {
+        console.warn("Gatilho de carga: ", err);
     }
 
-    // HOME: Planos iniciais e anúncios
-    if (pageId === 'page-home') {
-        if (typeof window.loadHomeData === 'function') window.loadHomeData(); 
-    }
-
-    // PROJETOS E VIP: Lista de planos
-    if (pageId === 'page-projects' || pageId === 'page-vip-list') {
-        if (typeof window.loadAllPlans === 'function') window.loadAllPlans();
-    }
-
-    // LUCROS: Colheita diária
-    if (pageId === 'page-profits') {
-        if (typeof window.loadProfitClaims === 'function') window.loadProfitClaims();
-    }
-
-    // CONTA: Slider de imagens
-    if (pageId === 'page-account') {
-        if (typeof window.startAccountSlider === 'function') window.startAccountSlider();
-    }
-
-    // BANCO: Dados bancários
-    if (pageId === 'sub-page-bank') {
-        if (typeof window.renderBankPage === 'function') window.renderBankPage();
-    }
-
-    // HISTÓRICO: Transações
-    if (pageId === 'page-history') {
-        if (typeof window.loadFullHistory === 'function') window.loadFullHistory('all');
-    }
-
-    // LOGIN/REGISTRO: Reseta o Captcha
-    if (pageId === 'page-login' || pageId === 'page-register') {
-        if (typeof window.generateCaptcha === 'function') window.generateCaptcha();
-    }
-
-    // --- 7. PERSISTÊNCIA: SALVAR ÚLTIMA PÁGINA ---
-    // Não salva login, registro ou suporte para não travar o app
+    // --- 7. PERSISTÊNCIA ---
     const ignorePersistence = ['page-login', 'page-register', 'page-support'];
     if (!ignorePersistence.includes(pageId)) {
         localStorage.setItem('wealth_last_page', pageId);
     }
-}; // Fim da função goTo
+};
 
 // 3. CARREGAR DADOS DO USUÁRIO (COMPLETO: SALDO, EQUIPE E CONTA)
 window.loadUserData = async function() {
