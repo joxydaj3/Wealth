@@ -112,6 +112,15 @@ window.goTo = function(pageId, btn) {
     }, 50);
 };
 
+// --- AJUSTE NA FUNÇÃO GOTO ---
+// Garante que os planos carreguem na Home e nos Projetos
+const originalGoToFix = window.goTo;
+window.goTo = function(pageId, btn) {
+    if(pageId === 'page-history') loadFullHistory('all');
+    if(pageId === 'page-home') loadHomeData(); // Força recarregar planos na home
+    originalGoToFix(pageId, btn);
+}
+
 // 3. CARREGAR DADOS DO USUÁRIO (COMPLETO: SALDO, EQUIPE E CONTA)
 window.loadUserData = async function() {
     try {
