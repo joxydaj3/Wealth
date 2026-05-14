@@ -920,3 +920,12 @@ html, body {
 .page.active { 
     display: block !important; 
 }
+
+/* Remove bloqueios invisíveis */
+#wealth-modal, .modal-overlay {
+    z-index: 10000;
+}
+#app {
+    z-index: 1;
+    position: relative;
+}
