@@ -22,17 +22,20 @@ html, body {
     min-height: 100vh;
 }
 
-/* Sistema de Navegação SPA (Páginas) - CORRIGIDO */
+/* SISTEMA DE NAVEGAÇÃO - CORREÇÃO DEFINITIVA */
 .page { 
-    display: none; /* Sem o !important aqui */
+    display: none; /* Removido o !important daqui */
     padding: 20px; 
     padding-bottom: 120px; 
     animation: fadeIn 0.3s ease; 
     background-color: var(--bg);
+    width: 100%;
+    min-height: 100vh;
 }
 
+/* O !important deve ficar apenas no ACTIVE para forçar a aparição */
 .page.active { 
-    display: block !important; /* Deixe o !important apenas no active */
+    display: block !important; 
 }
 
 /* Garante que o menu de baixo esteja sempre visível e por cima de tudo */
