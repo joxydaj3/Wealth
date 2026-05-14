@@ -8,7 +8,7 @@ const fs = require('fs');
 
 const app = express();
 
-// Configuração do Banco de Dados (Supabase Pooler)
+// --- CONEXÃO COM SUPABASE ---
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
@@ -17,7 +17,7 @@ const pool = new Pool({
   connectionTimeoutMillis: 10000,
 });
 
-// Configuração de Uploads
+// --- CONFIGURAÇÃO DE UPLOADS ---
 const uploadDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 const storage = multer.diskStorage({
@@ -30,65 +30,66 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
-    secret: 'wealth_pro_ultra_final_2026',
+    secret: 'wealth_pro_max_2026_final_v5',
     resave: false,
     saveUninitialized: false,
     cookie: { maxAge: 86400000 }
 }));
 
-// --- INICIALIZAÇÃO DO BANCO DE DADOS (VERSÃO FORÇADA PARA CORREÇÃO) ---
+// --- INICIALIZAÇÃO DO BANCO DE DADOS (PARTE CORRIGIDA) ---
 async function initDB() {
   const client = await pool.connect();
   try {
-    console.log("Iniciando limpeza e migração do banco de dados...");
-
-    // 2. Criar Tabelas Reais e Completas
+    // 1. Criar tabelas básicas
     await client.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY, phone TEXT UNIQUE, name TEXT, password TEXT, password_plain TEXT, 
         balance REAL DEFAULT 0, ref_code TEXT UNIQUE, invited_by TEXT, pin TEXT DEFAULT '0000',
         role TEXT DEFAULT 'user', status TEXT DEFAULT 'active', created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        last_checkin DATE
+        last_checkin DATE, campaign_count INTEGER DEFAULT 0
       );
-      
       CREATE TABLE IF NOT EXISTS plans (
-        id SERIAL PRIMARY KEY, 
-        name TEXT UNIQUE, 
-        price REAL, 
-        daily_profit REAL, 
-        duration INTEGER, 
-        total_return REAL, 
-        image_url TEXT, 
-        category TEXT DEFAULT 'Normal', 
-        active INTEGER DEFAULT 1
+        id SERIAL PRIMARY KEY, name TEXT UNIQUE, price REAL, daily_profit REAL, duration INTEGER, 
+        total_return REAL, image_url TEXT, category TEXT DEFAULT 'Normal', active INTEGER DEFAULT 1
       );
-
       CREATE TABLE IF NOT EXISTS user_plans (
         id SERIAL PRIMARY KEY, user_id INTEGER, plan_id INTEGER, buy_date DATE DEFAULT CURRENT_DATE, 
         last_claim DATE, expires_at DATE, status TEXT DEFAULT 'active'
       );
-
       CREATE TABLE IF NOT EXISTS transactions (
-        id SERIAL PRIMARY KEY, user_id INTEGER, type TEXT, amount REAL, method TEXT, status TEXT DEFAULT 'pending', 
-        txid TEXT, proof_url TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        id SERIAL PRIMARY KEY, user_id INTEGER, type TEXT, amount REAL, method TEXT, 
+        status TEXT DEFAULT 'pending', txid TEXT, proof_url TEXT, approved_at TIMESTAMP, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
-
-      CREATE TABLE IF NOT EXISTS ads (id SERIAL PRIMARY KEY, message TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+      CREATE TABLE IF NOT EXISTS ads (
+        id SERIAL PRIMARY KEY, message TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
     `);
 
-    // 3. Migrações de segurança para a tabela de Usuários
+    // 2. MIGRAÇÃO: Adiciona colunas novas se a tabela já existir
     await client.query(`
       DO $$ BEGIN 
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='plans' AND column_name='category') THEN
+          ALTER TABLE plans ADD COLUMN category TEXT DEFAULT 'Normal';
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='password_plain') THEN
+          ALTER TABLE users ADD COLUMN password_plain TEXT;
+        END IF;
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='last_checkin') THEN
           ALTER TABLE users ADD COLUMN last_checkin DATE;
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='campaign_count') THEN
+          ALTER TABLE users ADD COLUMN campaign_count INTEGER DEFAULT 0;
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'plans_name_unique') THEN
+          ALTER TABLE plans ADD CONSTRAINT plans_name_unique UNIQUE (name);
         END IF;
       END $$;
     `);
     
-    // 4. Cadastrar os 15 Planos (Normal e VIP)
+    // 3. Cadastrar/Atualizar os 15 Planos (Normal e VIP)
     const allPlans = [
         { n: 'Wealth Vanguard Core', p: 500, d: 35, dur: 30, t: 1550, c: 'Normal', i: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=400' },
-        { n: 'Wealth BlackRock Flow', p: 150, d: 50, dur: 1, t: 200, c: 'Normal', i: 'https://images.unsplash.com/photo-1611974714024-4607a5146b91?w=400' },
+        { n: 'Wealth BlackRock Flow', p: 1000, d: 75, dur: 30, t: 3250, c: 'Normal', i: 'https://images.unsplash.com/photo-1611974714024-4607a5146b91?w=400' },
         { n: 'Wealth Berkshire Growth', p: 2500, d: 200, dur: 30, t: 8500, c: 'Normal', i: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=400' },
         { n: 'Wealth Goldman Edge', p: 5000, d: 425, dur: 30, t: 17750, c: 'Normal', i: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=400' },
         { n: 'Wealth Morgan Prime', p: 10000, d: 900, dur: 30, t: 37000, c: 'Normal', i: 'https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=400' },
@@ -97,7 +98,7 @@ async function initDB() {
         { n: 'Wealth Bridgewater Max', p: 100000, d: 11000, dur: 30, t: 430000, c: 'Normal', i: 'https://images.unsplash.com/photo-1642104704074-907c0698bcd9?w=400' },
         { n: 'Wealth Renaissance Ultra', p: 150000, d: 17250, dur: 30, t: 667500, c: 'Normal', i: 'https://images.unsplash.com/photo-1621905252507-b354bcadc08e?w=400' },
         { n: 'Wealth Rothschild Apex', p: 250000, d: 30000, dur: 30, t: 1150000, c: 'Normal', i: 'https://images.unsplash.com/photo-1554224155-1696413565d3?w=400' },
-        { n: 'VIP 1 – Wealth Starter Surge', p: 200, d: 290, dur: 1, t: 290, c: 'VIP', i: 'https://images.unsplash.com/photo-1633151209829-3070446c1418?w=400' },
+        { n: 'VIP 1 – Wealth Starter Surge', p: 300, d: 93, dur: 5, t: 465, c: 'VIP', i: 'https://images.unsplash.com/photo-1633151209829-3070446c1418?w=400' },
         { n: 'VIP 2 – Wealth Silver Boost', p: 1000, d: 250, dur: 7, t: 1750, c: 'VIP', i: 'https://images.unsplash.com/photo-1502920514313-52581002a659?w=400' },
         { n: 'VIP 3 – Wealth Gold Multiplier', p: 5000, d: 1250, dur: 10, t: 12500, c: 'VIP', i: 'https://images.unsplash.com/photo-1589758438368-0ad531db3366?w=400' },
         { n: 'VIP 4 – Wealth Platinum Hyper', p: 15000, d: 4050, dur: 12, t: 48600, c: 'VIP', i: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=400' },
@@ -108,25 +109,18 @@ async function initDB() {
         await client.query(`
             INSERT INTO plans (name, price, daily_profit, duration, total_return, image_url, category) 
             VALUES ($1,$2,$3,$4,$5,$6,$7) 
-            ON CONFLICT (name) DO UPDATE SET 
-                price = EXCLUDED.price, 
-                daily_profit = EXCLUDED.daily_profit, 
-                category = EXCLUDED.category, 
-                total_return = EXCLUDED.total_return,
-                image_url = EXCLUDED.image_url`, 
+            ON CONFLICT (name) DO UPDATE SET price = EXCLUDED.price, daily_profit = EXCLUDED.daily_profit, category = EXCLUDED.category, total_return = EXCLUDED.total_return, image_url = EXCLUDED.image_url`, 
             [p.n, p.p, p.d, p.dur, p.t, p.i, p.c]);
-        
-        console.log(`✅ Semeado: ${p.n} (${p.c})`);
     }
-
-    console.log("🚀 BANCO DE DADOS WEALTH ATUALIZADO COM SUCESSO!");
-  } catch (err) { 
-      console.error("❌ ERRO CRÍTICO NO BANCO DE DADOS:", err); 
-  } finally { 
-      client.release(); 
-  }
+    console.log("✅ Banco de Dados e Planos atualizados com sucesso!");
+  } catch (err) {
+      console.error("Erro no initDB:", err);
+  } finally { client.release(); }
 }
 initDB();
+
+// --- O RESTO DO SEU ARQUIVO CONTINUA IGUAL ABAIXO DAQUI ---
+
 
 // ROTA DEFINITIVA DE PLANOS
 app.get('/api/plans', async (req, res) => {
