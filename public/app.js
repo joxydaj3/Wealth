@@ -58,11 +58,11 @@ window.goTo = function(pageId, btn) {
     const nav = document.getElementById('main-nav');
 
     if (!target) {
-        console.error("Página não encontrada: " + pageId);
+        console.error("Página não encontrada no HTML: " + pageId);
         return;
     }
 
-    // 1. MOSTRA A PÁGINA IMEDIATAMENTE (Evita a tela branca)
+    // 1. MOSTRA A PÁGINA PRIMEIRO (Para acabar com a tela branca)
     document.querySelectorAll('.page').forEach(p => {
         p.classList.remove('active');
         p.style.display = 'none';
@@ -70,25 +70,17 @@ window.goTo = function(pageId, btn) {
     target.classList.add('active');
     target.style.display = 'block';
 
-    // 2. SINCRONIZA O FUNDO DO SITE (Removido o branco para evitar erro)
-    document.body.style.backgroundColor = "#050a30"; 
-
-    // 3. GERENCIA O MENU INFERIOR
+    // 2. MOSTRA O MENU
     if (nav) {
-        // Agora o menu também some na página de suporte para ficar profissional
-        const hideNav = ['page-login', 'page-register', 'page-support'];
-        if (hideNav.includes(pageId)) {
-            nav.style.display = 'none';
-        } else {
-            nav.style.display = 'flex';
-        }
+        const isAuth = (pageId === 'page-login' || pageId === 'page-register');
+        nav.style.display = isAuth ? 'none' : 'flex';
     }
 
-    // 4. ATUALIZA BOTÃO ATIVO
+    // 3. ATUALIZA OS BOTÕES DO MENU
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
     if (btn) btn.classList.add('active');
 
-    // 5. CARREGA OS DADOS (Com proteção para não travar o site)
+    // 4. CARREGA OS DADOS EM SEGUNDO PLANO (Se falhar, a tela já apareceu)
     setTimeout(async () => {
         try {
             if (pageId === 'page-home') {
@@ -101,22 +93,23 @@ window.goTo = function(pageId, btn) {
             if (pageId === 'page-profits') {
                 if(window.loadProfitClaims) await window.loadProfitClaims();
             }
-            if (pageId === 'page-account' && window.startAccountSlider) {
-                window.startAccountSlider();
+            if (pageId === 'page-account') {
+                if(window.startAccountSlider) window.startAccountSlider();
             }
-            if (pageId === 'sub-page-bank' && window.renderBankPage) {
-                window.renderBankPage();
+            if (pageId === 'page-team') {
+                if(window.loadUserData) await window.loadUserData();
             }
-        } catch (error) {
-            console.log("Aviso: Carregando dados da aba...");
+        } catch (e) {
+            console.warn("Dica: Os dados desta aba ainda estão sendo processados...");
         }
-    }, 50);
+    }, 100);
 
-    // 6. SALVA A PÁGINA (Persistência)
-    if (!['page-login', 'page-register', 'page-support'].includes(pageId)) {
+    // 5. SALVA A PÁGINA NA MEMÓRIA
+    if (pageId !== 'page-login' && pageId !== 'page-register') {
         localStorage.setItem('wealth_last_page', pageId);
     }
         }
+
 
 // --- AJUSTE NA FUNÇÃO GOTO ---
 // Garante que os planos carreguem na Home e nos Projetos
