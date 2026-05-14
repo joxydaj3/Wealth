@@ -22,22 +22,6 @@ html, body {
     min-height: 100vh;
 }
 
-/* SISTEMA DE NAVEGAÇÃO - CORREÇÃO DEFINITIVA */
-.page { 
-    display: none; /* Removido o !important daqui */
-    padding: 20px; 
-    padding-bottom: 120px; 
-    animation: fadeIn 0.3s ease; 
-    background-color: var(--bg);
-    width: 100%;
-    min-height: 100vh;
-}
-
-/* O !important deve ficar apenas no ACTIVE para forçar a aparição */
-.page.active { 
-    display: block !important; 
-}
-
 /* Garante que o menu de baixo esteja sempre visível e por cima de tudo */
 .bottom-nav { 
     position: fixed; 
@@ -920,3 +904,19 @@ html, body {
 
 .advice-section h4 { color: white; margin-bottom: 10px; }
 .advice-section p { font-size: 12px; line-height: 1.6; margin-bottom: 10px; }
+
+/* SISTEMA DE NAVEGAÇÃO - CORREÇÃO DEFINITIVA */
+.page { 
+    display: none; /* Removido o !important daqui */
+    padding: 20px; 
+    padding-bottom: 120px; 
+    animation: fadeIn 0.3s ease; 
+    background-color: var(--bg);
+    width: 100%;
+    min-height: 100vh;
+}
+
+/* O !important deve ficar apenas no ACTIVE para forçar a aparição */
+.page.active { 
+    display: block !important; 
+}
