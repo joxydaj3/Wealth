@@ -7,7 +7,7 @@ let currentSlide = 0;
 window.generateCaptcha = function() {
     const chars = "0123456789ABCDEFGHJKLMNPQRSTUVWXYZ";
     let code = "";
-    for (let i = 0; i < 5; i++) { // Aumentado para 5 para ficar mais bonito no bloco
+    for (let i = 0; i < 3; i++) { // Aumentado para 5 para ficar mais bonito no bloco
         code += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     currentCaptcha = code;
@@ -54,61 +54,47 @@ window.onload = async () => {
 
 // 2. NAVEGAÇÃO ENTRE PÁGINAS (SPA) - VERSÃO BLINDADA
 window.goTo = function(pageId, btn) {
+    console.log("Tentando abrir a página:", pageId);
+    
     const target = document.getElementById(pageId);
-    const nav = document.getElementById('main-nav');
-
     if (!target) {
-        console.error("Página não encontrada no HTML: " + pageId);
+        alert("ERRO CRÍTICO: A página " + pageId + " não existe no HTML!");
         return;
     }
 
-    // 1. MOSTRA A PÁGINA PRIMEIRO (Para acabar com a tela branca)
+    // TESTE VISUAL: Muda a cor do fundo do site inteiro para provar que a função rodou
+    // Cada página terá uma cor de teste rápida
+    const colors = {
+        'page-home': '#050a30',
+        'page-projects': '#0a1a0a', // Verde escuro
+        'page-profits': '#1a0a1a',  // Roxo escuro
+        'page-team': '#0a1a1a',     // Ciano escuro
+        'page-account': '#1a1a0a'   // Amarelo escuro
+    };
+    document.body.style.backgroundColor = colors[pageId] || "#000";
+
+    // 1. Esconde tudo
     document.querySelectorAll('.page').forEach(p => {
         p.classList.remove('active');
         p.style.display = 'none';
     });
+
+    // 2. Mostra o alvo e FORÇA a visibilidade
     target.classList.add('active');
     target.style.display = 'block';
+    target.style.visibility = 'visible';
+    target.style.opacity = '1';
 
-    // 2. MOSTRA O MENU
-    if (nav) {
-        const isAuth = (pageId === 'page-login' || pageId === 'page-register');
-        nav.style.display = isAuth ? 'none' : 'flex';
-    }
-
-    // 3. ATUALIZA OS BOTÕES DO MENU
-    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    if (btn) btn.classList.add('active');
-
-    // 4. CARREGA OS DADOS EM SEGUNDO PLANO (Se falhar, a tela já apareceu)
-    setTimeout(async () => {
-        try {
-            if (pageId === 'page-home') {
-                if(window.loadUserData) await window.loadUserData();
-                if(window.loadHomeData) await window.loadHomeData();
-            }
-            if (pageId === 'page-projects' || pageId === 'page-vip-list') {
-                if(window.loadAllPlans) await window.loadAllPlans();
-            }
-            if (pageId === 'page-profits') {
-                if(window.loadProfitClaims) await window.loadProfitClaims();
-            }
-            if (pageId === 'page-account') {
-                if(window.startAccountSlider) window.startAccountSlider();
-            }
-            if (pageId === 'page-team') {
-                if(window.loadUserData) await window.loadUserData();
-            }
-        } catch (e) {
-            console.warn("Dica: Os dados desta aba ainda estão sendo processados...");
+    // 3. Verifica se o menu de baixo existe
+    const nav = document.getElementById('main-nav');
+    if(nav) {
+        if(pageId === 'page-login' || pageId === 'page-register') {
+            nav.style.display = 'none';
+        } else {
+            nav.style.display = 'flex';
         }
-    }, 100);
-
-    // 5. SALVA A PÁGINA NA MEMÓRIA
-    if (pageId !== 'page-login' && pageId !== 'page-register') {
-        localStorage.setItem('wealth_last_page', pageId);
     }
-        }
+}
 
 
 // --- AJUSTE NA FUNÇÃO GOTO ---
