@@ -3,110 +3,76 @@ window.allPlans = [];
 window.currentUser = null;
 let currentSlide = 0;
 
-// 1. GERAR CAPTCHA (Ajustado para 5 caracteres e carregamento seguro)
+// 1. GERADOR DE CAPTCHA
 window.generateCaptcha = function() {
     const chars = "0123456789ABCDEFGHJKLMNPQRSTUVWXYZ";
     let code = "";
-    for (let i = 0; i < 3; i++) { // Aumentado para 5 para ficar mais bonito no bloco
+    for (let i = 0; i < 5; i++) {
         code += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     currentCaptcha = code;
-    
-    // Pequeno delay para garantir que o HTML já carregou na tela
-    setTimeout(() => {
-        const lVal = document.getElementById('l_cap_val');
-        const rVal = document.getElementById('r_cap_val');
-        if(lVal) lVal.innerText = code;
-        if(rVal) rVal.innerText = code;
-    }, 50);
+    const lVal = document.getElementById('l_cap_val');
+    const rVal = document.getElementById('r_cap_val');
+    if(lVal) lVal.innerText = code;
+    if(rVal) rVal.innerText = code;
 }
 
-window.onload = async () => {
-    window.generateCaptcha();
-    
-    // Verifica se há um código de convite na URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const refCode = urlParams.get('ref');
-
-    if(refCode) {
-        window.goTo('page-register');
-        if(document.getElementById('r_invite')) document.getElementById('r_invite').value = refCode;
-        return;
-    }
-
-    // Tenta carregar dados do usuário para ver se ele está logado no SERVIDOR
-    const res = await fetch('/api/user/data');
-    
-    if (res.ok) {
-        // SE ESTÁ LOGADO: Vai para a última página salva ou para a Home
-        const lastPage = localStorage.getItem('wealth_last_page');
-        if(lastPage && lastPage !== 'page-login' && lastPage !== 'page-register') {
-            window.goTo(lastPage);
-        } else {
-            window.goTo('page-home');
-        }
-    } else {
-        // SE NÃO ESTÁ LOGADO: Limpa lixo da memória e fica no login
-        localStorage.removeItem('wealth_last_page');
-        window.goTo('page-login');
-    }
-};
-
-// 2. NAVEGAÇÃO ENTRE PÁGINAS (SPA) - VERSÃO BLINDADA
+// 2. NAVEGAÇÃO ENTRE PÁGINAS (SPA) - VERSÃO ÚNICA E CORRIGIDA
 window.goTo = function(pageId, btn) {
-    console.log("Tentando abrir a página:", pageId);
-    
     const target = document.getElementById(pageId);
+    const nav = document.getElementById('main-nav');
+
     if (!target) {
-        alert("ERRO CRÍTICO: A página " + pageId + " não existe no HTML!");
+        console.error("Página não encontrada: " + pageId);
         return;
     }
 
-    // TESTE VISUAL: Muda a cor do fundo do site inteiro para provar que a função rodou
-    // Cada página terá uma cor de teste rápida
-    const colors = {
-        'page-home': '#050a30',
-        'page-projects': '#0a1a0a', // Verde escuro
-        'page-profits': '#1a0a1a',  // Roxo escuro
-        'page-team': '#0a1a1a',     // Ciano escuro
-        'page-account': '#1a1a0a'   // Amarelo escuro
-    };
-    document.body.style.backgroundColor = colors[pageId] || "#000";
-
-    // 1. Esconde tudo
+    // Esconde todas as páginas
     document.querySelectorAll('.page').forEach(p => {
         p.classList.remove('active');
         p.style.display = 'none';
     });
 
-    // 2. Mostra o alvo e FORÇA a visibilidade
+    // Mostra a página desejada
     target.classList.add('active');
     target.style.display = 'block';
-    target.style.visibility = 'visible';
-    target.style.opacity = '1';
 
-    // 3. Verifica se o menu de baixo existe
-    const nav = document.getElementById('main-nav');
-    if(nav) {
-        if(pageId === 'page-login' || pageId === 'page-register') {
-            nav.style.display = 'none';
-        } else {
-            nav.style.display = 'flex';
-        }
+    // Gerencia o Menu Inferior
+    if (nav) {
+        const isAuthPage = (pageId === 'page-login' || pageId === 'page-register');
+        nav.style.display = isAuthPage ? 'none' : 'flex';
     }
+
+    // Marca o botão do menu como ativo
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+
+    // PERSISTÊNCIA: Salva a página atual
+    if(pageId !== 'page-login' && pageId !== 'page-register') {
+        localStorage.setItem('wealth_last_page', pageId);
+    }
+
+    // GATILHOS DE CARREGAMENTO
+    if (pageId === 'page-home') {
+        window.loadUserData();
+        window.loadHomeData(); 
+    }
+    if (pageId === 'page-projects' || pageId === 'page-vip-list') {
+        window.loadAllPlans();
+    }
+    if (pageId === 'page-profits') {
+        if(typeof window.loadProfitClaims === 'function') window.loadProfitClaims();
+    }
+    if (pageId === 'page-account') {
+        if(typeof window.startAccountSlider === 'function') window.startAccountSlider();
+    }
+    if (pageId === 'page-history') {
+        if(typeof window.loadFullHistory === 'function') window.loadFullHistory('all');
+    }
+    if (isAuthPage) window.generateCaptcha();
 }
 
-
-// --- AJUSTE NA FUNÇÃO GOTO ---
-// Garante que os planos carreguem na Home e nos Projetos
-const originalGoToFix = window.goTo;
-window.goTo = function(pageId, btn) {
-    if(pageId === 'page-history') loadFullHistory('all');
-    if(pageId === 'page-home') loadHomeData(); // Força recarregar planos na home
-    originalGoToFix(pageId, btn);
-}
-
-// 3. CARREGAR DADOS DO USUÁRIO (COMPLETO: SALDO, EQUIPE E CONTA)
+// 3. CARREGAR DADOS DO USUÁRIO (SOMA TOTAL, SEMANA, MÊS, EQUIPE)
 window.loadUserData = async function() {
     try {
         const res = await fetch('/api/user/data');
@@ -117,8 +83,7 @@ window.loadUserData = async function() {
         const update = (id, val) => {
             const el = document.getElementById(id);
             if(el) {
-                // Se for dinheiro, formata com MT. Se for apenas número, mostra normal.
-                if(id.includes('money') || id.includes('earned') || id.includes('balance') || id.includes('stat')) {
+                if(id.includes('stat') || id.includes('balance')) {
                     el.innerText = parseFloat(val || 0).toFixed(2);
                 } else {
                     el.innerText = val || 0;
@@ -126,7 +91,7 @@ window.loadUserData = async function() {
             }
         };
 
-        // --- ATUALIZA HOME E BLOCO DE SALDO ---
+        // Home e Saldo
         update('u-balance', user.balance);
         update('stat-with', user.total_with);
         update('stat-week', user.week_earned);
@@ -135,19 +100,12 @@ window.loadUserData = async function() {
         update('stat-ref', user.total_ref);
         if(document.getElementById('u-name')) document.getElementById('u-name').innerText = user.name;
 
-        // --- ATUALIZA PÁGINA DE EQUIPE (DADOS REAIS) ---
+        // Equipe
         if(document.getElementById('display-ref-id')) document.getElementById('display-ref-id').innerText = user.ref_code;
         if(document.getElementById('ref-link-input')) {
             document.getElementById('ref-link-input').value = window.location.origin + "/?ref=" + user.ref_code;
         }
-
-        // Ganhos de Comissão nos 4 blocos
         update('team-total-earned', user.total_ref);
-        update('team-lv1-earned', user.lv1_earned || 0);
-        update('team-lv2-earned', user.lv2_earned || 0);
-        update('team-lv3-earned', user.lv3_earned || 0);
-
-        // Contagem de Membros (Ativos/Inativos)
         update('team-total-count', user.team_total);
         update('lv1-count', user.lv1_count);
         update('lv2-count', user.lv2_count);
@@ -155,25 +113,104 @@ window.loadUserData = async function() {
         update('team-active-count', user.team_active);
         update('team-inactive-count', user.team_inactive);
 
-        // Financeiro da Equipe (Soma de MT)
-        if(document.getElementById('team-dep-money')) document.getElementById('team-dep-money').innerText = "MT " + parseFloat(user.team_dep_money || 0).toFixed(2);
-        if(document.getElementById('team-with-money')) document.getElementById('team-with-money').innerText = "MT " + parseFloat(user.team_with_money || 0).toFixed(2);
-        if(document.getElementById('team-prof-money')) document.getElementById('team-prof-money').innerText = "MT " + parseFloat(user.team_prof_money || 0).toFixed(2);
-
-        // --- ATUALIZA PÁGINA DE CONTA ---
+        // Conta
         if(document.getElementById('acc-name-label')) document.getElementById('acc-name-label').innerText = user.name;
         if(document.getElementById('acc-phone-label')) document.getElementById('acc-phone-label').innerText = user.phone;
         if(document.getElementById('acc-balance-total')) document.getElementById('acc-balance-total').innerText = parseFloat(user.balance || 0).toFixed(2);
 
-        // --- CORREÇÃO AQUI: Atualiza o Saldo Disponível na tela de SAQUE ---
+        // Saque
         const drawBalanceEl = document.getElementById('draw-balance');
-        if(drawBalanceEl) drawBalanceEl.innerText = "MT " + parseFloat(user.balance).toFixed(2);
+        if(drawBalanceEl) drawBalanceEl.innerText = "MT " + parseFloat(user.balance || 0).toFixed(2);
 
-        // --- ATUALIZA CAMPANHAS (METAS) ---
-        renderCampaigns(user.campaign_count);
+        // Campanhas
+        if(typeof window.renderCampaigns === 'function') window.renderCampaigns(user.campaign_count);
 
     } catch(e) { console.error("Erro ao carregar dados:", e); }
 }
+
+// 4. CARREGAR PLANOS E ANÚNCIOS NA HOME
+window.loadHomeData = async function() {
+    try {
+        const res = await fetch('/api/plans');
+        const plans = await res.json();
+        window.allPlans = plans;
+        
+        const container = document.getElementById('beginner-plans');
+        if(container) {
+            let html = "";
+            const homePlans = [
+                ...window.allPlans.filter(p => p.category === 'Normal').slice(0, 1),
+                ...window.allPlans.filter(p => p.category === 'VIP').slice(0, 1)
+            ];
+            homePlans.forEach(p => html += createPlanCard(p));
+            container.innerHTML = html;
+        }
+
+        const adsRes = await fetch('/api/admin/list-ads');
+        const ads = await adsRes.json();
+        const adsContainer = document.getElementById('mini-history'); 
+        if(ads.length > 0 && adsContainer) {
+            adsContainer.innerHTML = `<div class="wealth-card" style="background:rgba(0,123,255,0.1); font-size:12px; border-left:4px solid var(--blue); padding:10px">📢 <b>AVISO:</b> ${ads[0].message}</div>`;
+        }
+    } catch(e) { console.error(e); }
+}
+
+// 5. CARREGAR TODOS OS PLANOS (PROJETOS E VIP)
+window.loadAllPlans = async function() {
+    try {
+        const res = await fetch('/api/plans');
+        const plans = await res.json();
+        window.allPlans = plans;
+
+        const normalList = document.getElementById('plans_normal_list');
+        const vipList = document.getElementById('plans_vip_list');
+
+        if(normalList) {
+            let html = "";
+            plans.filter(p => p.category === 'Normal').forEach(p => html += createPlanCard(p));
+            normalList.innerHTML = html || "<p style='text-align:center; color:grey'>Nenhum plano disponível.</p>";
+        }
+        if(vipList) {
+            let html = "";
+            plans.filter(p => p.category === 'VIP').forEach(p => html += createPlanCard(p));
+            vipList.innerHTML = html || "<p style='text-align:center; color:grey'>Nenhum plano VIP disponível.</p>";
+        }
+    } catch(e) { console.error(e); }
+}
+
+// 6. FUNÇÃO AUXILIAR PARA CRIAR O CARD DO PLANO
+function createPlanCard(p) {
+    const name = p.name || "Plano Wealth";
+    const price = parseFloat(p.price || 0);
+    const daily = parseFloat(p.daily_profit || 0);
+    const duration = parseInt(p.duration || 0);
+    const totalReturn = parseFloat(p.total_return || 0);
+    const image = p.image_url || 'https://via.placeholder.com/80';
+    const category = (p.category || 'Normal').toUpperCase();
+
+    const isVip = category === 'VIP';
+    
+    const profitText = isVip 
+        ? `<p>Lucro Total: <b>MT ${totalReturn.toFixed(2)}</b></p><p style="color:#ffa500; font-size:9px; font-weight:bold;">W</p>`
+        : `<p>Ganho Total: <b>MT ${(daily * duration).toFixed(2)}</b></p><p>Total + Capital: <b style="color:#00d084">MT ${totalReturn.toFixed(2)}</b></p>`;
+
+    return `
+    <div class="plan-mini-card ${isVip ? 'vip-card' : ''}">
+        <div class="plan-info-left">
+            <h5 style="margin:0; font-size:14px; color:white;">${name}</h5>
+            <p style="margin:2px 0; font-size:10px;">Compra: <b>MT ${price}</b> | Dias: <b>${duration}</b></p>
+            <p style="margin:2px 0; font-size:10px;">Diário: <b style="color:#00d084">MT ${daily}</b></p>
+            <div style="margin-top:4px; font-size:10px; color:#8899ac;">
+                ${profitText}
+            </div>
+            <button class="btn-buy-mini" onclick="handleBuyPlan(${p.id}, '${category}')">INVESTIR AGORA</button>
+        </div>
+        <img src="${image}" class="plan-img-right">
+    </div>`;
+}
+
+// --- CONTINUE COM O RESTANTE DO SEU CÓDIGO ABAIXO (Login, Registro, Campanhas, etc) ---
+
 
 // 4. LÓGICA DAS CAMPANHAS (METAS DE CONVITE)
 window.renderCampaigns = function(count) {
@@ -239,58 +276,6 @@ window.claimCampaign = async function(target, prize) {
     });
     }
 
-// 4. CARREGAR PLANOS NA HOME E ANÚNCIOS
-window.loadHomeData = async function() {
-    try {
-        const res = await fetch('/api/plans');
-        const plans = await res.json();
-        window.allPlans = plans;
-        
-        const container = document.getElementById('beginner-plans');
-        if(container) {
-            let html = "";
-            const normalPlans = plans.filter(p => p.category === 'Normal').slice(0, 1);
-            const vipPlans = plans.filter(p => p.category === 'VIP').slice(0, 1);
-            
-            [...normalPlans, ...vipPlans].forEach(p => {
-                html += createPlanCard(p);
-            });
-            container.innerHTML = html;
-        }
-
-        // Carregar Anúncios
-        const adsRes = await fetch('/api/admin/list-ads');
-        const ads = await adsRes.json();
-        const adsContainer = document.getElementById('mini-history'); 
-        if(ads.length > 0 && adsContainer) {
-            adsContainer.innerHTML = `<div class="wealth-card" style="background:rgba(0,123,255,0.1); font-size:12px; border-left:4px solid var(--blue); padding:10px">📢 <b>AVISO:</b> ${ads[0].message}</div>`;
-        }
-    } catch(e) { console.error(e); }
-}
-
-// 5. CARREGAR TODOS OS PLANOS (PROJETOS)
-window.loadAllPlans = async function() {
-    try {
-        const res = await fetch('/api/plans');
-        const plans = await res.json();
-        window.allPlans = plans;
-
-        const normalList = document.getElementById('plans_normal_list');
-        const vipList = document.getElementById('plans_vip_list');
-
-        if(normalList) {
-            let html = "";
-            plans.filter(p => p.category === 'Normal').forEach(p => html += createPlanCard(p));
-            normalList.innerHTML = html || "<p style='text-align:center; color:grey'>Nenhum plano disponível.</p>";
-        }
-        if(vipList) {
-            let html = "";
-            plans.filter(p => p.category === 'VIP').forEach(p => html += createPlanCard(p));
-            vipList.innerHTML = html || "<p style='text-align:center; color:grey'>Nenhum plano VIP disponível.</p>";
-        }
-    } catch(e) { console.error(e); }
-}
-
 // 6. LÓGICA DE LOGIN (Blindada)
 window.handleLogin = async function() {
     const phone = document.getElementById('l_phone').value;
@@ -327,82 +312,6 @@ window.handleLogin = async function() {
         showAlert("Erro", "Falha ao conectar com o servidor. Verifique sua internet.");
     }
 }
-
-// 7. DESENHAR O CARD DO PLANO
-function createPlanCard(p) {
-    const name = p.name || "Plano Wealth";
-    const price = parseFloat(p.price || 0);
-    const daily = parseFloat(p.daily_profit || 0);
-    const duration = parseInt(p.duration || 0);
-    const totalReturn = parseFloat(p.total_return || 0);
-    const image = p.image_url || 'https://via.placeholder.com/80';
-    const category = (p.category || 'Normal').toUpperCase();
-
-    const isVip = category === 'VIP';
-    
-    const profitText = isVip 
-        ? `<p>Lucro Total: <b>MT ${totalReturn.toFixed(2)}</b></p><p style="color:#ffa500; font-size:9px; font-weight:bold;">⚠️ Capital não devolvido</p>`
-        : `<p>Ganho Total: <b>MT ${(daily * duration).toFixed(2)}</b></p><p>Total + Capital: <b style="color:#00d084">MT ${totalReturn.toFixed(2)}</b></p>`;
-
-    return `
-    <div class="plan-mini-card ${isVip ? 'vip-card' : ''}">
-        <div class="plan-info-left">
-            <h5 style="margin:0; font-size:14px; color:white;">${name}</h5>
-            <p style="margin:2px 0; font-size:10px;">Compra: <b>MT ${price}</b> | Dias: <b>${duration}</b></p>
-            <p style="margin:2px 0; font-size:10px;">Diário: <b style="color:#00d084">MT ${daily}</b></p>
-            <div style="margin-top:4px; font-size:10px; color:#8899ac;">
-                ${profitText}
-            </div>
-            <button class="btn-buy-mini" onclick="handleBuyPlan(${p.id}, '${category}')">INVESTIR AGORA</button>
-        </div>
-        <img src="${image}" class="plan-img-right">
-    </div>`;
-}
-
-// 2. Carregamento dos Planos
-window.loadAllPlans = async function() {
-    console.log("Buscando planos...");
-    try {
-        const res = await fetch('/api/plans');
-        const plans = await res.json();
-        
-        console.log("Dados que chegaram do banco:", plans);
-
-        const normalList = document.getElementById('plans_normal_list');
-        const vipList = document.getElementById('plans_vip_list');
-        const homeList = document.getElementById('beginner-plans');
-
-        // Limpeza absoluta
-        if(normalList) normalList.innerHTML = "";
-        if(vipList) vipList.innerHTML = "";
-        if(homeList) homeList.innerHTML = "";
-
-        if (!plans || plans.length === 0) {
-            console.error("ERRO: O Banco de dados retornou zero planos!");
-            if(normalList) normalList.innerHTML = "<p style='color:orange; text-align:center'>O Banco de dados está vazio. Vá no Admin e crie um plano.</p>";
-            return;
-        }
-
-        plans.forEach((p, index) => {
-            const cardHtml = createPlanCard(p);
-            const category = (p.category || 'Normal').trim().toUpperCase();
-
-            if (category === 'VIP') {
-                if(vipList) vipList.innerHTML += cardHtml;
-            } else {
-                if(normalList) normalList.innerHTML += cardHtml;
-            }
-
-            // Na Home, mostra os 2 primeiros
-            if (homeList && index < 2) {
-                homeList.innerHTML += cardHtml;
-            }
-        });
-
-    } catch (err) {
-        console.error("ERRO NO FETCH:", err);
-    }
-                }
 
 // Carregar Histórico com correção nos botões
 window.loadFullHistory = async function(type = 'all', btn) {
